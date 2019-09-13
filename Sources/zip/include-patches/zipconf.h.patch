@@ -1,0 +1,11 @@
+--- ../libzip/xcode/zipconf.h	2019-09-12 11:12:22.000000000 +0300
++++ ../include/zipconf.h	2019-09-12 12:40:45.000000000 +0300
+@@ -13,7 +13,7 @@
+ #define LIBZIP_VERSION_MINOR 11
+ #define LIBZIP_VERSION_MICRO 0
+ 
+-#include <inttypes.h>
++#include <stdint.h>
+ 
+ typedef int8_t zip_int8_t;
+ #define ZIP_INT8_MIN INT8_MIN
