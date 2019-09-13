@@ -13,6 +13,7 @@ let package = Package(
     ],
     products: [
         .library(name: "zip", targets: ["zip"]),
+        .library(name: "SwiftZip", targets: ["SwiftZip"]),
     ],
     targets: [
         .target(
@@ -53,6 +54,11 @@ let package = Package(
             linkerSettings: [
                 .linkedLibrary("z"),
             ]
+        ),
+        .target(
+            name: "SwiftZip",
+            dependencies: ["zip"],
+            path: "Sources/SwiftZip"
         ),
     ]
 )
