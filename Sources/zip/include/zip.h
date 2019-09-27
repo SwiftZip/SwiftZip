@@ -162,6 +162,7 @@ extern "C" {
 /* 15-17 - Reserved by PKWARE */
 #define ZIP_CM_TERSE 18   /* compressed using IBM TERSE (new) */
 #define ZIP_CM_LZ77 19    /* IBM LZ77 z Architecture (PFS) */
+#define ZIP_CM_LZMA2 33
 #define ZIP_CM_XZ 95      /* XZ compressed data */
 #define ZIP_CM_JPEG 96    /* Compressed Jpeg data */
 #define ZIP_CM_WAVPACK 97 /* WavPack compressed data */
@@ -229,7 +230,8 @@ enum zip_source_cmd {
     ZIP_SOURCE_SUPPORTS,              /* check whether source supports command */
     ZIP_SOURCE_REMOVE,                /* remove file */
     ZIP_SOURCE_GET_COMPRESSION_FLAGS, /* get compression flags, internal only */
-    ZIP_SOURCE_BEGIN_WRITE_CLONING    /* like ZIP_SOURCE_BEGIN_WRITE, but keep part of original file */
+    ZIP_SOURCE_BEGIN_WRITE_CLONING,   /* like ZIP_SOURCE_BEGIN_WRITE, but keep part of original file */
+    ZIP_SOURCE_ACCEPT_EMPTY           /* whether empty files are valid archives */
 };
 typedef enum zip_source_cmd zip_source_cmd_t;
 

@@ -22,6 +22,7 @@ let package = Package(
             exclude: [
                 // Exclude BZ2 compression
                 "libzip/lib/zip_algorithm_bzip2.c",
+                "libzip/lib/zip_algorithm_xz.c",
 
                 // Exclude non-CommonCrypto encryption
                 "libzip/lib/zip_crypto_gnutls.c",
