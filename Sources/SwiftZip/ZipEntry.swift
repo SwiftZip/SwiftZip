@@ -39,8 +39,7 @@ public final class ZipEntry: ZipErrorContext {
         try zipCheckResult(zip_file_set_external_attributes(archive.handle, index, 0, operatingSystem, attributes))
     }
 
-    // MARK: - Stats
-
+    // MARK: - Stat
 
     public func stat(version: ZipArchive.Version = .current) throws -> zip_stat {
         var result = zip_stat()
@@ -144,6 +143,9 @@ public final class ZipEntry: ZipErrorContext {
 
     public func replaceFile(source: ZipSource) throws {
         try zipCheckResult(zip_file_replace(archive.handle, index, source.handle, ZIP_FL_ENC_UTF_8))
+
+        // compensate unbalanced `free` inside `zip_file_replace`
+        source.keep()
     }
 
     public func rename(name: String) throws {

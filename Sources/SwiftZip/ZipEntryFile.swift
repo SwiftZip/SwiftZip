@@ -9,7 +9,8 @@ public final class ZipEntryFile: ZipErrorContext {
 
     deinit {
         if let handle = handle {
-            zip_close(handle)
+            let result = zip_fclose(handle)
+            assert(result == ZIP_ER_OK)
         }
     }
 
@@ -22,7 +23,7 @@ public final class ZipEntryFile: ZipErrorContext {
     // MARK: - Open/Close
 
     public func close() {
-        zip_close(handle)
+        zip_fclose(handle)
         handle = nil
     }
 

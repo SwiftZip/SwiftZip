@@ -61,5 +61,10 @@ let package = Package(
             dependencies: ["zip"],
             path: "Sources/SwiftZip"
         ),
+        .testTarget(
+            name: "SwiftZipTests",
+            dependencies: ["SwiftZip"],
+            path: "Tests/SwiftZipTests"
+        ),
     ]
 )

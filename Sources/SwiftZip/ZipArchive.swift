@@ -4,10 +4,6 @@ import zip
 public final class ZipArchive: ZipErrorContext {
     internal var handle: OpaquePointer!
 
-    internal init(_ handle: OpaquePointer) {
-        self.handle = handle
-    }
-
     deinit {
         if let handle = handle {
             zip_discard(handle)
@@ -57,17 +53,17 @@ public final class ZipArchive: ZipErrorContext {
         public static let readOnly = OpenFlags(rawValue: ZIP_RDONLY)
     }
 
-    public convenience init(path: String, flags: OpenFlags = [.readOnly]) throws {
+    public init(path: String, flags: OpenFlags = [.readOnly]) throws {
         var status: Int32 = ZIP_ER_OK
         let handle = path.withCString { path in
             return zip_open(path, flags.rawValue, &status)
         }
 
         try zipCheckError(status)
-        try self.init(handle.unwrapped())
+        self.handle = try handle.unwrapped()
     }
 
-    public convenience init(url: URL, flags: OpenFlags = [.readOnly]) throws {
+    public init(url: URL, flags: OpenFlags = [.readOnly]) throws {
         var status: Int32 = ZIP_ER_OK
         let handle: OpaquePointer? = try url.withUnsafeFileSystemRepresentation { path in
             if let path = path {
@@ -78,12 +74,15 @@ public final class ZipArchive: ZipErrorContext {
         }
 
         try zipCheckError(status)
-        try self.init(handle.unwrapped())
+        self.handle = try handle.unwrapped()
     }
 
-    public convenience init(source: ZipSource, flags: OpenFlags = [.readOnly]) throws {
+    public init(source: ZipSource, flags: OpenFlags = [.readOnly]) throws {
         var error = zip_error()
-        try self.init(zip_open_from_source(source.handle, flags.rawValue, &error).unwrapped(or: error))
+        self.handle = try zip_open_from_source(source.handle, flags.rawValue, &error).unwrapped(or: error)
+
+        // compensate unbalanced `free` inside `zip_open_from_source`
+        source.keep()
     }
 
     public struct FDOpenFlags: OptionSet {
@@ -95,15 +94,15 @@ public final class ZipArchive: ZipErrorContext {
         public static let checkConsistency = FDOpenFlags(rawValue: ZIP_CHECKCONS)
     }
 
-    public convenience init(fd: Int32, flags: FDOpenFlags = []) throws {
+    public init(fd: Int32, flags: FDOpenFlags = []) throws {
         var status: Int32 = ZIP_ER_OK
         let handle = zip_fdopen(fd, flags.rawValue, &status)
 
         try zipCheckError(status)
-        try self.init(handle.unwrapped())
+        self.handle = try handle.unwrapped()
     }
 
-    public func close(discard: Bool = false) {
+    public func close(discard: Bool = false) throws {
         if discard {
             zip_discard(handle)
         } else {
@@ -214,9 +213,13 @@ public final class ZipArchive: ZipErrorContext {
 
     @discardableResult
     public func addFile(name: String, source: ZipSource, flags: AddFileFlags = []) throws -> Int {
-        return try name.withCString { name in
+        let result: Int = try name.withCString { name in
             return try zipCast(zipCheckResult(zip_file_add(handle, name, source.handle, flags.rawValue | ZIP_FL_ENC_UTF_8)))
         }
+
+        // compensate unbalanced `free` inside `zip_file_add`
+        source.keep()
+        return result
     }
 
     public func deleteEntry(at index: Int) throws {
