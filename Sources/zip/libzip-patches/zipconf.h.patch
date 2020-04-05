@@ -1,0 +1,11 @@
+--- Sources/zip/libzip/developer-xcode/zipconf.h	2020-04-05 18:57:30.000000000 +0300
++++ Sources/zip/include/zipconf.h	2020-04-05 19:49:55.000000000 +0300
+@@ -18,7 +18,7 @@
+ 
+ 
+ #define __STDC_FORMAT_MACROS 1
+-#include <inttypes.h>
++#include <stdint.h>
+ 
+ typedef int8_t zip_int8_t;
+ typedef uint8_t zip_uint8_t;

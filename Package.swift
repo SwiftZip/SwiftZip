@@ -20,8 +20,7 @@ let package = Package(
             name: "zip",
             path: "Sources/zip",
             exclude: [
-                // Exclude BZ2 compression
-                "libzip/lib/zip_algorithm_bzip2.c",
+                // Exclude LZMA compression
                 "libzip/lib/zip_algorithm_xz.c",
 
                 // Exclude non-CommonCrypto encryption
@@ -39,10 +38,6 @@ let package = Package(
                 "libzip/lib/zip_source_win32handle.c",
                 "libzip/lib/zip_source_win32utf8.c",
                 "libzip/lib/zip_source_win32w.c",
-                "libzip/lib/zip_source_winzip_aes_decode.c",
-                "libzip/lib/zip_source_winzip_aes_encode.c",
-                "libzip/lib/zip_winzip_aes.c",
-
             ],
             sources: [
                 "libzip/lib",
@@ -50,10 +45,11 @@ let package = Package(
             publicHeadersPath: "include",
             cSettings: [
                 .define("HAVE_CONFIG_H"),
-                .headerSearchPath("libzip/xcode"),
+                .headerSearchPath("include-private"),
             ],
             linkerSettings: [
                 .linkedLibrary("z"),
+                .linkedLibrary("bz2"),
             ]
         ),
         .target(

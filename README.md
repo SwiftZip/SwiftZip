@@ -12,12 +12,15 @@
 ## Project Structure
 - all libzip-related files are located under the `Sources/zip` directory and exposed as `zip` package
 - `Sources/zip/libzip` is a submodule referencing relevant libzip source code
+- `Sources/zip/libzip-patches` folder contains patches to be applied to the libzip header files, so they are compatible with the Swift package manager
 - `Sources/zip/include` contains public headers for the libzip as required by the Swift package manager
-- `Sources/zip/include-patches` folder contains patches to be applied to the libzip header files, so they are compatible with the Swift package manager
+- `Sources/zip/include-private` contains patched private headers to build libzip
 - Swift wrappers are located under the `Sources/SwiftZip` directory and exposed as `SwiftZip` package
 
 ## Updating libzip
-The SwiftZip wrapper is designed to make libzip updates as easy as possible. To update the underlying library, use the `update-libzip.sh` script to pull the latest version in the `Sources/zip/libzip` submodule and update public headers.
+The SwiftZip wrapper is designed to make libzip updates as easy as possible.
+To update the underlying library, use the `./Tools/libzip-update.sh` script to pull the latest version in
+the `Sources/zip/libzip` submodule and update public headers.
 
 ## TODO/Roadmap:
 - [ ] provide an initial set of wrappers for archive operations
