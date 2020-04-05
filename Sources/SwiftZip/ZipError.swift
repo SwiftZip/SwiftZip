@@ -31,6 +31,7 @@ public enum ZipError: Error {
     case stringDecodingFailed
     case createFileFailed
     case unsupportedURL
+    case invalidArgument
     case internalInconsistency
 }
 
@@ -47,6 +48,8 @@ extension ZipError: LocalizedError {
             return "Failed to create file."
         case .unsupportedURL:
             return "SwiftZip supports file URLs only."
+        case .invalidArgument:
+            return "Invalid argument passed."
         case .internalInconsistency:
             return "SwiftZip internal inconsistency."
         }
@@ -66,11 +69,21 @@ internal func zipCheckError(_ errorCode: Int32) throws {
 
 // MARK: - Int Cast
 
-internal func zipCast<T, U>(_ value: T) throws -> U where T: BinaryInteger, U: BinaryInteger {
+internal func zipCast<T, U>(_ value: T, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {
     if let result = U(exactly: value) {
         return result
     } else {
+        assertionFailure("Numeric cast failed in `\(function)` at `\(file):\(line)`")
         throw ZipError.integerCastFailed
+    }
+}
+
+internal func zipCast<T, U>(_ value: T, as _: U.Type, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U {
+    if let result = value as? U {
+        return result
+    } else {
+        assertionFailure("Dynamic cast failed in `\(function)` at `\(file):\(line)`")
+        throw ZipError.internalInconsistency
     }
 }
 

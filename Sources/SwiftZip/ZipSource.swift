@@ -23,7 +23,7 @@
 import Foundation
 import zip
 
-open class ZipSource: ZipErrorContext {
+public final class ZipSource: ZipErrorContext {
     internal let handle: OpaquePointer
 
     // MARK: - Error Context
@@ -65,6 +65,19 @@ open class ZipSource: ZipErrorContext {
     public init(callback: @escaping zip_source_callback, userdata: UnsafeMutableRawPointer? = nil) throws {
         var error = zip_error_t()
         self.handle = try zip_source_function_create(callback, userdata, &error).unwrapped(or: error)
+    }
+
+    public init(callback: ZipSourceCallback) throws {
+        var error = zip_error_t()
+        let proxy = ZipSourceCallbackProxy(callback: callback)
+        let userdata = Unmanaged.passRetained(proxy)
+
+        do {
+            self.handle = try zip_source_function_create(zipSourceCallbackProxy, userdata.toOpaque(), &error).unwrapped(or: error)
+        } catch {
+            userdata.release()
+            throw error
+        }
     }
 
     internal func keep() {

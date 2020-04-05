@@ -22,11 +22,67 @@
 
 import Foundation
 
-public final class ZipSourceData: ZipSource {
-    private let data: NSData
+extension ZipSource {
+    public convenience init(data: Data) throws {
+        try self.init(callback: ZipSourceData(data: data))
+    }
+}
 
-    public init(data: Data) throws {
-        self.data = data as NSData
-        try super.init(buffer: self.data.bytes, length: self.data.length, freeWhenDone: false)
+private final class ZipSourceData: ZipSourceSeekable {
+    private let data: Data
+    private var position: Int
+
+    init(data: Data) {
+        self.data = data
+        self.position = 0
+    }
+
+    func open() {
+        position = 0
+    }
+
+    func read(to buffer: UnsafeMutableRawPointer, count: Int) throws -> Int {
+        guard count >= 0 else {
+            throw ZipError.invalidArgument
+        }
+
+        let available = min(count, data.count - position)
+        data.subdata(in: position ..< position + available).withUnsafeBytes { data in
+            _ = memmove(buffer, data.baseAddress, available)
+        }
+
+        position += available
+        return available
+    }
+
+    func close() {
+    }
+
+    func stat() -> ZipSourceStat {
+        return ZipSourceStat(size: data.count)
+    }
+
+    func seek(offset: Int, whence: ZipWhence) throws {
+        let newPosition: Int
+        switch whence {
+        case .set:
+            newPosition = offset
+        case .cur:
+            newPosition = position + offset
+        case .end:
+            newPosition = data.count + offset
+        default:
+            throw ZipError.invalidArgument
+        }
+
+        guard newPosition >= 0 && newPosition <= data.count else {
+            throw ZipError.invalidArgument
+        }
+
+        position = newPosition
+    }
+
+    func tell() -> Int {
+        return position
     }
 }
