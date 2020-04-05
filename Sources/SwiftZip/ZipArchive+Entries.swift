@@ -53,7 +53,7 @@ extension ZipArchiveEntries: RandomAccessCollection {
         do {
             return try archive.getEntry(index: position)
         } catch {
-            preconditionFailure()
+            preconditionFailure("Failed to get entry from an archive: \(error)")
         }
     }
 }

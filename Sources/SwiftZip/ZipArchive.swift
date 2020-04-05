@@ -40,7 +40,7 @@ public final class ZipArchive: ZipErrorContext {
 
     // MARK: - Common Flags
 
-    public struct Version: RawRepresentable {
+    public struct Version: RawRepresentable, Equatable {
         public let rawValue: UInt32
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
@@ -50,7 +50,7 @@ public final class ZipArchive: ZipErrorContext {
         public static let current = Version(rawValue: 0)
     }
 
-    public struct Encoding: RawRepresentable {
+    public struct Encoding: RawRepresentable, Equatable {
         public let rawValue: UInt32
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
@@ -189,10 +189,10 @@ public final class ZipArchive: ZipErrorContext {
 
     // MARK: - Entry Stats
 
-    public func stat(filename: String, version: Version = .current) throws -> zip_stat {
-        var result = zip_stat()
+    public func stat(filename: String, version: Version = .current) throws -> ZipEntry.Stat {
+        var result = ZipEntry.Stat()
         let resultCode = filename.withCString { filename in
-            return zip_stat(handle, filename, version.rawValue, &result)
+            return zip_stat(handle, filename, version.rawValue, &result.stat)
         }
 
         try zipCheckResult(resultCode)

@@ -20,19 +20,51 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import Darwin
 
-extension ZipEntry {
-    public func data(flags: OpenFlags = [], version: ZipArchive.Version = .current, password: String? = nil) throws -> Data {
-        let size = try stat().size
-        var data = Data(count: Int(size))
-        try data.withUnsafeMutableBytes { buffer in
-            let file = try open(flags: flags, version: version, password: password)
-            let read = try file.read(buf: buffer.baseAddress!, count: buffer.count)
-            assert(read == buffer.count, "Failed to read \(buffer.count) bytes. Got \(read) instead.")
-            file.close()
+extension ZipEntry.ExternalAttributes {
+
+    // MARK: - Platform-Specific Attribute Accessors
+
+    public var posixAttributes: mode_t {
+        return mode_t(attributes >> 16)
+    }
+
+    public var posixPermissions: mode_t {
+        return posixAttributes & (S_IRWXU | S_IRWXG | S_IRWXO)
+    }
+
+    public var posixFileType: mode_t {
+        return posixAttributes & S_IFMT
+    }
+
+    // MARK: - Universal Helpers
+
+    public var isDirectory: Bool {
+        switch operatingSystem {
+        case .dos,
+             .windowsNTFS:
+            return (attributes & 0x10) != 0
+
+        case .unix,
+             .macintosh,
+             .macOS:
+            return posixFileType == S_IFDIR
+
+        default:
+            return false
         }
+    }
 
-        return data
+    public var isSymbolicLink: Bool {
+        switch operatingSystem {
+        case .unix,
+             .macintosh,
+             .macOS:
+            return posixFileType == S_IFLNK
+
+        default:
+            return false
+        }
     }
 }

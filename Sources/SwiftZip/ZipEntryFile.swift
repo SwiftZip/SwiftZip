@@ -32,7 +32,7 @@ public final class ZipEntryFile: ZipErrorContext {
     deinit {
         if let handle = handle {
             let result = zip_fclose(handle)
-            assert(result == ZIP_ER_OK)
+            assert(result == ZIP_ER_OK, "Failed to close file, error code: \(result)")
         }
     }
 
@@ -45,7 +45,8 @@ public final class ZipEntryFile: ZipErrorContext {
     // MARK: - Open/Close
 
     public func close() {
-        zip_fclose(handle)
+        let result = zip_fclose(handle)
+        assert(result == ZIP_ER_OK, "Failed to close file, error code: \(result)")
         handle = nil
     }
 
@@ -56,15 +57,15 @@ public final class ZipEntryFile: ZipErrorContext {
         return try zipCast(zipCheckResult(zip_fread(handle, buf, zipCast(count))))
     }
 
-    public struct Whence: RawRepresentable {
+    public struct Whence: RawRepresentable, Equatable {
         public let rawValue: Int32
         public init(rawValue: Int32) {
             self.rawValue = rawValue
         }
 
-        public static let SET = Whence(rawValue: SEEK_SET)
-        public static let CUR = Whence(rawValue: SEEK_CUR)
-        public static let END = Whence(rawValue: SEEK_END)
+        public static let set = Whence(rawValue: SEEK_SET)
+        public static let cur = Whence(rawValue: SEEK_CUR)
+        public static let end = Whence(rawValue: SEEK_END)
     }
 
     public func seek(offset: Int, whence: Whence) throws {

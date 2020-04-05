@@ -45,8 +45,36 @@ public struct ZipEntry: ZipErrorContext {
 
     // MARK: - Attributes
 
+    public struct OperatingSystem: RawRepresentable, Equatable {
+        public let rawValue: UInt8
+        public init(rawValue: UInt8) {
+            self.rawValue = rawValue
+        }
+
+        public static let dos = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_DOS))
+        public static let amiga = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_AMIGA))
+        public static let openVMS = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_OPENVMS))
+        public static let unix = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_UNIX))
+        public static let vmCMS = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_VM_CMS))
+        public static let atariST = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_ATARI_ST))
+        public static let os2 = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_OS_2))
+        public static let macintosh = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_MACINTOSH))
+        public static let zSystem = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_Z_SYSTEM))
+        public static let cpm = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_CPM))
+        public static let windowsNTFS = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_WINDOWS_NTFS))
+        public static let mvs = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_MVS))
+        public static let vse = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_VSE))
+        public static let acornRISC = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_ACORN_RISC))
+        public static let vfat = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_VFAT))
+        public static let alternateMVS = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_ALTERNATE_MVS))
+        public static let beOS = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_BEOS))
+        public static let tandem = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_TANDEM))
+        public static let os400 = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_OS_400))
+        public static let macOS = OperatingSystem(rawValue: UInt8(ZIP_OPSYS_OS_X))
+    }
+
     public struct ExternalAttributes {
-        public let operatingSystem: UInt8
+        public let operatingSystem: OperatingSystem
         public let attributes: UInt32
     }
 
@@ -54,18 +82,26 @@ public struct ZipEntry: ZipErrorContext {
         var operatingSystem: UInt8 = 0
         var attributes: UInt32 = 0
         try zipCheckResult(zip_file_get_external_attributes(archive.handle, index, version.rawValue, &operatingSystem, &attributes))
-        return ExternalAttributes(operatingSystem: operatingSystem, attributes: attributes)
+        return ExternalAttributes(operatingSystem: OperatingSystem(rawValue: operatingSystem), attributes: attributes)
     }
 
-    public func setExternalAttributes(operatingSystem: UInt8, attributes: UInt32) throws {
-        try zipCheckResult(zip_file_set_external_attributes(archive.handle, index, 0, operatingSystem, attributes))
+    public func setExternalAttributes(operatingSystem: OperatingSystem, attributes: UInt32) throws {
+        try zipCheckResult(zip_file_set_external_attributes(archive.handle, index, 0, operatingSystem.rawValue, attributes))
+    }
+
+    public func setExternalAttributes(operatingSystem: OperatingSystem = .unix, posixAttributes: mode_t) throws {
+        try zipCheckResult(zip_file_set_external_attributes(archive.handle, index, 0, operatingSystem.rawValue, UInt32(posixAttributes) << 16))
     }
 
     // MARK: - Stat
 
-    public func stat(version: ZipArchive.Version = .current) throws -> zip_stat {
-        var result = zip_stat()
-        try zipCheckResult(zip_stat_index(archive.handle, index, version.rawValue, &result))
+    public struct Stat {
+        internal var stat: zip_stat = zip_stat()
+    }
+
+    public func stat(version: ZipArchive.Version = .current) throws -> Stat {
+        var result = Stat()
+        try zipCheckResult(zip_stat_index(archive.handle, index, version.rawValue, &result.stat))
         return result
     }
 
@@ -182,7 +218,7 @@ public struct ZipEntry: ZipErrorContext {
 
     // MARK: - Compression
 
-    public struct CompressionMethod: RawRepresentable {
+    public struct CompressionMethod: RawRepresentable, Equatable {
         public let rawValue: Int32
         public init(rawValue: Int32) {
             self.rawValue = rawValue
@@ -190,10 +226,27 @@ public struct ZipEntry: ZipErrorContext {
 
         public static let `default` = CompressionMethod(rawValue: ZIP_CM_DEFAULT)
         public static let store = CompressionMethod(rawValue: ZIP_CM_STORE)
+        public static let shrink = CompressionMethod(rawValue: ZIP_CM_SHRINK)
+        public static let reduce1 = CompressionMethod(rawValue: ZIP_CM_REDUCE_1)
+        public static let reduce2 = CompressionMethod(rawValue: ZIP_CM_REDUCE_2)
+        public static let reduce3 = CompressionMethod(rawValue: ZIP_CM_REDUCE_3)
+        public static let reduce4 = CompressionMethod(rawValue: ZIP_CM_REDUCE_4)
+        public static let implode = CompressionMethod(rawValue: ZIP_CM_IMPLODE)
         public static let deflate = CompressionMethod(rawValue: ZIP_CM_DEFLATE)
+        public static let deflate64 = CompressionMethod(rawValue: ZIP_CM_DEFLATE64)
+        public static let pkwareImplode = CompressionMethod(rawValue: ZIP_CM_PKWARE_IMPLODE)
+        public static let bzip2 = CompressionMethod(rawValue: ZIP_CM_BZIP2)
+        public static let lzma = CompressionMethod(rawValue: ZIP_CM_LZMA)
+        public static let terse = CompressionMethod(rawValue: ZIP_CM_TERSE)
+        public static let lz77 = CompressionMethod(rawValue: ZIP_CM_LZ77)
+        public static let lzma2 = CompressionMethod(rawValue: ZIP_CM_LZMA2)
+        public static let xz = CompressionMethod(rawValue: ZIP_CM_XZ)
+        public static let jpeg = CompressionMethod(rawValue: ZIP_CM_JPEG)
+        public static let wavpack = CompressionMethod(rawValue: ZIP_CM_WAVPACK)
+        public static let ppmd = CompressionMethod(rawValue: ZIP_CM_PPMD)
     }
 
-    public struct CompressionFlags: RawRepresentable {
+    public struct CompressionFlags: RawRepresentable, Equatable {
         public let rawValue: UInt32
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
@@ -210,13 +263,14 @@ public struct ZipEntry: ZipErrorContext {
 
     // MARK: - Encryption
 
-    public struct EncryptionMethod: RawRepresentable {
+    public struct EncryptionMethod: RawRepresentable, Equatable {
         public let rawValue: UInt16
         public init(rawValue: UInt16) {
             self.rawValue = rawValue
         }
 
         public static let none = EncryptionMethod(rawValue: UInt16(ZIP_EM_NONE))
+        public static let pkware = EncryptionMethod(rawValue: UInt16(ZIP_EM_TRAD_PKWARE))
         public static let aes128 = EncryptionMethod(rawValue: UInt16(ZIP_EM_AES_128))
         public static let aes192 = EncryptionMethod(rawValue: UInt16(ZIP_EM_AES_192))
         public static let aes256 = EncryptionMethod(rawValue: UInt16(ZIP_EM_AES_256))
