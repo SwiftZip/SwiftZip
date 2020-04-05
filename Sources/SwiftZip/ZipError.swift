@@ -29,6 +29,7 @@ public enum ZipError: Error {
     case zipError(zip_error_t)
     case integerCastFailed
     case stringDecodingFailed
+    case createFileFailed
     case unsupportedURL
     case internalInconsistency
 }
@@ -42,6 +43,8 @@ extension ZipError: LocalizedError {
             return "Failed to cast integer value."
         case .stringDecodingFailed:
             return "Failed to decode string."
+        case .createFileFailed:
+            return "Failed to create file."
         case .unsupportedURL:
             return "SwiftZip supports file URLs only."
         case .internalInconsistency:
@@ -84,6 +87,15 @@ extension Optional {
         }
     }
 
+    internal func unwrapped(or error: Error) throws -> Wrapped {
+        switch self {
+        case let .some(value):
+            return value
+        case .none:
+            throw error
+        }
+    }
+
     internal func unwrapped(or error: zip_error) throws -> Wrapped {
         switch self {
         case let .some(value):
@@ -93,12 +105,12 @@ extension Optional {
         }
     }
 
-    internal func unwrapped(or error: Error) throws -> Wrapped {
+    internal func forceUnwrap(function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> Wrapped {
         switch self {
         case let .some(value):
             return value
         case .none:
-            throw error
+            preconditionFailure("Unexpected `nil` when unwrapping value in `\(function)` at `\(file):\(line)`")
         }
     }
 }

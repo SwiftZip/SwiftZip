@@ -35,4 +35,76 @@ extension ZipEntry {
 
         return data
     }
+
+    @discardableResult
+    public func save(to url: URL, flags: OpenFlags = [], version: ZipArchive.Version = .current, password: String? = nil, overwrite: Bool = false, progressHandler: ((Double) -> Bool)? = nil) throws -> Bool {
+        guard url.isFileURL else {
+            throw ZipError.unsupportedURL
+        }
+
+        let path = url.absoluteURL.path
+        let fileManager = FileManager.default
+
+        guard overwrite || !fileManager.fileExists(atPath: path) else {
+            return false
+        }
+
+        let fileStat = try stat()
+        let externalAttributes = try getExternalAttributes()
+        var fileAttributes: [FileAttributeKey: Any] = [:]
+
+        if externalAttributes.isSymbolicLink || externalAttributes.isDirectory {
+            return false
+        }
+
+        if fileStat.valid.contains(.modificationDate) {
+            fileAttributes[.modificationDate] = fileStat.modificationDate
+        }
+
+        switch externalAttributes.operatingSystem {
+        case .unix,
+             .macintosh,
+             .macOS:
+            fileAttributes[.posixPermissions] = externalAttributes.posixPermissions
+
+        default:
+            break
+        }
+
+        let file = try open(flags: flags, version: version, password: password)
+        defer { file.close() }
+
+        guard fileManager.createFile(atPath: path, contents: nil, attributes: fileAttributes) else {
+            throw ZipError.createFileFailed
+        }
+
+        let fileHandle = try FileHandle(forWritingTo: url)
+        defer { fileHandle.closeFile() }
+
+        var buffer = Data(count: 64 * 1024)
+        var totalReadCount: Int = 0
+        while true {
+            let readCount = try buffer.withUnsafeMutableBytes { buffer in
+                return try file.read(buf: buffer)
+            }
+
+            guard readCount > 0 else {
+                break
+            }
+
+            autoreleasepool {
+                fileHandle.write(buffer.subdata(in: 0 ..< readCount))
+            }
+
+            totalReadCount += readCount
+
+            if fileStat.valid.contains(.size), fileStat.size > 0, let progressHandler = progressHandler {
+                guard progressHandler(Double(totalReadCount) / Double(fileStat.size)) else {
+                    return false
+                }
+            }
+        }
+
+        return true
+    }
 }

@@ -57,6 +57,11 @@ public final class ZipEntryFile: ZipErrorContext {
         return try zipCast(zipCheckResult(zip_fread(handle, buf, zipCast(count))))
     }
 
+    @discardableResult
+    public func read(buf: UnsafeMutableRawBufferPointer) throws -> Int {
+        return try read(buf: buf.baseAddress.forceUnwrap(), count: buf.count)
+    }
+
     public struct Whence: RawRepresentable, Equatable {
         public let rawValue: Int32
         public init(rawValue: Int32) {
