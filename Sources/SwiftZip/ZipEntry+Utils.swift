@@ -24,7 +24,7 @@ import Foundation
 
 extension ZipEntry {
     public func data(flags: OpenFlags = [], version: ZipArchive.Version = .current, password: String? = nil) throws -> Data {
-        let size = try stat().size
+        let size = try stat().size.unwrapped()
         var data = Data(count: Int(size))
         try data.withUnsafeMutableBytes { buffer in
             let file = try open(flags: flags, version: version, password: password)
@@ -57,8 +57,8 @@ extension ZipEntry {
             return false
         }
 
-        if fileStat.valid.contains(.modificationDate) {
-            fileAttributes[.modificationDate] = fileStat.modificationDate
+        if let modificationDate = fileStat.modificationDate {
+            fileAttributes[.modificationDate] = modificationDate
         }
 
         switch externalAttributes.operatingSystem {
@@ -98,8 +98,8 @@ extension ZipEntry {
 
             totalReadCount += readCount
 
-            if fileStat.valid.contains(.size), fileStat.size > 0, let progressHandler = progressHandler {
-                guard progressHandler(Double(totalReadCount) / Double(fileStat.size)) else {
+            if let progressHandler = progressHandler, let size = fileStat.size, size > 0 {
+                guard progressHandler(Double(totalReadCount) / Double(size)) else {
                     return false
                 }
             }

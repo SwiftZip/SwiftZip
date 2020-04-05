@@ -46,13 +46,17 @@ extension ZipEntry.Stat {
 
     // MARK: - Property Accessors
 
-    public var valid: ValidFields {
+    public var validFields: ValidFields {
         return ValidFields(rawValue: stat.valid)
     }
 
     public var rawName: Data? {
-        return stat.name.flatMap {
-            return Data(bytes: $0, count: strlen($0))
+        if validFields.contains(.name) {
+            return stat.name.flatMap {
+                return Data(bytes: $0, count: strlen($0))
+            }
+        } else {
+            return nil
         }
     }
 
@@ -62,43 +66,75 @@ extension ZipEntry.Stat {
         }
     }
 
-    public var index: UInt64 {
-        return stat.index
-    }
-
-    public var size: Int {
-        do {
-            return try zipCast(stat.size)
-        } catch {
-            preconditionFailure("Failed to cast entry size: \(error)")
+    public var index: UInt64? {
+        if validFields.contains(.index) {
+            return stat.index
+        } else {
+            return nil
         }
     }
 
-    public var compressedSize: Int {
-        do {
-            return try zipCast(stat.comp_size)
-        } catch {
-            preconditionFailure("Failed to cast entry compressed size: \(error)")
+    public var size: Int? {
+        if validFields.contains(.size) {
+            do {
+                return try zipCast(stat.size)
+            } catch {
+                preconditionFailure("Failed to cast entry size: \(error)")
+            }
+        } else {
+            return nil
         }
     }
 
-    public var modificationDate: Date {
-        return Date(timeIntervalSince1970: TimeInterval(stat.mtime))
+    public var compressedSize: Int? {
+        if validFields.contains(.compressedSize) {
+            do {
+                return try zipCast(stat.comp_size)
+            } catch {
+                preconditionFailure("Failed to cast entry compressed size: \(error)")
+            }
+        } else {
+            return nil
+        }
     }
 
-    public var crc32: UInt32 {
-        return stat.crc
+    public var modificationDate: Date? {
+        if validFields.contains(.modificationDate) {
+            return Date(timeIntervalSince1970: TimeInterval(stat.mtime))
+        } else {
+            return nil
+        }
     }
 
-    public var compressionMethod: ZipEntry.CompressionMethod {
-        return .init(rawValue: Int32(stat.comp_method))
+    public var crc32: UInt32? {
+        if validFields.contains(.crc32) {
+            return stat.crc
+        } else {
+            return nil
+        }
     }
 
-    public var encryptionMethod: ZipEntry.EncryptionMethod {
-        return .init(rawValue: stat.encryption_method)
+    public var compressionMethod: ZipEntry.CompressionMethod? {
+        if validFields.contains(.compressionMethod) {
+            return .init(rawValue: Int32(stat.comp_method))
+        } else {
+            return nil
+        }
     }
 
-    public var flags: UInt32 {
-        return stat.flags
+    public var encryptionMethod: ZipEntry.EncryptionMethod? {
+        if validFields.contains(.encryptionMethod) {
+            return .init(rawValue: stat.encryption_method)
+        } else {
+            return nil
+        }
+    }
+
+    public var flags: UInt32? {
+        if validFields.contains(.flags) {
+            return stat.flags
+        } else {
+            return nil
+        }
     }
 }
