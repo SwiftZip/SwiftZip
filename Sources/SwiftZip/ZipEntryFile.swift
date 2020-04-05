@@ -29,6 +29,7 @@ public final class ZipEntryFile: ZipErrorContext {
 
     // MARK: - Entry I/O
 
+    @discardableResult
     public func read(buf: UnsafeMutableRawPointer, count: Int) throws -> Int {
         return try zipCast(zipCheckResult(zip_fread(handle, buf, zipCast(count))))
     }

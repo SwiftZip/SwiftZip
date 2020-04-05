@@ -1,6 +1,6 @@
 import zip
 
-public final class ZipEntry: ZipErrorContext {
+public struct ZipEntry: ZipErrorContext {
     internal let archive: ZipArchive
     internal let index: zip_uint64_t
 
