@@ -48,7 +48,7 @@ private final class ZipSourceData: ZipSourceSeekable {
 
         let available = min(count, data.count - position)
         data.subdata(in: position ..< position + available).withUnsafeBytes { data in
-            _ = memmove(buffer, data.baseAddress, available)
+            _ = memmove(buffer, data.baseAddress.forceUnwrap(), data.count)
         }
 
         position += available

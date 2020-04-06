@@ -28,7 +28,7 @@ extension ZipEntry {
         var data = Data(count: Int(size))
         try data.withUnsafeMutableBytes { buffer in
             let file = try open(flags: flags, version: version, password: password)
-            let read = try file.read(buf: buffer.baseAddress!, count: buffer.count)
+            let read = try file.read(buf: buffer.baseAddress.forceUnwrap(), count: buffer.count)
             assert(read == buffer.count, "Failed to read \(buffer.count) bytes. Got \(read) instead.")
             file.close()
         }

@@ -118,7 +118,7 @@ extension Optional {
         }
     }
 
-    internal func forceUnwrap(function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> Wrapped {
+    internal func forceUnwrap(function: StaticString = #function, file: StaticString = #file, line: Int = #line) -> Wrapped {
         switch self {
         case let .some(value):
             return value
