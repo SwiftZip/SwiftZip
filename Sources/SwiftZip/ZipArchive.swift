@@ -124,11 +124,16 @@ public final class ZipArchive: ZipErrorContext {
         self.handle = try handle.unwrapped()
     }
 
+    public func discard() {
+        zip_discard(handle)
+        handle = nil
+    }
+
     public func close(discard: Bool = false) throws {
         if discard {
             zip_discard(handle)
         } else {
-            zip_close(handle)
+            try zipCheckResult(zip_close(handle))
         }
 
         handle = nil
