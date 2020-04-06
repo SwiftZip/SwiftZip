@@ -62,18 +62,7 @@ public final class ZipEntryFile: ZipErrorContext {
         return try read(buf: buf.baseAddress.forceUnwrap(), count: buf.count)
     }
 
-    public struct Whence: RawRepresentable, Equatable {
-        public let rawValue: Int32
-        public init(rawValue: Int32) {
-            self.rawValue = rawValue
-        }
-
-        public static let set = Whence(rawValue: SEEK_SET)
-        public static let cur = Whence(rawValue: SEEK_CUR)
-        public static let end = Whence(rawValue: SEEK_END)
-    }
-
-    public func seek(offset: Int, whence: Whence) throws {
+    public func seek(offset: Int, whence: ZipWhence) throws {
         try zipCheckResult(zip_fseek(handle, zipCast(offset), whence.rawValue))
     }
 
