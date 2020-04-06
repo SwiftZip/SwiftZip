@@ -67,14 +67,19 @@ let package = Package(
             exclude: flatten([
                 // Common excluded items
                 always(use: [
-                    // Exclude LZMA compression for Darwin
+                    // Non-source files
+                    "libzip/lib/CMakeLists.txt",
+                    "libzip/lib/make_zip_err_str.sh",
+                    "libzip/lib/make_zipconf.sh",
+
+                    // LZMA compression requires LZMA SDK
                     "libzip/lib/zip_algorithm_xz.c",
 
-                    // Exclude alternative encryption
+                    // Alternative encryption SDKs
                     "libzip/lib/zip_crypto_gnutls.c",
                     "libzip/lib/zip_crypto_mbedtls.c",
 
-                    // Exclude Windows UWP random
+                    // Windows UWP random generator
                     "libzip/lib/zip_random_uwp.c",
                 ]),
 
@@ -95,10 +100,10 @@ let package = Package(
                     // Windows crypro
                     "libzip/lib/zip_crypto_win.c",
 
-                    // Windows random
+                    // Random generator
                     "libzip/lib/zip_random_win32.c",
 
-                    // Windows utilities
+                    // Utilities
                     "libzip/lib/zip_source_win32a.c",
                     "libzip/lib/zip_source_win32handle.c",
                     "libzip/lib/zip_source_win32utf8.c",
