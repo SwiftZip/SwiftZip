@@ -28,6 +28,16 @@ and add "SwiftZip" to your application/library target dependencies, e.g. like th
 
 **Note:** SwiftZip is currently under development and API may slightly change as the project evolves.
 
+### Using SwiftZip on Linux
+
+SwiftZip requires `BZip2` and `OpenSSL` development packages to be installed when building on Linux.
+You can install the required dependencies using `apt` on Ubuntu:
+
+```bash
+apt-get install libbz2-dev
+apt-get install libssl-dev
+```
+
 ## Getting Started
 
 ### Quick Instructions

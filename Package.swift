@@ -3,14 +3,59 @@
 
 import PackageDescription
 
+private func execute<T>(_ block: () -> T) -> T {
+    return block()
+}
+
+private func flatten<Element>(_ items: [[Element]]) -> [Element] {
+    return items.flatMap { $0 }
+}
+
+private func always<Element>(use items: [Element]) -> [Element] {
+    return items
+}
+
+private func when<Element>(_ condition: Bool, use items: [Element]) -> [Element] {
+    if condition {
+        return items
+    } else {
+        return []
+    }
+}
+
+private struct Platform: OptionSet {
+    let rawValue: UInt
+
+    static let macOS = Platform(rawValue: 1 << 0)
+    static let iOS = Platform(rawValue: 1 << 1)
+    static let tvOS = Platform(rawValue: 1 << 2)
+    static let watchOS = Platform(rawValue: 1 << 3)
+    static let linux = Platform(rawValue: 1 << 4)
+    static let windows = Platform(rawValue: 1 << 5)
+
+    static let darwinFamily: Platform = [.macOS, .iOS, .tvOS, .watchOS]
+    static let linuxFamily: Platform = [.linux]
+    static let windowsFamily: Platform = [.windows]
+
+    #if os(macOS)
+    static let current = Platform.macOS
+    #elseif os(iOS)
+    static let current = Platform.iOS
+    #elseif os(tvOS)
+    static let current = Platform.tvOS
+    #elseif os(watchOS)
+    static let current = Platform.watchOS
+    #elseif os(Linux)
+    static let current = Platform.linux
+    #elseif os(Windows)
+    static let current = Platform.windows
+    #else
+    #error("Unsupported platform.")
+    #endif
+}
+
 let package = Package(
     name: "SwiftZip",
-    platforms: [
-        .iOS(.v9),
-        .tvOS(.v9),
-        .macOS(.v10_10),
-        .watchOS(.v2),
-    ],
     products: [
         .library(name: "zip", targets: ["zip"]),
         .library(name: "SwiftZip", targets: ["SwiftZip"]),
@@ -19,38 +64,86 @@ let package = Package(
         .target(
             name: "zip",
             path: "Sources/zip",
-            exclude: [
-                // Exclude LZMA compression
-                "libzip/lib/zip_algorithm_xz.c",
+            exclude: flatten([
+                // Common excluded items
+                always(use: [
+                    // Non-source files
+                    "libzip/lib/CMakeLists.txt",
+                    "libzip/lib/make_zip_err_str.sh",
+                    "libzip/lib/make_zipconf.sh",
 
-                // Exclude non-CommonCrypto encryption
-                "libzip/lib/zip_crypto_gnutls.c",
-                "libzip/lib/zip_crypto_mbedtls.c",
-                "libzip/lib/zip_crypto_openssl.c",
-                "libzip/lib/zip_crypto_win.c",
+                    // LZMA compression requires LZMA SDK
+                    "libzip/lib/zip_algorithm_xz.c",
 
-                // Exclude Windows random
-                "libzip/lib/zip_random_win32.c",
-                "libzip/lib/zip_random_uwp.c",
+                    // Alternative encryption SDKs
+                    "libzip/lib/zip_crypto_gnutls.c",
+                    "libzip/lib/zip_crypto_mbedtls.c",
 
-                // Exclude Windows utilities
-                "libzip/lib/zip_source_win32a.c",
-                "libzip/lib/zip_source_win32handle.c",
-                "libzip/lib/zip_source_win32utf8.c",
-                "libzip/lib/zip_source_win32w.c",
-            ],
+                    // Windows UWP random generator
+                    "libzip/lib/zip_random_uwp.c",
+                ]),
+
+                // Exclude Darwin-specific items
+                when(Platform.current.isDisjoint(with: .darwinFamily), use: [
+                    // CommonCrypto
+                    "libzip/lib/zip_crypto_commoncrypto.c",
+                ]),
+
+                // Exclude Linux-specific items
+                when(Platform.current.isDisjoint(with: .linuxFamily), use: [
+                    // OpenSSL crypto
+                    "libzip/lib/zip_crypto_openssl.c",
+                ]),
+
+                // Exclude Windows-specific items
+                when(Platform.current.isDisjoint(with: .windowsFamily), use: [
+                    // Windows crypro
+                    "libzip/lib/zip_crypto_win.c",
+
+                    // Random generator
+                    "libzip/lib/zip_random_win32.c",
+
+                    // Utilities
+                    "libzip/lib/zip_source_win32a.c",
+                    "libzip/lib/zip_source_win32handle.c",
+                    "libzip/lib/zip_source_win32utf8.c",
+                    "libzip/lib/zip_source_win32w.c",
+                ]),
+            ]),
             sources: [
                 "libzip/lib",
             ],
             publicHeadersPath: "include",
-            cSettings: [
-                .define("HAVE_CONFIG_H"),
-                .headerSearchPath("include-private"),
-            ],
-            linkerSettings: [
-                .linkedLibrary("z"),
-                .linkedLibrary("bz2"),
-            ]
+            cSettings: flatten([
+                // Common settings
+                always(use: [
+                    .define("HAVE_CONFIG_H"),
+                    .headerSearchPath("include-private"),
+                ]),
+
+                // Darwin-specific settings
+                when(Platform.current.isSubset(of: .darwinFamily), use: [
+                    .headerSearchPath("include-private/darwin"),
+                ]),
+
+                // Linux-specific settings
+                when(Platform.current.isSubset(of: .linuxFamily), use: [
+                    .headerSearchPath("include-private/linux"),
+                ]),
+            ]),
+            linkerSettings: flatten([
+                // Common settings
+                always(use: [
+                    .linkedLibrary("z"),
+                    .linkedLibrary("bz2"),
+                ]),
+
+                // Linux-specific linker settings
+                when(Platform.current.isSubset(of: .linuxFamily), use: [
+                    .linkedLibrary("ssl"),
+                    .linkedLibrary("crypto")
+                ]),
+            ])
         ),
         .target(
             name: "SwiftZip",

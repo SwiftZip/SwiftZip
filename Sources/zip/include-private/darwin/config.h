@@ -30,7 +30,7 @@
 #define HAVE_GETPROGNAME
 /* #undef HAVE_GNUTLS */
 #define HAVE_LIBBZ2
-/*#define HAVE_LIBLZMA*/
+/* #undef HAVE_LIBLZMA */
 #define HAVE_LOCALTIME_R
 /* #undef HAVE_MBEDTLS */
 /* #undef HAVE_MKSTEMP */

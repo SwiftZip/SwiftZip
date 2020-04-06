@@ -1,0 +1,31 @@
+--- Sources/zip/libzip/developer-xcode/config.h	2020-04-05 19:27:25.000000000 +0300
++++ Sources/zip/include-private/linux/config.h	2020-04-06 19:50:49.000000000 +0300
+@@ -19,9 +19,9 @@
+ /* #undef HAVE__STRTOUI64 */
+ /* #undef HAVE__UMASK */
+ /* #undef HAVE__UNLINK */
+-#define HAVE_ARC4RANDOM
+-#define HAVE_CLONEFILE
+-#define HAVE_COMMONCRYPTO
++/* #undef HAVE_ARC4RANDOM */
++/* #undef HAVE_CLONEFILE */
++/* #undef HAVE_COMMONCRYPTO */
+ #define HAVE_CRYPTO
+ /* #undef HAVE_FICLONERANGE */
+ #define HAVE_FILENO
+@@ -30,13 +30,13 @@
+ #define HAVE_GETPROGNAME
+ /* #undef HAVE_GNUTLS */
+ #define HAVE_LIBBZ2
+-#define HAVE_LIBLZMA
++/* #undef HAVE_LIBLZMA */
+ #define HAVE_LOCALTIME_R
+ /* #undef HAVE_MBEDTLS */
+ /* #undef HAVE_MKSTEMP */
+ #define HAVE_NULLABLE
+ #define HAVE_OPEN
+-/* #undef HAVE_OPENSSL */
++#define HAVE_OPENSSL
+ #define HAVE_SETMODE
+ #define HAVE_SNPRINTF
+ #define HAVE_SSIZE_T_LIBZIP
