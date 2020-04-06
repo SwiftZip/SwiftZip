@@ -1,42 +1,11 @@
 # Overview
 
+![macOS](https://github.com/SwiftZip/SwiftZip/workflows/macOS/badge.svg)
+![Linux](https://github.com/SwiftZip/SwiftZip/workflows/Linux/badge.svg)
+
 SwiftZip is a Swift wrapper for libzip providing an API to read, create and modify zip archives.
 Files can be added from data buffers, files, or compressed data copied directly from other zip archives.
 Changes made without closing the archive can be reverted.
-
-## Installation
-
-### Swift Package Manager
-
-To depend on the SwiftZip package, you need to declare your dependency in your `Package.swift` file:
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/SwiftZip/SwiftZip.git", .branch("master")),
-    // ...
-]
-```
-
-and add "SwiftZip" to your application/library target dependencies, e.g. like this:
-
-```swift
-.target(name: "BestExampleApp", dependencies: [
-    "SwiftZip",
-    // ...
-])
-```
-
-**Note:** SwiftZip is currently under development and API may slightly change as the project evolves.
-
-### Using SwiftZip on Linux
-
-SwiftZip requires `BZip2` and `OpenSSL` development packages to be installed when building on Linux.
-You can install the required dependencies using `apt` on Ubuntu:
-
-```bash
-apt-get install libbz2-dev
-apt-get install libssl-dev
-```
 
 ## Getting Started
 
@@ -99,6 +68,40 @@ do {
 SwiftZip is designed to be a thin wrapper aroung libzip. Please refer to the libzip documentation to get
 more details on the underlying implementation: https://libzip.org/documentation/
 
+## Installation
+
+### Swift Package Manager
+
+To depend on the SwiftZip package, you need to declare your dependency in your `Package.swift` file:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/SwiftZip/SwiftZip.git", .branch("master")),
+    // ...
+]
+```
+
+and add "SwiftZip" to your application/library target dependencies, e.g. like this:
+
+```swift
+.target(name: "BestExampleApp", dependencies: [
+    "SwiftZip",
+    // ...
+])
+```
+
+**Note:** SwiftZip is currently under development and API may slightly change as the project evolves.
+
+### Using SwiftZip on Linux
+
+SwiftZip requires `BZip2` and `OpenSSL` development packages to be installed when building on Linux.
+You can install the required dependencies using `apt` on Ubuntu:
+
+```bash
+apt-get install libbz2-dev
+apt-get install libssl-dev
+```
+
 # SwiftZip Project
 
 SwiftZip in currently under development. Please open an issue or submit a pull request in case you find any
@@ -127,12 +130,12 @@ To update the underlying library, use the `./Tools/libzip-update.sh` script to p
 the `Sources/zip/libzip` submodule and update public headers.
 
 ## TODO/Roadmap:
-- [ ] provide an initial set of wrappers for archive operations
+- [x] provide an initial set of wrappers for archive operations
 - [ ] cover core functionality with tests based on libzip test suite
 - [ ] adapt libzip docs and convert them to code comments
-- [ ] provide Swift protocol-based wrapper for custom sources API
+- [x] provide Swift protocol-based wrapper for custom sources API
 - [ ] add macOS build support with external packages
-- [ ] add Linux build support
+- [x] add Linux build support
 
 # License
 
