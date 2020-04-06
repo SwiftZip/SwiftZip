@@ -22,9 +22,8 @@
 
 import Foundation
 import XCTest
-import SwiftZip
 
-class BaseTestCase: XCTestCase {
+class ZipTestCase: XCTestCase {
     private static let tempRoot = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
     private static let tempDirectory = tempRoot.appendingPathComponent(UUID().uuidString, isDirectory: true)
 
@@ -40,44 +39,5 @@ class BaseTestCase: XCTestCase {
 
     func tempFile(type ext: String) -> URL {
         return Self.tempDirectory.appendingPathComponent(UUID().uuidString, isDirectory: false).appendingPathExtension(ext)
-    }
-}
-
-class SampleTest: BaseTestCase {
-    func testExample() throws {
-        let archive = try ZipArchive(url: tempFile(type: "zip"), flags: [.create, .truncate])
-        let source = try ZipSourceData(data: "Hello".data(using: .utf8)!)
-        try archive.addFile(name: "test.txt", source: source)
-        try archive.close()
-    }
-
-    func testExample2() throws {
-        let archiveUrl = tempFile(type: "zip")
-        let largeString = Array(repeating: String("Hello, world!"), count: 1000).joined()
-
-        do {
-            let archive = try ZipArchive(url: archiveUrl, flags: [.create, .truncate])
-            let source1 = try ZipSourceData(data: "Hello".data(using: .utf8)!)
-            try archive.addFile(name: "test.txt", source: source1)
-            let source2 = try ZipSourceData(data: largeString.data(using: .utf8)!)
-            try archive.addFile(name: "large.txt", source: source2)
-            try archive.close()
-        }
-
-        do {
-            let archive = try ZipArchive(url: archiveUrl, flags: [.readOnly])
-            let entry = try archive.locate(filename: "test.txt")
-            try XCTAssertEqual(String(data: entry.data(), encoding: .utf8)!, "Hello")
-            try archive.close()
-        }
-
-        do {
-            let fileUrl = tempFile(type: "txt")
-            let archive = try ZipArchive(url: archiveUrl, flags: [.readOnly])
-            let entry = try archive.locate(filename: "large.txt")
-            try entry.save(to: fileUrl)
-            try XCTAssertEqual(String(contentsOf: fileUrl, encoding: .utf8), largeString)
-            try archive.close()
-        }
     }
 }

@@ -15,7 +15,8 @@ cp Sources/zip/libzip/developer-xcode/config.h Sources/zip/include-private/confi
 # - disable `HAVE_LIBLZMA` so we don't need to pull LZMA SDK
 patch Sources/zip/include/zip.h < Sources/zip/libzip-patches/zip.h.patch
 patch Sources/zip/include/zipconf.h < Sources/zip/libzip-patches/zipconf.h.patch
-patch Sources/zip/include-private/config.h < Sources/zip/libzip-patches/config.h.patch
+patch Sources/zip/include-private/darwin/config.h < Sources/zip/libzip-patches/config.h.darwin.patch
+patch Sources/zip/include-private/linux/config.h < Sources/zip/libzip-patches/config.h.linux.patch
 
 # Check package build
 swift build

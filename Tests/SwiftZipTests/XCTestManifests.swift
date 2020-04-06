@@ -20,57 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if canImport(Darwin)
-import Darwin
-#elseif canImport(Glibc)
-import Glibc
-#else
-#error("Platform not supported")
-#endif
+import XCTest
 
-extension ZipEntry.ExternalAttributes {
-
-    // MARK: - Platform-Specific Attribute Accessors
-
-    public var posixAttributes: mode_t {
-        return mode_t(attributes >> 16)
-    }
-
-    public var posixPermissions: mode_t {
-        return posixAttributes & (S_IRWXU | S_IRWXG | S_IRWXO)
-    }
-
-    public var posixFileType: mode_t {
-        return posixAttributes & S_IFMT
-    }
-
-    // MARK: - Universal Helpers
-
-    public var isDirectory: Bool {
-        switch operatingSystem {
-        case .dos,
-             .windowsNTFS:
-            return (attributes & 0x10) != 0
-
-        case .unix,
-             .macintosh,
-             .macOS:
-            return posixFileType == S_IFDIR
-
-        default:
-            return false
-        }
-    }
-
-    public var isSymbolicLink: Bool {
-        switch operatingSystem {
-        case .unix,
-             .macintosh,
-             .macOS:
-            return posixFileType == S_IFLNK
-
-        default:
-            return false
-        }
-    }
+#if !canImport(ObjectiveC)
+public func allTests() -> [XCTestCaseEntry] {
+    return [
+        testCase(SampleTest.allTests),
+    ]
 }
+#endif
