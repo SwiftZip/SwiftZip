@@ -51,30 +51,15 @@ extension ZipEntry {
 
         let fileStat = try stat()
         let externalAttributes = try getExternalAttributes()
-        var fileAttributes: [FileAttributeKey: Any] = [:]
 
-        if externalAttributes.isSymbolicLink || externalAttributes.isDirectory {
+        guard !externalAttributes.isSymbolicLink && !externalAttributes.isDirectory else {
             return false
-        }
-
-        if let modificationDate = fileStat.modificationDate {
-            fileAttributes[.modificationDate] = modificationDate
-        }
-
-        switch externalAttributes.operatingSystem {
-        case .unix,
-             .macintosh,
-             .macOS:
-            fileAttributes[.posixPermissions] = externalAttributes.posixPermissions
-
-        default:
-            break
         }
 
         let file = try open(flags: flags, version: version, password: password)
         defer { file.close() }
 
-        guard fileManager.createFile(atPath: path, contents: nil, attributes: fileAttributes) else {
+        guard fileManager.createFile(atPath: path, contents: nil, attributes: nil) else {
             throw ZipError.createFileFailed
         }
 
@@ -104,6 +89,27 @@ extension ZipEntry {
                 }
             }
         }
+
+        var fileAttributes: [FileAttributeKey: Any] = [:]
+
+        #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+        // TODO: figure out why `.modificationDate` fails on Linux
+        if let modificationDate = fileStat.modificationDate {
+            fileAttributes[.modificationDate] = modificationDate
+        }
+        #endif
+
+        switch externalAttributes.operatingSystem {
+        case .unix,
+             .macintosh,
+             .macOS:
+            fileAttributes[.posixPermissions] = externalAttributes.posixPermissions
+
+        default:
+            break
+        }
+
+        try fileManager.setAttributes(fileAttributes, ofItemAtPath: path)
 
         return true
     }
