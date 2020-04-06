@@ -53,16 +53,10 @@ extension ZipEntry.Stat {
     public var rawName: Data? {
         if validFields.contains(.name) {
             return stat.name.flatMap {
-                return Data(bytes: $0, count: strlen($0))
+                return Data(bytes: $0, count: strlen($0) + 1)
             }
         } else {
             return nil
-        }
-    }
-
-    public func decodedName(using encoding: String.Encoding = .utf8) throws -> String? {
-        return try rawName.flatMap {
-            return try String(data: $0, encoding: .utf8).unwrapped(or: ZipError.stringDecodingFailed)
         }
     }
 
