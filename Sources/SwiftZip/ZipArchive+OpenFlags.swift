@@ -29,10 +29,19 @@ extension ZipArchive {
             self.rawValue = rawValue
         }
 
+        /// Perform additional stricter consistency checks on the archive, and error if they fail.
         public static let checkConsistency = OpenFlags(rawValue: ZIP_CHECKCONS)
+
+        /// Create the archive if it does not exist.
         public static let create = OpenFlags(rawValue: ZIP_CREATE)
+
+        /// Error if archive already exists.
         public static let exclusive = OpenFlags(rawValue: ZIP_EXCL)
+
+        /// If archive exists, ignore its current contents. In other words, handle it the same way as an empty archive.
         public static let truncate = OpenFlags(rawValue: ZIP_TRUNCATE)
+
+        /// Open archive in read-only mode.
         public static let readOnly = OpenFlags(rawValue: ZIP_RDONLY)
     }
 }

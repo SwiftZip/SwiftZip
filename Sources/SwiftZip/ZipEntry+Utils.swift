@@ -23,6 +23,12 @@
 import Foundation
 
 extension ZipEntry {
+    /// Retrieves entry contents as `Data` instance.
+    ///
+    /// - Parameters:
+    ///   - flags: open flags, defaults to `[]`
+    ///   - version: archive version to use, defaults to `.current`
+    ///   - password: optional password to decrypt the entry
     public func data(flags: OpenFlags = [], version: ZipArchive.Version = .current, password: String? = nil) throws -> Data {
         let size = try stat().size.unwrapped()
         var data = Data(count: Int(size))
@@ -36,19 +42,21 @@ extension ZipEntry {
         return data
     }
 
+    /// Saves entry contents to a file.
+    ///
+    /// - Parameters:
+    ///   - url: destination file URL
+    ///   - flags: open flags, defaults to `[]`
+    ///   - version: archive version to use, defaults to `.current`
+    ///   - password: optional password to decrypt the entry
+    ///   - progressHandler: progress handler callback
     @discardableResult
-    public func save(to url: URL, flags: OpenFlags = [], version: ZipArchive.Version = .current, password: String? = nil, overwrite: Bool = false, progressHandler: ((Double) -> Bool)? = nil) throws -> Bool {
+    public func save(to url: URL, flags: OpenFlags = [], version: ZipArchive.Version = .current, password: String? = nil, progressHandler: ((Double) -> Bool)? = nil) throws -> Bool {
         guard url.isFileURL else {
             throw ZipError.unsupportedURL
         }
 
         let path = url.absoluteURL.path
-        let fileManager = FileManager.default
-
-        guard overwrite || !fileManager.fileExists(atPath: path) else {
-            return false
-        }
-
         let fileStat = try stat()
         let externalAttributes = try getExternalAttributes()
 
@@ -59,7 +67,7 @@ extension ZipEntry {
         let file = try open(flags: flags, version: version, password: password)
         defer { file.close() }
 
-        guard fileManager.createFile(atPath: path, contents: nil, attributes: nil) else {
+        guard FileManager.default.createFile(atPath: path, contents: nil, attributes: nil) else {
             throw ZipError.createFileFailed
         }
 
@@ -109,7 +117,7 @@ extension ZipEntry {
             break
         }
 
-        try fileManager.setAttributes(fileAttributes, ofItemAtPath: path)
+        try FileManager.default.setAttributes(fileAttributes, ofItemAtPath: path)
 
         return true
     }

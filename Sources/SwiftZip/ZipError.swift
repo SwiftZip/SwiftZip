@@ -28,10 +28,9 @@ import zip
 public enum ZipError: Error {
     case zipError(zip_error_t)
     case integerCastFailed
-    case stringDecodingFailed
     case createFileFailed
     case unsupportedURL
-    case invalidArgument
+    case invalidArgument(String)
     case internalInconsistency
 }
 
@@ -42,14 +41,12 @@ extension ZipError: LocalizedError {
             return String(cString: zip_error_strerror(&error))
         case .integerCastFailed:
             return "Failed to cast integer value."
-        case .stringDecodingFailed:
-            return "Failed to decode string."
         case .createFileFailed:
             return "Failed to create file."
         case .unsupportedURL:
             return "SwiftZip supports file URLs only."
-        case .invalidArgument:
-            return "Invalid argument passed."
+        case let .invalidArgument(name):
+            return "Invalid value passed for argument `\(name)`."
         case .internalInconsistency:
             return "SwiftZip internal inconsistency."
         }

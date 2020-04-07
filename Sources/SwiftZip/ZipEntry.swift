@@ -35,33 +35,76 @@ public struct ZipEntry: ZipErrorContext {
 
     // MARK: - Name
 
+    /// Returns the name of the file in the archive.
+    ///
+    /// - Parameters:
+    ///   - decodingStrategy: string decoding strategy, defaults to `.guess`
+    ///   - version: archive version to use, defaults to `.current`
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_get_name.html
     public func getName(decodingStrategy: ZipStringDecodingStrategy = .guess, version: ZipArchive.Version = .current) throws -> String {
         return try String(cString: zipCheckResult(zip_get_name(archive.handle, index, decodingStrategy.rawValue | version.rawValue)))
     }
 
+    /// Returns the unmodified name of the as it is in the ZIP archive
+    ///
+    /// - Parameter version: archive version to use, defaults to `.current`
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_get_name.html
     public func getRawName(version: ZipArchive.Version = .current) throws -> Data {
         return try Data(cString: zipCheckResult(zip_get_name(archive.handle, index, ZIP_FL_ENC_RAW | version.rawValue)))
     }
 
     // MARK: - Attributes
 
+    /// Returns the operating system and external attributes for the file in the zip archive.
+    /// The external attributes usually contain the operating system-specific file permissions.
+    ///
+    /// - Parameter version: archive version to use, defaults to `.current`
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_get_external_attributes.html
     public func getExternalAttributes(version: ZipArchive.Version = .current) throws -> ExternalAttributes {
         var operatingSystem: UInt8 = 0
         var attributes: UInt32 = 0
         try zipCheckResult(zip_file_get_external_attributes(archive.handle, index, version.rawValue, &operatingSystem, &attributes))
-        return ExternalAttributes(operatingSystem: ExternalAttributes.OperatingSystem(rawValue: operatingSystem), attributes: attributes)
+        return ExternalAttributes(operatingSystem: ZipOperatingSystem(rawValue: operatingSystem), attributes: attributes)
     }
 
-    public func setExternalAttributes(operatingSystem: ExternalAttributes.OperatingSystem, attributes: UInt32) throws {
+    /// Sets the operating system and external attributes for the file in the zip archive.
+    ///
+    /// - Parameters:
+    ///   - operatingSystem: operating system value
+    ///   - attributes: external attributes to set
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_set_external_attributes.html
+    public func setExternalAttributes(operatingSystem: ZipOperatingSystem, attributes: UInt32) throws {
         try zipCheckResult(zip_file_set_external_attributes(archive.handle, index, 0, operatingSystem.rawValue, attributes))
     }
 
-    public func setExternalAttributes(operatingSystem: ExternalAttributes.OperatingSystem = .unix, posixAttributes: mode_t) throws {
+    /// Sets the operating system and POSIX attributes to be set as external attributes for the file in the zip archive.
+    ///
+    /// - Parameters:
+    ///   - operatingSystem: operating system value, defaults to `.unix`
+    ///   - posixAttributes: POSIX attributes to be set
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_set_external_attributes.html
+    public func setExternalAttributes(operatingSystem: ZipOperatingSystem = .unix, posixAttributes: mode_t) throws {
         try zipCheckResult(zip_file_set_external_attributes(archive.handle, index, 0, operatingSystem.rawValue, UInt32(posixAttributes) << 16))
     }
 
     // MARK: - Stat
 
+    /// Obtains information about the file in archive.
+    ///
+    /// - Parameter version: archive version to use, defaults to `.current`
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_stat_index.html
     public func stat(version: ZipArchive.Version = .current) throws -> Stat {
         var result = Stat()
         try zipCheckResult(zip_stat_index(archive.handle, index, version.rawValue, &result.stat))
@@ -70,7 +113,17 @@ public struct ZipEntry: ZipErrorContext {
 
     // MARK: - Extra Fields
 
-    public func getExtraFieldsCount(id: UInt16?, flags: ExtraFieldFlags, version: ZipArchive.Version = .current) throws -> Int {
+    /// Counts the extra fields for the file in the zip archive.
+    ///
+    /// - Parameters:
+    ///   - id: optional field ID (two-byte signature) filter
+    ///   - flags: field lookup flags, defaults to `[.local, .central]`
+    ///   - version: archive version to use, defaults to `.current`
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_extra_fields_count.html
+    ///   - https://libzip.org/documentation/zip_file_extra_fields_count_by_id.html
+    public func getExtraFieldsCount(id: UInt16? = nil, flags: ExtraFieldFlags = [.local, .central], version: ZipArchive.Version = .current) throws -> Int {
         if let id = id {
             return try zipCast(zipCheckResult(zip_file_extra_fields_count_by_id(archive.handle, index, id, flags.rawValue | version.rawValue)))
         } else {
@@ -78,7 +131,18 @@ public struct ZipEntry: ZipErrorContext {
         }
     }
 
-    public func getExtraField(id: UInt16?, fieldIndex: Int, flags: ExtraFieldFlags, version: ZipArchive.Version = .current) throws -> ExtraFieldData {
+    /// Returns the extra field with index `fieldIndex` for the file in the zip archive.
+    ///
+    /// - Parameters:
+    ///   - id: optional field ID (two-byte signature) filter
+    ///   - fieldIndex: field index to retrieve
+    ///   - flags: field lookup flags, defaults to `[.local, .central]`
+    ///   - version: archive version to use, defaults to `.current`
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_extra_field_get.html
+    ///   - https://libzip.org/documentation/zip_file_extra_field_get_by_id.html
+    public func getExtraField(id: UInt16?, fieldIndex: Int, flags: ExtraFieldFlags = [.local, .central], version: ZipArchive.Version = .current) throws -> ExtraFieldData {
         var fieldID: UInt16 = 0
         var fieldLength: UInt16 = 0
         let fieldData: UnsafePointer<zip_uint8_t>
@@ -93,11 +157,39 @@ public struct ZipEntry: ZipErrorContext {
         return try ExtraFieldData(id: fieldLength, data: UnsafeRawBufferPointer(start: fieldData, count: zipCast(fieldLength)))
     }
 
-    public func setExtraField(id: UInt16, fieldIndex: Int, data: UnsafeRawBufferPointer, flags: ExtraFieldFlags) throws {
+    /// Sets the extra field with ID (two-byte signature) `id` and index `fieldIndex` for the file in the zip archive.
+    /// The extra field's data will be set to `data`. If a new entry shall be appended, set `fieldIndex` to `nil`.
+    ///
+    /// Please note that the extra field IDs 0x0001 (ZIP64 extension), 0x6375 (Infozip UTF-8 comment),
+    /// and 0x7075 (Infozip UTF-8 file name) can not be set using `setExtraField` since they are set
+    /// by `libzip(3)` automatically when needed.
+    ///
+    /// - Parameters:
+    ///   - id: field ID (two-byte signature) filter
+    ///   - fieldIndex: field index to set
+    ///   - data: new field data
+    ///   - flags: field lookup flags
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_extra_field_set.html
+    public func setExtraField(id: UInt16, fieldIndex: Int?, data: UnsafeRawBufferPointer, flags: ExtraFieldFlags) throws {
+        let fieldIndex = fieldIndex ?? Int(ZIP_EXTRA_FIELD_NEW)
         try zipCheckResult(zip_file_extra_field_set(archive.handle, index, id, zipCast(fieldIndex), data.bindMemory(to: zip_uint8_t.self).baseAddress, zipCast(data.count), flags.rawValue))
     }
 
-    public func deleteExtraField(id: UInt16?, fieldIndex: Int, flags: ExtraFieldFlags) throws {
+    /// Deletes the extra field with index `fieldIndex` for the file in the zip archive.
+    /// If `fieldIndex` is `nil`, then all extra fields will be deleted.
+    ///
+    /// - Parameters:
+    ///   - id: field ID (two-byte signature) filter
+    ///   - fieldIndex: field index to delete
+    ///   - flags: field lookup flags
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_extra_field_delete.html
+    ///   - https://libzip.org/documentation/zip_file_extra_field_delete_by_id.html
+    public func deleteExtraField(id: UInt16?, fieldIndex: Int?, flags: ExtraFieldFlags) throws {
+        let fieldIndex = fieldIndex ?? Int(ZIP_EXTRA_FIELD_ALL)
         if let id = id {
             try zipCheckResult(zip_file_extra_field_delete_by_id(archive.handle, index, id, zipCast(fieldIndex), flags.rawValue))
         } else {
@@ -107,26 +199,57 @@ public struct ZipEntry: ZipErrorContext {
 
     // MARK: - Comments
 
+    /// Returns the comment for the file in the zip archive.
+    ///
+    /// - Parameters:
+    ///   - decodingStrategy: string decoding strategy, defaults to `.guess`
+    ///   - version: archive version to use, defaults to `.current`
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_get_comment.html
     public func getComment(decodingStrategy: ZipStringDecodingStrategy = .guess, version: ZipArchive.Version = .current) throws -> String {
         return try String(cString: zipCheckResult(zip_file_get_comment(archive.handle, index, nil, decodingStrategy.rawValue | version.rawValue)))
     }
 
+    /// Returns the unmodified comment for the file as it is in the ZIP archive.
+    ///
+    /// - Parameter version: archive version to use, defaults to `.current`
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_get_comment.html
     public func getRawComment(version: ZipArchive.Version = .current) throws -> Data {
         return try Data(cString: zipCheckResult(zip_file_get_comment(archive.handle, index, nil, ZIP_FL_ENC_RAW | version.rawValue)))
     }
 
-    public func setComment(comment: String) throws {
-        try comment.withCString { comment in
-            _ = try zipCheckResult(zip_file_set_comment(archive.handle, index, comment, zipCast(strlen(comment)), ZIP_FL_ENC_UTF_8))
+    /// Sets the comment for the file in the zip archive.If `comment` is set to `nil`,
+    /// the comment is deleted from the archive.
+    ///
+    /// - Parameter comment: new comment string
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_set_comment.html
+    public func setComment(_ comment: String?) throws {
+        if let comment = comment {
+            try comment.withCString { comment in
+                _ = try zipCheckResult(zip_file_set_comment(archive.handle, index, comment, zipCast(strlen(comment)), ZIP_FL_ENC_UTF_8))
+            }
+        } else {
+            try zipCheckResult(zip_file_set_comment(archive.handle, index, nil, 0, 0))
         }
-    }
-
-    public func deleteComment() throws {
-        try zipCheckResult(zip_file_set_comment(archive.handle, index, nil, 0, 0))
     }
 
     // MARK: - Open for Reading
 
+    /// Opens the file using the password given in the password argument.
+    ///
+    /// - Parameters:
+    ///   - flags: open flags, defaults to `[]`
+    ///   - version: archive version to use, defaults to `.current`
+    ///   - password: optional password to decrypt the entry
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_fopen_index.html
+    ///   - https://libzip.org/documentation/zip_fopen_index_encrypted.html
     public func open(flags: OpenFlags = [], version: ZipArchive.Version = .current, password: String? = nil) throws -> ZipEntryReader {
         let handle: OpaquePointer?
         if let password = password {
@@ -140,8 +263,15 @@ public struct ZipEntry: ZipErrorContext {
         return try ZipEntryReader(zipCheckResult(handle))
     }
 
-    // MARK: - Add/Remove Entries
+    // MARK: - Add/Rename Entries
 
+    /// Replaces an existing file in a zip archive.
+    ///
+    /// - Parameters:
+    ///   - source: new data for the file
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_replace.html
     public func replaceFile(source: ZipSource) throws {
         try zipCheckResult(zip_file_replace(archive.handle, index, source.handle, ZIP_FL_ENC_UTF_8))
 
@@ -149,36 +279,81 @@ public struct ZipEntry: ZipErrorContext {
         source.keep()
     }
 
-    public func rename(name: String) throws {
+    /// The file in the zip archive is renamed to `name`.
+    ///
+    /// - Parameter name: new name of the file
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_rename.html
+    public func rename(to name: String) throws {
         try name.withCString { name in
             _ = try zipCheckResult(zip_file_rename(archive.handle, index, name, ZIP_FL_ENC_UTF_8))
         }
     }
 
-    public func setModified(time: time_t) throws {
-        try zipCheckResult(zip_file_set_mtime(archive.handle, index, time, 0))
+    // MARK: - Entry Properties
+
+    /// Sets the last modification time (mtime) for the file in the zip archive to `date`.
+    ///
+    /// - Parameter date: new file modification time
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_set_mtime.html
+    public func setModifiedDate(_ date: Date) throws {
+        try zipCheckResult(zip_file_set_mtime(archive.handle, index, zipCast(Int(date.timeIntervalSince1970)), 0))
     }
 
     // MARK: - Compression
 
+    /// Sets the compression method for the file in the zip archive.
+    ///
+    /// - Parameters:
+    ///   - method: compression method to set
+    ///   - flags: compression method specific flags
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_set_file_compression.html
     public func setCompression(method: ZipCompressionMethod = .default, flags: ZipCompressionFlags = .default) throws {
         try zipCheckResult(zip_set_file_compression(archive.handle, index, method.rawValue, flags.rawValue))
     }
 
     // MARK: - Encryption
 
-    public func setEncryption(method: ZipEncryptionMethod) throws {
-        try zipCheckResult(zip_file_set_encryption(archive.handle, index, method.rawValue, nil))
+    /// Sets the encryption method and password for the file in the zip archive.
+    /// If `password` is `nil`, the default password provided by `ZipArchive.setDefaultPassword` is used.
+    ///
+    /// - Parameters:
+    ///   - method: encryption method to set
+    ///   - password: encryption password
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_file_set_encryption.html
+    public func setEncryption(method: ZipEncryptionMethod, password: String? = nil) throws {
+        if let password = password {
+            try password.withCString { password in
+                _ = try zipCheckResult(zip_file_set_encryption(archive.handle, index, method.rawValue, password))
+            }
+        } else {
+            try zipCheckResult(zip_file_set_encryption(archive.handle, index, method.rawValue, nil))
+        }
     }
 
-    public func setEncryption(method: ZipEncryptionMethod, password: String) throws {
-        try password.withCString { password in
-            _ = try zipCheckResult(zip_file_set_encryption(archive.handle, index, method.rawValue, password))
-        }
+    // MARK: - Deletion
+
+    /// Marks the file the archive as deleted.
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_delete.html
+    public func delete() throws {
+        try zipCheckResult(zip_delete(archive.handle, index))
     }
 
     // MARK: - Revert Changes
 
+    /// Changes to the file are reverted.
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_unchange.html
     public func unchange() throws {
         try zipCheckResult(zip_unchange(archive.handle, index))
     }

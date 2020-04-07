@@ -29,7 +29,10 @@ extension ZipArchive {
             self.rawValue = rawValue
         }
 
-        public static let unchanged = Version(rawValue: ZIP_FL_UNCHANGED)
+        /// Read the current data from the zip archive.
         public static let current = Version(rawValue: 0)
+
+        /// Read the original data from the zip archive, ignoring any changes made to the file.
+        public static let unchanged = Version(rawValue: ZIP_FL_UNCHANGED)
     }
 }

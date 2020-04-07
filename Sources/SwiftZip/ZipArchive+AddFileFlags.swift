@@ -29,6 +29,7 @@ extension ZipArchive {
             self.rawValue = rawValue
         }
 
+        /// Overwrite any existing file of the same name.
         public static let overwrite = AddFileFlags(rawValue: ZIP_FL_OVERWRITE)
     }
 }

@@ -29,6 +29,7 @@ extension ZipArchive {
 }
 
 extension ZipArchive {
+    /// Exposes archive entries as a Swift `Collection`
     public var entries: Entries {
         return Entries(archive: self)
     }

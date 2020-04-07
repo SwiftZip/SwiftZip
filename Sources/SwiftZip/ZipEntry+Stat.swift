@@ -30,10 +30,12 @@ extension ZipEntry {
 }
 
 extension ZipEntry.Stat {
+    /// Which fields have valid values
     public var validFields: ValidFields {
         return ValidFields(rawValue: stat.valid)
     }
 
+    /// Name of the file
     public var rawName: Data? {
         if validFields.contains(.name) {
             return stat.name.flatMap(Data.init(cString:))
@@ -42,6 +44,7 @@ extension ZipEntry.Stat {
         }
     }
 
+    /// Index within archive
     public var index: UInt64? {
         if validFields.contains(.index) {
             return stat.index
@@ -50,6 +53,7 @@ extension ZipEntry.Stat {
         }
     }
 
+    /// Size of file (uncompressed)
     public var size: Int? {
         if validFields.contains(.size) {
             do {
@@ -62,6 +66,7 @@ extension ZipEntry.Stat {
         }
     }
 
+    /// Size of file (compressed)
     public var compressedSize: Int? {
         if validFields.contains(.compressedSize) {
             do {
@@ -74,6 +79,7 @@ extension ZipEntry.Stat {
         }
     }
 
+    /// Modification date and time
     public var modificationDate: Date? {
         if validFields.contains(.modificationDate) {
             return Date(timeIntervalSince1970: TimeInterval(stat.mtime))
@@ -82,6 +88,7 @@ extension ZipEntry.Stat {
         }
     }
 
+    /// CRC32 of file data
     public var crc32: UInt32? {
         if validFields.contains(.crc32) {
             return stat.crc
@@ -90,6 +97,7 @@ extension ZipEntry.Stat {
         }
     }
 
+    /// Compression method used
     public var compressionMethod: ZipCompressionMethod? {
         if validFields.contains(.compressionMethod) {
             return .init(rawValue: Int32(stat.comp_method))
@@ -98,6 +106,7 @@ extension ZipEntry.Stat {
         }
     }
 
+    /// Encryption method used
     public var encryptionMethod: ZipEncryptionMethod? {
         if validFields.contains(.encryptionMethod) {
             return .init(rawValue: stat.encryption_method)
@@ -106,6 +115,7 @@ extension ZipEntry.Stat {
         }
     }
 
+    /// Reserved for future use
     public var flags: UInt32? {
         if validFields.contains(.flags) {
             return stat.flags

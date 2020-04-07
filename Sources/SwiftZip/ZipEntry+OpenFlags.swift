@@ -29,6 +29,7 @@ extension ZipEntry {
             self.rawValue = rawValue
         }
 
+        /// Read the compressed data. Otherwise the data is uncompressed by `ZipEntryReader.read`.
         public static let compressed = OpenFlags(rawValue: ZIP_FL_COMPRESSED)
     }
 }

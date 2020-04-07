@@ -30,7 +30,7 @@ import Glibc
 
 extension ZipEntry {
     public struct ExternalAttributes {
-        public let operatingSystem: OperatingSystem
+        public let operatingSystem: ZipOperatingSystem
         public let attributes: UInt32
     }
 }

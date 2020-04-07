@@ -44,6 +44,10 @@ public final class ZipEntryReader: ZipErrorContext {
 
     // MARK: - Open/Close
 
+    /// Closes the file and invalidates `ZipEntryReader` instance.
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_fclose.html
     public func close() {
         let result = zip_fclose(handle)
         assert(result == ZIP_ER_OK, "Failed to close file, error code: \(result)")
@@ -52,20 +56,49 @@ public final class ZipEntryReader: ZipErrorContext {
 
     // MARK: - Entry I/O
 
+    /// Reads at most `count` bytes from file into `buf`.
+    /// Returns number of bytes read.
+    ///
+    /// - Parameters:
+    ///   - buf: destination data buffer
+    ///   - count: buffer size
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_fread.html
     @discardableResult
     public func read(buf: UnsafeMutableRawPointer, count: Int) throws -> Int {
         return try zipCast(zipCheckResult(zip_fread(handle, buf, zipCast(count))))
     }
 
+    /// Reads at most `count` bytes from file into `buf`.
+    /// Returns number of bytes read.
+    ///
+    /// - Parameter buf: destination data buffer
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_fread.html
     @discardableResult
     public func read(buf: UnsafeMutableRawBufferPointer) throws -> Int {
         return try read(buf: buf.baseAddress.forceUnwrap(), count: buf.count)
     }
 
-    public func seek(offset: Int, whence: ZipWhence) throws {
+    /// Seeks to the specified `offset` relative to `whence`, just like `fseek(3)`
+    ///
+    /// - Parameters:
+    ///   - offset: relative offset
+    ///   - whence: anchor point
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_fseek.html
+    public func seek(offset: Int, whence: ZipWhence = .cur) throws {
         try zipCheckResult(zip_fseek(handle, zipCast(offset), whence.rawValue))
     }
 
+    /// Reports the current offset in the file. `tell` only works on uncompressed (stored) data.
+    /// When called on compressed data it will throw an error.
+    ///
+    /// - See also:
+    ///   - https://libzip.org/documentation/zip_ftell.html
     public func tell() throws -> Int {
         return try zipCast(zipCheckResult(zip_ftell(handle)))
     }

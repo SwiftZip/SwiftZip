@@ -29,6 +29,7 @@ extension ZipArchive {
             self.rawValue = rawValue
         }
 
+        /// Perform additional stricter consistency checks on the archive, and error if they fail.
         public static let checkConsistency = FDOpenFlags(rawValue: ZIP_CHECKCONS)
     }
 }

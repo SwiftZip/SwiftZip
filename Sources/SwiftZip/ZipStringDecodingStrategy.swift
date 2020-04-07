@@ -28,6 +28,11 @@ public struct ZipStringDecodingStrategy: RawRepresentable, Equatable {
         self.rawValue = rawValue
     }
 
+    /// Guess the encoding of the string in the ZIP archive and convert it to UTF-8, if necessary.
     public static let guess = ZipStringDecodingStrategy(rawValue: ZIP_FL_ENC_GUESS)
+
+    /// Follow the ZIP specification for file names and extend it to file comments, expecting them
+    /// to be encoded in CP-437 in the ZIP archive (except if it is a UTF-8 comment from the
+    /// special extra field). Convert it to UTF-8.
     public static let strict = ZipStringDecodingStrategy(rawValue: ZIP_FL_ENC_STRICT)
 }

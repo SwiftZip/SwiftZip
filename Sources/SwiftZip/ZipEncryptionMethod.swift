@@ -28,9 +28,18 @@ public struct ZipEncryptionMethod: RawRepresentable, Equatable {
         self.rawValue = rawValue
     }
 
+    /// Not encrypted.
     public static let none = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_NONE))
+
+    /// Traditional PKWARE encryption.
     public static let pkware = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_TRAD_PKWARE))
+
+    /// Winzip AES-128 encryption.
     public static let aes128 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_128))
+
+    /// Winzip AES-192 encryption.
     public static let aes192 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_192))
+
+    /// Winzip AES-256 encryption.
     public static let aes256 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_256))
 }

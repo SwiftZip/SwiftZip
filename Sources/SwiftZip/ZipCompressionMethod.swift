@@ -28,24 +28,63 @@ public struct ZipCompressionMethod: RawRepresentable, Equatable {
         self.rawValue = rawValue
     }
 
+    /// default compression; currently the same as `deflate`, but flags are ignored.
     public static let `default` = ZipCompressionMethod(rawValue: ZIP_CM_DEFAULT)
+
+    /// Store the file uncompressed.
     public static let store = ZipCompressionMethod(rawValue: ZIP_CM_STORE)
+
+    /// Not supported by libzip/SwiftZip
     public static let shrink = ZipCompressionMethod(rawValue: ZIP_CM_SHRINK)
+
+    /// Not supported by libzip/SwiftZip
     public static let reduce1 = ZipCompressionMethod(rawValue: ZIP_CM_REDUCE_1)
+
+    /// Not supported by libzip/SwiftZip
     public static let reduce2 = ZipCompressionMethod(rawValue: ZIP_CM_REDUCE_2)
+
+    /// Not supported by libzip/SwiftZip
     public static let reduce3 = ZipCompressionMethod(rawValue: ZIP_CM_REDUCE_3)
+
+    /// Not supported by libzip/SwiftZip
     public static let reduce4 = ZipCompressionMethod(rawValue: ZIP_CM_REDUCE_4)
+
+    /// Not supported by libzip/SwiftZip
     public static let implode = ZipCompressionMethod(rawValue: ZIP_CM_IMPLODE)
+
+    /// Deflate the file with the zlib(3) algorithm and default options.
     public static let deflate = ZipCompressionMethod(rawValue: ZIP_CM_DEFLATE)
+
+    /// Not supported by libzip/SwiftZip
     public static let deflate64 = ZipCompressionMethod(rawValue: ZIP_CM_DEFLATE64)
+
+    /// Not supported by libzip/SwiftZip
     public static let pkwareImplode = ZipCompressionMethod(rawValue: ZIP_CM_PKWARE_IMPLODE)
+
+    /// Compress the file using the bzip2(1) algorithm.
     public static let bzip2 = ZipCompressionMethod(rawValue: ZIP_CM_BZIP2)
+
+    /// Not supported by libzip/SwiftZip
     public static let lzma = ZipCompressionMethod(rawValue: ZIP_CM_LZMA)
+
+    /// Not supported by libzip/SwiftZip
     public static let terse = ZipCompressionMethod(rawValue: ZIP_CM_TERSE)
+
+    /// Not supported by libzip/SwiftZip
     public static let lz77 = ZipCompressionMethod(rawValue: ZIP_CM_LZ77)
+
+    /// Not supported by libzip/SwiftZip
     public static let lzma2 = ZipCompressionMethod(rawValue: ZIP_CM_LZMA2)
+
+    /// Not supported by libzip/SwiftZip
     public static let xz = ZipCompressionMethod(rawValue: ZIP_CM_XZ)
+
+    /// Not supported by libzip/SwiftZip
     public static let jpeg = ZipCompressionMethod(rawValue: ZIP_CM_JPEG)
+
+    /// Not supported by libzip/SwiftZip
     public static let wavpack = ZipCompressionMethod(rawValue: ZIP_CM_WAVPACK)
+
+    /// Not supported by libzip/SwiftZip
     public static let ppmd = ZipCompressionMethod(rawValue: ZIP_CM_PPMD)
 }
