@@ -38,42 +38,7 @@ public final class ZipArchive: ZipErrorContext {
         return .zipError(zip_get_error(handle).pointee)
     }
 
-    // MARK: - Common Flags
-
-    public struct Version: RawRepresentable, Equatable {
-        public let rawValue: UInt32
-        public init(rawValue: UInt32) {
-            self.rawValue = rawValue
-        }
-
-        public static let unchanged = Version(rawValue: ZIP_FL_UNCHANGED)
-        public static let current = Version(rawValue: 0)
-    }
-
-    public struct Encoding: RawRepresentable, Equatable {
-        public let rawValue: UInt32
-        public init(rawValue: UInt32) {
-            self.rawValue = rawValue
-        }
-
-        public static let guess = Encoding(rawValue: ZIP_FL_ENC_GUESS)
-        public static let strict = Encoding(rawValue: ZIP_FL_ENC_STRICT)
-    }
-
     // MARK: - Open/Close Archive
-
-    public struct OpenFlags: OptionSet {
-        public let rawValue: Int32
-        public init(rawValue: Int32) {
-            self.rawValue = rawValue
-        }
-
-        public static let checkConsistency = OpenFlags(rawValue: ZIP_CHECKCONS)
-        public static let create = OpenFlags(rawValue: ZIP_CREATE)
-        public static let exclusive = OpenFlags(rawValue: ZIP_EXCL)
-        public static let truncate = OpenFlags(rawValue: ZIP_TRUNCATE)
-        public static let readOnly = OpenFlags(rawValue: ZIP_RDONLY)
-    }
 
     public init(path: String, flags: OpenFlags = [.readOnly]) throws {
         var status: Int32 = ZIP_ER_OK
@@ -105,15 +70,6 @@ public final class ZipArchive: ZipErrorContext {
 
         // compensate unbalanced `free` inside `zip_open_from_source`
         source.keep()
-    }
-
-    public struct FDOpenFlags: OptionSet {
-        public let rawValue: Int32
-        public init(rawValue: Int32) {
-            self.rawValue = rawValue
-        }
-
-        public static let checkConsistency = FDOpenFlags(rawValue: ZIP_CHECKCONS)
     }
 
     public init(fd: Int32, flags: FDOpenFlags = []) throws {
@@ -149,8 +105,12 @@ public final class ZipArchive: ZipErrorContext {
 
     // MARK: - Comments
 
-    public func getComment(encoding: Encoding = .guess, version: Version = .current) throws -> String {
-        return try String(cString: zipCheckResult(zip_get_archive_comment(handle, nil, encoding.rawValue | version.rawValue)))
+    public func getComment(decodingStrategy: ZipStringDecodingStrategy = .guess, version: Version = .current) throws -> String {
+        return try String(cString: zipCheckResult(zip_get_archive_comment(handle, nil, decodingStrategy.rawValue | version.rawValue)))
+    }
+
+    public func getRawComment(version: Version = .current) throws -> Data {
+        return try Data(cString: zipCheckResult(zip_get_archive_comment(handle, nil, ZIP_FL_ENC_RAW | version.rawValue)))
     }
 
     public func setComment(comment: String) throws {
@@ -175,16 +135,6 @@ public final class ZipArchive: ZipErrorContext {
 
     // MARK: - Locate Entry
 
-    public struct LocateFlags: OptionSet {
-        public let rawValue: UInt32
-        public init(rawValue: UInt32) {
-            self.rawValue = rawValue
-        }
-
-        public static let caseInsensitive = LocateFlags(rawValue: ZIP_FL_NOCASE)
-        public static let ignoreDirectory = LocateFlags(rawValue: ZIP_FL_NODIR)
-    }
-
     public func locate(filename: String, flags: LocateFlags = []) throws -> ZipEntry {
         return try filename.withCString { filename in
             let index = try zipCheckResult(zip_name_locate(handle, filename, flags.rawValue | ZIP_FL_ENC_UTF_8))
@@ -206,7 +156,7 @@ public final class ZipArchive: ZipErrorContext {
 
     // MARK: - Open Entry for Reading
 
-    public func open(filename: String, flags: ZipEntry.OpenFlags = [], password: String? = nil) throws -> ZipEntryFile {
+    public func open(filename: String, flags: ZipEntry.OpenFlags = [], password: String? = nil) throws -> ZipEntryReader {
         let entryHandle: OpaquePointer? = filename.withCString { filename in
             if let password = password {
                 return password.withCString { password in
@@ -217,19 +167,10 @@ public final class ZipArchive: ZipErrorContext {
             }
         }
 
-        return try ZipEntryFile(zipCheckResult(entryHandle))
+        return try ZipEntryReader(zipCheckResult(entryHandle))
     }
 
     // MARK: - Add/Remove Entries
-
-    public struct AddFileFlags: OptionSet {
-        public let rawValue: UInt32
-        public init(rawValue: UInt32) {
-            self.rawValue = rawValue
-        }
-
-        public static let overwrite = AddFileFlags(rawValue: ZIP_FL_OVERWRITE)
-    }
 
     @discardableResult
     public func addDirectory(name: String) throws -> Int {

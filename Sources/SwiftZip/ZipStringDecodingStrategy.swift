@@ -22,36 +22,12 @@
 
 import zip
 
-extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
-    }
-}
-
-extension ZipArchive {
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
-
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
+public struct ZipStringDecodingStrategy: RawRepresentable, Equatable {
+    public let rawValue: UInt32
+    public init(rawValue: UInt32) {
+        self.rawValue = rawValue
     }
 
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
-        }
-    }
-
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
-    }
+    public static let guess = ZipStringDecodingStrategy(rawValue: ZIP_FL_ENC_GUESS)
+    public static let strict = ZipStringDecodingStrategy(rawValue: ZIP_FL_ENC_STRICT)
 }

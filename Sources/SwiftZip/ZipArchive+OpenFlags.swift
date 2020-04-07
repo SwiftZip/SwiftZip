@@ -23,35 +23,16 @@
 import zip
 
 extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
-    }
-}
-
-extension ZipArchive {
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
-
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
-
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
+    public struct OpenFlags: OptionSet {
+        public let rawValue: Int32
+        public init(rawValue: Int32) {
+            self.rawValue = rawValue
         }
-    }
 
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
+        public static let checkConsistency = OpenFlags(rawValue: ZIP_CHECKCONS)
+        public static let create = OpenFlags(rawValue: ZIP_CREATE)
+        public static let exclusive = OpenFlags(rawValue: ZIP_EXCL)
+        public static let truncate = OpenFlags(rawValue: ZIP_TRUNCATE)
+        public static let readOnly = OpenFlags(rawValue: ZIP_RDONLY)
     }
 }

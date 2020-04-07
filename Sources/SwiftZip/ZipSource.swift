@@ -26,6 +26,10 @@ import zip
 public final class ZipSource: ZipErrorContext {
     internal let handle: OpaquePointer
 
+    deinit {
+        zip_source_free(handle)
+    }
+
     // MARK: - Error Context
 
     internal var error: ZipError? {
@@ -82,9 +86,5 @@ public final class ZipSource: ZipErrorContext {
 
     internal func keep() {
         zip_source_keep(handle)
-    }
-
-    deinit {
-        zip_source_free(handle)
     }
 }

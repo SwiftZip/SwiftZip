@@ -22,36 +22,21 @@
 
 import zip
 
-extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
-    }
-}
-
-extension ZipArchive {
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
-
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
-
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
+extension ZipEntry.Stat {
+    public struct ValidFields: OptionSet {
+        public let rawValue: UInt64
+        public init(rawValue: UInt64) {
+            self.rawValue = rawValue
         }
-    }
 
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
+        public static let name = ValidFields(rawValue: UInt64(ZIP_STAT_NAME))
+        public static let index = ValidFields(rawValue: UInt64(ZIP_STAT_INDEX))
+        public static let size = ValidFields(rawValue: UInt64(ZIP_STAT_SIZE))
+        public static let compressedSize = ValidFields(rawValue: UInt64(ZIP_STAT_COMP_SIZE))
+        public static let modificationDate = ValidFields(rawValue: UInt64(ZIP_STAT_MTIME))
+        public static let crc32 = ValidFields(rawValue: UInt64(ZIP_STAT_CRC))
+        public static let compressionMethod = ValidFields(rawValue: UInt64(ZIP_STAT_COMP_METHOD))
+        public static let encryptionMethod = ValidFields(rawValue: UInt64(ZIP_STAT_ENCRYPTION_METHOD))
+        public static let flags = ValidFields(rawValue: UInt64(ZIP_STAT_FLAGS))
     }
 }

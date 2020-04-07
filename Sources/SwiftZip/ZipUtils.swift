@@ -20,38 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import zip
+import Foundation
 
-extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
+extension Data {
+    internal init(cString bytes: UnsafePointer<Int8>) {
+        self.init(bytes: bytes, count: strlen(bytes) + 1)
     }
 }
 
-extension ZipArchive {
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
+#if !canImport(ObjectiveC)
+
+@_transparent
+internal func autoreleasepool<T>(_ block: () throws -> T) rethrows -> T {
+    return try block()
 }
 
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
-
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
-        }
-    }
-
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
-    }
-}
+#endif

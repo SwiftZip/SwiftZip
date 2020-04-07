@@ -22,36 +22,9 @@
 
 import zip
 
-extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
-    }
-}
-
-extension ZipArchive {
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
-
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
-
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
-        }
-    }
-
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
+extension ZipEntry {
+    public struct ExtraFieldData {
+        public let id: UInt16
+        public let data: UnsafeRawBufferPointer
     }
 }

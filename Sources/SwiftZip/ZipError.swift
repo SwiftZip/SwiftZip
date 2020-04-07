@@ -87,47 +87,6 @@ internal func zipCast<T, U>(_ value: T, as _: U.Type, function: StaticString = #
     }
 }
 
-// MARK: - Optional Unwrapping
-
-extension Optional {
-    internal func unwrapped(function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> Wrapped {
-        switch self {
-        case let .some(value):
-            return value
-        case .none:
-            assertionFailure("Unexpected `nil` when unwrapping value in `\(function)` at `\(file):\(line)`")
-            throw ZipError.internalInconsistency
-        }
-    }
-
-    internal func unwrapped(or error: Error) throws -> Wrapped {
-        switch self {
-        case let .some(value):
-            return value
-        case .none:
-            throw error
-        }
-    }
-
-    internal func unwrapped(or error: zip_error) throws -> Wrapped {
-        switch self {
-        case let .some(value):
-            return value
-        case .none:
-            throw ZipError.zipError(error)
-        }
-    }
-
-    internal func forceUnwrap(function: StaticString = #function, file: StaticString = #file, line: Int = #line) -> Wrapped {
-        switch self {
-        case let .some(value):
-            return value
-        case .none:
-            preconditionFailure("Unexpected `nil` when unwrapping value in `\(function)` at `\(file):\(line)`")
-        }
-    }
-}
-
 // MARK: - Error Context
 
 internal protocol ZipErrorContext {
@@ -153,14 +112,3 @@ extension ZipErrorContext {
         }
     }
 }
-
-// MARK: - Utils
-
-#if !canImport(ObjectiveC)
-
-@_transparent
-internal func autoreleasepool<T>(_ block: () throws -> T) rethrows -> T {
-    return try block()
-}
-
-#endif

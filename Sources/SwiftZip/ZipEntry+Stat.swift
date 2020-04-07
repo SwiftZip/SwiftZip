@@ -23,38 +23,20 @@
 import Foundation
 import zip
 
-extension ZipEntry.Stat {
-
-    // MARK: - Validity Flags
-
-    public struct ValidFields: OptionSet {
-        public let rawValue: UInt64
-        public init(rawValue: UInt64) {
-            self.rawValue = rawValue
-        }
-
-        public static let name = ValidFields(rawValue: UInt64(ZIP_STAT_NAME))
-        public static let index = ValidFields(rawValue: UInt64(ZIP_STAT_INDEX))
-        public static let size = ValidFields(rawValue: UInt64(ZIP_STAT_SIZE))
-        public static let compressedSize = ValidFields(rawValue: UInt64(ZIP_STAT_COMP_SIZE))
-        public static let modificationDate = ValidFields(rawValue: UInt64(ZIP_STAT_MTIME))
-        public static let crc32 = ValidFields(rawValue: UInt64(ZIP_STAT_CRC))
-        public static let compressionMethod = ValidFields(rawValue: UInt64(ZIP_STAT_COMP_METHOD))
-        public static let encryptionMethod = ValidFields(rawValue: UInt64(ZIP_STAT_ENCRYPTION_METHOD))
-        public static let flags = ValidFields(rawValue: UInt64(ZIP_STAT_FLAGS))
+extension ZipEntry {
+    public struct Stat {
+        internal var stat: zip_stat = zip_stat()
     }
+}
 
-    // MARK: - Property Accessors
-
+extension ZipEntry.Stat {
     public var validFields: ValidFields {
         return ValidFields(rawValue: stat.valid)
     }
 
     public var rawName: Data? {
         if validFields.contains(.name) {
-            return stat.name.flatMap {
-                return Data(bytes: $0, count: strlen($0) + 1)
-            }
+            return stat.name.flatMap(Data.init(cString:))
         } else {
             return nil
         }
@@ -108,7 +90,7 @@ extension ZipEntry.Stat {
         }
     }
 
-    public var compressionMethod: ZipEntry.CompressionMethod? {
+    public var compressionMethod: ZipCompressionMethod? {
         if validFields.contains(.compressionMethod) {
             return .init(rawValue: Int32(stat.comp_method))
         } else {
@@ -116,7 +98,7 @@ extension ZipEntry.Stat {
         }
     }
 
-    public var encryptionMethod: ZipEntry.EncryptionMethod? {
+    public var encryptionMethod: ZipEncryptionMethod? {
         if validFields.contains(.encryptionMethod) {
             return .init(rawValue: stat.encryption_method)
         } else {

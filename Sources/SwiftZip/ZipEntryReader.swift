@@ -22,7 +22,7 @@
 
 import zip
 
-public final class ZipEntryFile: ZipErrorContext {
+public final class ZipEntryReader: ZipErrorContext {
     internal var handle: OpaquePointer!
 
     internal init(_ handle: OpaquePointer) {
