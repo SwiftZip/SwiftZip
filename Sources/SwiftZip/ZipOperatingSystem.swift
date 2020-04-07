@@ -27,7 +27,9 @@ public struct ZipOperatingSystem: RawRepresentable, Equatable {
     public init(rawValue: UInt8) {
         self.rawValue = rawValue
     }
+}
 
+extension ZipOperatingSystem {
     /// MS-DOS and OS/2 (FAT / VFAT / FAT32 file systems)
     public static let dos = ZipOperatingSystem(rawValue: UInt8(ZIP_OPSYS_DOS))
 

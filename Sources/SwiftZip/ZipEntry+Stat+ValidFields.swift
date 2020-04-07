@@ -28,15 +28,17 @@ extension ZipEntry.Stat {
         public init(rawValue: UInt64) {
             self.rawValue = rawValue
         }
-
-        public static let name = ValidFields(rawValue: UInt64(ZIP_STAT_NAME))
-        public static let index = ValidFields(rawValue: UInt64(ZIP_STAT_INDEX))
-        public static let size = ValidFields(rawValue: UInt64(ZIP_STAT_SIZE))
-        public static let compressedSize = ValidFields(rawValue: UInt64(ZIP_STAT_COMP_SIZE))
-        public static let modificationDate = ValidFields(rawValue: UInt64(ZIP_STAT_MTIME))
-        public static let crc32 = ValidFields(rawValue: UInt64(ZIP_STAT_CRC))
-        public static let compressionMethod = ValidFields(rawValue: UInt64(ZIP_STAT_COMP_METHOD))
-        public static let encryptionMethod = ValidFields(rawValue: UInt64(ZIP_STAT_ENCRYPTION_METHOD))
-        public static let flags = ValidFields(rawValue: UInt64(ZIP_STAT_FLAGS))
     }
+}
+
+extension ZipEntry.Stat.ValidFields {
+    public static let name = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_NAME))
+    public static let index = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_INDEX))
+    public static let size = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_SIZE))
+    public static let compressedSize = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_COMP_SIZE))
+    public static let modificationDate = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_MTIME))
+    public static let crc32 = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_CRC))
+    public static let compressionMethod = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_COMP_METHOD))
+    public static let encryptionMethod = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_ENCRYPTION_METHOD))
+    public static let flags = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_FLAGS))
 }

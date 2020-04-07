@@ -28,8 +28,10 @@ extension ZipArchive {
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
         }
-
-        /// Overwrite any existing file of the same name.
-        public static let overwrite = AddFileFlags(rawValue: ZIP_FL_OVERWRITE)
     }
+}
+
+extension ZipArchive.AddFileFlags {
+    /// Overwrite any existing file of the same name.
+    public static let overwrite = ZipArchive.AddFileFlags(rawValue: ZIP_FL_OVERWRITE)
 }

@@ -28,11 +28,13 @@ extension ZipEntry {
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
         }
-
-        /// Access extra fields from the archive's central directory.
-        public static let central = ExtraFieldFlags(rawValue: ZIP_FL_CENTRAL)
-
-        /// Access extra fields from the local file headers.
-        public static let local = ExtraFieldFlags(rawValue: ZIP_FL_LOCAL)
     }
+}
+
+extension ZipEntry.ExtraFieldFlags {
+    /// Access extra fields from the archive's central directory.
+    public static let central = ZipEntry.ExtraFieldFlags(rawValue: ZIP_FL_CENTRAL)
+
+    /// Access extra fields from the local file headers.
+    public static let local = ZipEntry.ExtraFieldFlags(rawValue: ZIP_FL_LOCAL)
 }

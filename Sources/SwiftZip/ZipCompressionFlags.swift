@@ -27,7 +27,9 @@ public struct ZipCompressionFlags: RawRepresentable, Equatable {
     public init(rawValue: UInt32) {
         self.rawValue = rawValue
     }
+}
 
+extension ZipCompressionFlags {
     public static let `default` = ZipCompressionFlags(rawValue: 0)
     public static let fastest = ZipCompressionFlags(rawValue: 1)
     public static let best = ZipCompressionFlags(rawValue: 9)

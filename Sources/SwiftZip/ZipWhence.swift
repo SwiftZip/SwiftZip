@@ -27,7 +27,9 @@ public struct ZipWhence: RawRepresentable, Equatable {
     public init(rawValue: Int32) {
         self.rawValue = rawValue
     }
+}
 
+extension ZipWhence {
     /// The reference point is the beginning of the file.
     public static let set = ZipWhence(rawValue: SEEK_SET)
 

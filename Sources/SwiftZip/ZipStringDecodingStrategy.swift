@@ -27,7 +27,9 @@ public struct ZipStringDecodingStrategy: RawRepresentable, Equatable {
     public init(rawValue: UInt32) {
         self.rawValue = rawValue
     }
+}
 
+extension ZipStringDecodingStrategy {
     /// Guess the encoding of the string in the ZIP archive and convert it to UTF-8, if necessary.
     public static let guess = ZipStringDecodingStrategy(rawValue: ZIP_FL_ENC_GUESS)
 

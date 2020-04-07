@@ -28,8 +28,10 @@ extension ZipArchive {
         public init(rawValue: Int32) {
             self.rawValue = rawValue
         }
-
-        /// Perform additional stricter consistency checks on the archive, and error if they fail.
-        public static let checkConsistency = FDOpenFlags(rawValue: ZIP_CHECKCONS)
     }
+}
+
+extension ZipArchive.FDOpenFlags {
+    /// Perform additional stricter consistency checks on the archive, and error if they fail.
+    public static let checkConsistency = ZipArchive.FDOpenFlags(rawValue: ZIP_CHECKCONS)
 }

@@ -27,7 +27,9 @@ public struct ZipCompressionMethod: RawRepresentable, Equatable {
     public init(rawValue: Int32) {
         self.rawValue = rawValue
     }
+}
 
+extension ZipCompressionMethod {
     /// default compression; currently the same as `deflate`, but flags are ignored.
     public static let `default` = ZipCompressionMethod(rawValue: ZIP_CM_DEFAULT)
 

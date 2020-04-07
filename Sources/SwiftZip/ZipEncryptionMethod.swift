@@ -27,7 +27,9 @@ public struct ZipEncryptionMethod: RawRepresentable, Equatable {
     public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
+}
 
+extension ZipEncryptionMethod {
     /// Not encrypted.
     public static let none = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_NONE))
 

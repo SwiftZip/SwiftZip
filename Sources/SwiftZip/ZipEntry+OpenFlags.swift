@@ -28,8 +28,10 @@ extension ZipEntry {
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
         }
-
-        /// Read the compressed data. Otherwise the data is uncompressed by `ZipEntryReader.read`.
-        public static let compressed = OpenFlags(rawValue: ZIP_FL_COMPRESSED)
     }
+}
+
+extension ZipEntry.OpenFlags {
+    /// Read the compressed data. Otherwise the data is uncompressed by `ZipEntryReader.read`.
+    public static let compressed = ZipEntry.OpenFlags(rawValue: ZIP_FL_COMPRESSED)
 }
