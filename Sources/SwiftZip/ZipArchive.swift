@@ -46,12 +46,12 @@ public final class ZipArchive: ZipErrorContext {
 
     /// Opens the zip archive specified by path and sets up an instance, used to manipulate the archive.
     ///
+    /// - SeeAlso:
+    ///   - [zip_open](https://libzip.org/documentation/zip_open.html)
+    ///
     /// - Parameters:
     ///   - path: path to open
     ///   - flags: open flags, defaults to `[.readOnly]`
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_open.html
     public init(path: String, flags: OpenFlags = [.readOnly]) throws {
         var status: Int32 = ZIP_ER_OK
         let handle = path.withCString { path in
@@ -64,12 +64,12 @@ public final class ZipArchive: ZipErrorContext {
 
     /// Opens the zip archive specified by URL and sets up an instance, used to manipulate the archive.
     ///
+    /// - SeeAlso:
+    ///   - [zip_open](https://libzip.org/documentation/zip_open.html)
+    ///
     /// - Parameters:
     ///   - url: URL to open
     ///   - flags: open flags, defaults to `[.readOnly]`
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_open.html
     public init(url: URL, flags: OpenFlags = [.readOnly]) throws {
         var status: Int32 = ZIP_ER_OK
         let handle: OpaquePointer? = try url.withUnsafeFileSystemRepresentation { path in
@@ -86,12 +86,12 @@ public final class ZipArchive: ZipErrorContext {
 
     /// Opens a zip archive encapsulated by the `ZipSource` and sets up an instance, used to manipulate the archive.
     ///
+    /// - SeeAlso:
+    ///   - [zip_open_from_source](https://libzip.org/documentation/zip_open_from_source.html)
+    ///
     /// - Parameters:
     ///   - source: source to open
     ///   - flags: open flags, defaults to `[.readOnly]`
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_open_from_source.html
     public init(source: ZipSource, flags: OpenFlags = [.readOnly]) throws {
         var error = zip_error()
         self.handle = try zip_open_from_source(source.handle, flags.rawValue, &error).unwrapped(or: error)
@@ -107,12 +107,12 @@ public final class ZipArchive: ZipErrorContext {
     /// Upon successful completion `fd` should not be used any longer, nor passed to `close(2)`.
     /// In the error case, `fd` remains unchanged.
     ///
+    /// - SeeAlso:
+    ///   - [zip_fdopen](https://libzip.org/documentation/zip_fdopen.html)
+    ///
     /// - Parameters:
     ///   - fd: file descriptor to use
     ///   - flags: open flags, defaults to `[]`
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_fdopen.html
     public init(fd: Int32, flags: FDOpenFlags = []) throws {
         var status: Int32 = ZIP_ER_OK
         let handle = zip_fdopen(fd, flags.rawValue, &status)
@@ -124,8 +124,8 @@ public final class ZipArchive: ZipErrorContext {
     /// Closes archive and frees the memory allocated for it. Any changes to the archive are not written to disk and discarded.
     /// The `ZipArchive` object is invalidated and must not be used after call to `dsicard()`.
     ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_discard.html
+    /// - SeeAlso:
+    ///   - [zip_discard](https://libzip.org/documentation/zip_discard.html)
     public func discard() {
         zip_discard(handle)
         handle = nil
@@ -134,8 +134,8 @@ public final class ZipArchive: ZipErrorContext {
     /// Writes any changes made to archive to disk. If archive contains no files, the file is completely removed (no empty
     /// archive is written). If successful, archive is invalidated, otherwise archive is left unchanged.
     ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_close.html
+    /// - SeeAlso:
+    ///   - [zip_close](https://libzip.org/documentation/zip_close.html)
     public func close() throws {
         try zipCheckResult(zip_close(handle))
         handle = nil
@@ -147,10 +147,11 @@ public final class ZipArchive: ZipErrorContext {
     /// If you prefer a different password for single files, pass password to `ZipArchive.open` or `ZipEntry.open` instead.
     /// Usually, however, the same password is used for every file in an zip archive.
     ///
-    /// - Parameter password: the password to be used
+    /// - SeeAlso:
+    ///   - [zip_set_default_password](https://libzip.org/documentation/zip_set_default_password.html)
     ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_set_default_password.html
+    /// - Parameters:
+    ///   - password: the password to be used
     public func setDefaultPassword(_ password: String?) throws {
         if let password = password {
             try password.withCString { password in
@@ -165,22 +166,23 @@ public final class ZipArchive: ZipErrorContext {
 
     /// Returns the comment for the entire zip archive.
     ///
+    /// - SeeAlso:
+    ///   - [zip_get_archive_comment](https://libzip.org/documentation/zip_get_archive_comment.html)
+    ///
     /// - Parameters:
     ///   - decodingStrategy: string decoding strategy, defaults to `.guess`
     ///   - version: archive version to use, defaults to `.current`
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_get_archive_comment.html
     public func getComment(decodingStrategy: ZipStringDecodingStrategy = .guess, version: Version = .current) throws -> String {
         return try String(cString: zipCheckResult(zip_get_archive_comment(handle, nil, decodingStrategy.rawValue | version.rawValue)))
     }
 
     /// Returns the unmodified archive comment as it is in the ZIP archive.
     ///
-    /// - Parameter version: archive version to use, defaults to `.current`
+    /// - SeeAlso:
+    ///   - [zip_get_archive_comment](https://libzip.org/documentation/zip_get_archive_comment.html)
     ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_get_archive_comment.html
+    /// - Parameters:
+    ///   - version: archive version to use, defaults to `.current`
     public func getRawComment(version: Version = .current) throws -> Data {
         return try Data(cString: zipCheckResult(zip_get_archive_comment(handle, nil, ZIP_FL_ENC_RAW | version.rawValue)))
     }
@@ -188,10 +190,11 @@ public final class ZipArchive: ZipErrorContext {
     /// Sets the comment for the entire zip archive. If `comment` is set to `nil`,
     /// the comment is deleted from the archive.
     ///
-    /// - Parameter comment: new comment value
+    /// - SeeAlso:
+    ///   - [zip_set_archive_comment](https://libzip.org/documentation/zip_set_archive_comment.html)
     ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_set_archive_comment.html
+    /// - Parameters:
+    ///   - comment: new comment value
     public func setComment(_ comment: String?) throws {
         if let comment = comment {
             try comment.withCString { comment in
@@ -206,17 +209,19 @@ public final class ZipArchive: ZipErrorContext {
 
     /// Returns the number of files in archive
     ///
-    /// - Parameter version: archive version to use, defaults to `.current`
+    /// - SeeAlso:
+    ///   - [zip_get_num_entries](https://libzip.org/documentation/zip_get_num_entries.html)
     ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_get_num_entries.html
+    /// - Parameters:
+    ///   - version: archive version to use, defaults to `.current`
     public func getEntryCount(version: Version = .current) throws -> Int {
         return try zipCast(zipCheckResult(zip_get_num_entries(handle, version.rawValue)))
     }
 
     /// Retrieves archive entry by index
     ///
-    /// - Parameter index: index of entry to retrieve
+    /// - Parameters:
+    ///   - index: index of entry to retrieve
     public func getEntry(index: Int) throws -> ZipEntry {
         return try ZipEntry(archive: self, entry: zipCast(index))
     }
@@ -226,12 +231,12 @@ public final class ZipArchive: ZipErrorContext {
     ///  Returns the index of the file named `filename` in archive. If archive does not contain a file
     ///  with that name, an error is thrown.
     ///
+    /// - SeeAlso:
+    ///   - [zip_name_locate](https://libzip.org/documentation/zip_name_locate.html)
+    ///
     /// - Parameters:
     ///   - filename: entry name to locate
     ///   - lookupFlags: lookup options, defaults to `[]`
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_name_locate.html
     public func locate(filename: String, lookupFlags: LookupFlags = []) throws -> ZipEntry {
         return try filename.withCString { filename in
             let index = try zipCheckResult(zip_name_locate(handle, filename, lookupFlags.rawValue | ZIP_FL_ENC_UTF_8))
@@ -243,13 +248,13 @@ public final class ZipArchive: ZipErrorContext {
 
     /// Obtains information about the file named `filename` in archive.
     ///
+    /// - SeeAlso:
+    ///   - [zip_stat](https://libzip.org/documentation/zip_stat.html)
+    ///
     /// - Parameters:
     ///   - filename: entry name
     ///   - lookupFlags: lookup options, defaults to `[]`
     ///   - version: archive version to use, defaults to `.current`
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_stat.html
     public func stat(filename: String, lookupFlags: LookupFlags = [], version: Version = .current) throws -> ZipEntry.Stat {
         var result = ZipEntry.Stat()
         let resultCode = filename.withCString { filename in
@@ -264,16 +269,16 @@ public final class ZipArchive: ZipErrorContext {
 
     /// Opens the file named `filename` in archive using the password given in the password argument.
     ///
+    /// - SeeAlso:
+    ///   - [zip_fopen](https://libzip.org/documentation/zip_fopen.html)
+    ///   - [zip_fopen_encrypted](https://libzip.org/documentation/zip_fopen_encrypted.html)
+    ///
     /// - Parameters:
     ///   - filename: entry name to open
     ///   - flags: open flags, defaults to `[]`
     ///   - lookupFlags: lookup options, defaults to `[]`
     ///   - version: archive version to use, defaults to `.current`
     ///   - password: optional password to decrypt the entry
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_fopen.html
-    ///   - https://libzip.org/documentation/zip_fopen_encrypted.html
     public func open(filename: String, flags: ZipEntry.OpenFlags = [], lookupFlags: LookupFlags = [], version: Version = .current, password: String? = nil) throws -> ZipEntryReader {
         let entryHandle: OpaquePointer? = filename.withCString { filename in
             if let password = password {
@@ -292,10 +297,11 @@ public final class ZipArchive: ZipErrorContext {
 
     /// Adds a directory to a zip archive.
     ///
-    /// - Parameter name: the directory's name in the zip archive
+    /// - SeeAlso:
+    ///   - [zip_dir_add](https://libzip.org/documentation/zip_dir_add.html)
     ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_dir_add.html
+    /// - Parameters:
+    ///   - name: the directory's name in the zip archive
     @discardableResult
     public func addDirectory(name: String) throws -> ZipEntry {
         let index: zip_uint64_t = try name.withCString { name in
@@ -307,13 +313,13 @@ public final class ZipArchive: ZipErrorContext {
 
     /// Adds a file to a zip archive.
     ///
+    /// - SeeAlso:
+    ///   - [zip_file_add](https://libzip.org/documentation/zip_file_add.html)
+    ///
     /// - Parameters:
     ///   - name: the file's name in the zip archive
     ///   - source: the data of the file
     ///   - flags: operation flags, defaults to `[]`
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_file_add.html
     @discardableResult
     public func addFile(name: String, source: ZipSource, flags: AddFileFlags = []) throws -> ZipEntry {
         let index: zip_uint64_t = try name.withCString { name in
@@ -330,16 +336,16 @@ public final class ZipArchive: ZipErrorContext {
     /// Revert all global changes to the archive.
     /// This reverts changes to the archive comment and global flags.
     ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_unchange_archive.html
+    /// - SeeAlso:
+    ///   - [zip_unchange_archive](https://libzip.org/documentation/zip_unchange_archive.html)
     public func unchangeGlobals() throws {
         try zipCheckResult(zip_unchange_archive(handle))
     }
 
     /// All changes to files and global information in archive are reverted.
     ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_unchange_all.html
+    /// - SeeAlso:
+    ///   - [zip_unchange_all](https://libzip.org/documentation/zip_unchange_all.html)
     public func unchangeAll() throws {
         try zipCheckResult(zip_unchange_all(handle))
     }

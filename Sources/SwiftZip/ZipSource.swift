@@ -35,13 +35,13 @@ public final class ZipSource {
     /// Create a zip source from the `buffer` data of size `length`. If `freeWhenDone` is `true`, the buffer
     /// will be freed when it is no longer needed. `buffer` must remain valid for the lifetime of the created source.
     ///
+    /// - SeeAlso:
+    ///   - [zip_source_buffer_create](https://libzip.org/documentation/zip_source_buffer_create.html)
+    ///
     /// - Parameters:
     ///   - buffer: data buffer
     ///   - length: data size
     ///   - freeWhenDone: buffer ownership flag
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_source_buffer_create.html
     public init(buffer: UnsafeRawPointer, length: Int, freeWhenDone: Bool) throws {
         var error = zip_error_t()
         self.handle = try zip_source_buffer_create(buffer, zipCast(length), freeWhenDone ? 1 : 0, &error).unwrapped(or: error)
@@ -52,13 +52,13 @@ public final class ZipSource {
     /// If the file supports seek, the source can be used to open a zip archive from.
     /// The file is opened and read when the data from the source is used.
     ///
+    /// - SeeAlso:
+    ///   - [zip_source_file_create](https://libzip.org/documentation/zip_source_file_create.html)
+    ///
     /// - Parameters:
     ///   - filename: file path to open
     ///   - start: data offset, defaults to 0
     ///   - length: data length, defaults to -1
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_source_file_create.html
     public init(path: String, start: Int = 0, length: Int = -1) throws {
         self.handle = try path.withCString { path in
             var error = zip_error_t()
@@ -71,13 +71,13 @@ public final class ZipSource {
     /// If the file supports seek, the source can be used to open a zip archive from.
     /// The file is opened and read when the data from the source is used.
     ///
+    /// - SeeAlso:
+    ///   - [zip_source_file_create](https://libzip.org/documentation/zip_source_file_create.html)
+    ///
     /// - Parameters:
     ///   - url: file URL to open
     ///   - start: data offset, defaults to 0
     ///   - length: data length, defaults to -1
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_source_file_create.html
     public init(url: URL, start: Int = 0, length: Int = -1) throws {
         self.handle = try url.withUnsafeFileSystemRepresentation { path in
             if let path = path {
@@ -94,13 +94,13 @@ public final class ZipSource {
     /// If the file stream supports seeking, the source can be used to open a read-only zip archive from.
     /// The `file` stream is closed when the source is being freed.
     ///
+    /// - SeeAlso:
+    ///   - [zip_source_filep_create](https://libzip.org/documentation/zip_source_filep_create.html)
+    ///
     /// - Parameters:
     ///   - file: file stream to use
     ///   - start: data offset, defaults to 0
     ///   - length: data length, defaults to -1
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_source_filep_create.html
     public init(file: UnsafeMutablePointer<FILE>, start: Int = 0, length: Int = -1) throws {
         var error = zip_error_t()
         self.handle = try zip_source_filep_create(file, zipCast(start), zipCast(length), &error).unwrapped(or: error)
@@ -108,12 +108,12 @@ public final class ZipSource {
 
     /// Creates a zip source from the user-provided function `callback`.
     ///
+    /// - SeeAlso:
+    ///   - [zip_source_function_create](https://libzip.org/documentation/zip_source_function_create.html)
+    ///
     /// - Parameters:
     ///   - callback: user-defined callback function
     ///   - userdata: custom data to be passed to `callback`
-    ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_source_function_create.html
     public init(callback: @escaping zip_source_callback, userdata: UnsafeMutableRawPointer? = nil) throws {
         var error = zip_error_t()
         self.handle = try zip_source_function_create(callback, userdata, &error).unwrapped(or: error)
@@ -122,10 +122,11 @@ public final class ZipSource {
     /// Creates a zip source from the user-provided `callback` instance.
     /// The `callback` must conform to `ZipSourceReadable`, `ZipSourceSeekable`, or `ZipSourceWritable` protocols.
     ///
-    /// - Parameter callback: user-provided callback instance
+    /// - SeeAlso:
+    ///   - [zip_source_function_create](https://libzip.org/documentation/zip_source_function_create.html)
     ///
-    /// - See also:
-    ///   - https://libzip.org/documentation/zip_source_function_create.html
+    /// - Parameters:
+    ///   - callback: user-provided callback instance
     public init(callback: ZipSourceCallback) throws {
         var error = zip_error_t()
         let proxy = ZipSourceCallbackProxy(callback: callback)
