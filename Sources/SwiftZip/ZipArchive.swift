@@ -23,6 +23,8 @@
 import Foundation
 import zip
 
+/// The `ZipArchive` class provides an access to zip archive global properties and
+/// its directory contents. An archive may be opened from disk file or `ZipSource`.
 public final class ZipArchive: ZipErrorContext {
     internal var handle: OpaquePointer!
 
@@ -207,7 +209,7 @@ public final class ZipArchive: ZipErrorContext {
 
     // MARK: - Entry Enumeration
 
-    /// Returns the number of files in archive
+    /// Returns the number of files in archive.
     ///
     /// - SeeAlso:
     ///   - [zip_get_num_entries](https://libzip.org/documentation/zip_get_num_entries.html)
@@ -218,12 +220,21 @@ public final class ZipArchive: ZipErrorContext {
         return try zipCast(zipCheckResult(zip_get_num_entries(handle, version.rawValue)))
     }
 
-    /// Retrieves archive entry by index
+    /// Retrieves archive entry by index.
     ///
     /// - Parameters:
     ///   - index: index of entry to retrieve
-    public func getEntry(index: Int) throws -> ZipEntry {
-        return try ZipEntry(archive: self, entry: zipCast(index))
+    public func getEntry(index: Int) throws -> ZipMutableEntry {
+        return try ZipMutableEntry(archive: self, entry: zipCast(index), version: .current)
+    }
+
+    /// Retrieves archive entry by index using the original data from the zip archive,
+    /// ignoring any changes made to the file.
+    ///
+    /// - Parameters:
+    ///   - index: index of entry to retrieve
+    public func getUnchangedEntry(index: Int) throws -> ZipEntry {
+        return try ZipEntry(archive: self, entry: zipCast(index), version: .unchanged)
     }
 
     // MARK: - Locate Entry
@@ -237,10 +248,10 @@ public final class ZipArchive: ZipErrorContext {
     /// - Parameters:
     ///   - filename: entry name to locate
     ///   - lookupFlags: lookup options, defaults to `[]`
-    public func locate(filename: String, lookupFlags: LookupFlags = []) throws -> ZipEntry {
+    public func locate(filename: String, lookupFlags: LookupFlags = []) throws -> ZipMutableEntry {
         return try filename.withCString { filename in
             let index = try zipCheckResult(zip_name_locate(handle, filename, lookupFlags.rawValue | ZIP_FL_ENC_UTF_8))
-            return try ZipEntry(archive: self, entry: zipCast(index))
+            return try ZipMutableEntry(archive: self, entry: zipCast(index), version: .current)
         }
     }
 
@@ -303,12 +314,12 @@ public final class ZipArchive: ZipErrorContext {
     /// - Parameters:
     ///   - name: the directory's name in the zip archive
     @discardableResult
-    public func addDirectory(name: String) throws -> ZipEntry {
+    public func addDirectory(name: String) throws -> ZipMutableEntry {
         let index: zip_uint64_t = try name.withCString { name in
             return try zipCast(zipCheckResult(zip_dir_add(handle, name, ZIP_FL_ENC_UTF_8)))
         }
 
-        return ZipEntry(archive: self, entry: index)
+        return ZipMutableEntry(archive: self, entry: index, version: .current)
     }
 
     /// Adds a file to a zip archive.
@@ -321,14 +332,14 @@ public final class ZipArchive: ZipErrorContext {
     ///   - source: the data of the file
     ///   - flags: operation flags, defaults to `[]`
     @discardableResult
-    public func addFile(name: String, source: ZipSource, flags: AddFileFlags = []) throws -> ZipEntry {
+    public func addFile(name: String, source: ZipSource, flags: AddFileFlags = []) throws -> ZipMutableEntry {
         let index: zip_uint64_t = try name.withCString { name in
             return try zipCast(zipCheckResult(zip_file_add(handle, name, source.handle, flags.rawValue | ZIP_FL_ENC_UTF_8)))
         }
 
         // compensate unbalanced `free` inside `zip_file_add`
         source.keep()
-        return ZipEntry(archive: self, entry: index)
+        return ZipMutableEntry(archive: self, entry: index, version: .current)
     }
 
     // MARK: - Revert Changes

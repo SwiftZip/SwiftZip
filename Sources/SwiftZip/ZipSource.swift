@@ -23,6 +23,8 @@
 import Foundation
 import zip
 
+/// A `ZipSource` class wraps a data source used by `libzip(3)` for adding or replacing file contents
+/// for a file in a zip archive. If the source supports seeking, it can also be used to open zip archives from.
 public final class ZipSource {
     internal let handle: OpaquePointer
 

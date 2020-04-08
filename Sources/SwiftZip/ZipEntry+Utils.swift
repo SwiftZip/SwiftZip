@@ -27,13 +27,12 @@ extension ZipEntry {
     ///
     /// - Parameters:
     ///   - flags: open flags, defaults to `[]`
-    ///   - version: archive version to use, defaults to `.current`
     ///   - password: optional password to decrypt the entry
-    public func data(flags: OpenFlags = [], version: ZipArchive.Version = .current, password: String? = nil) throws -> Data {
+    public func data(flags: OpenFlags = [], password: String? = nil) throws -> Data {
         let size = try stat().size.unwrapped()
         var data = Data(count: Int(size))
         try data.withUnsafeMutableBytes { buffer in
-            let file = try open(flags: flags, version: version, password: password)
+            let file = try open(flags: flags, password: password)
             let read = try file.read(buf: buffer.baseAddress.forceUnwrap(), count: buffer.count)
             assert(read == buffer.count, "Failed to read \(buffer.count) bytes. Got \(read) instead.")
             file.close()
@@ -47,11 +46,10 @@ extension ZipEntry {
     /// - Parameters:
     ///   - url: destination file URL
     ///   - flags: open flags, defaults to `[]`
-    ///   - version: archive version to use, defaults to `.current`
     ///   - password: optional password to decrypt the entry
     ///   - progressHandler: progress handler callback
     @discardableResult
-    public func save(to url: URL, flags: OpenFlags = [], version: ZipArchive.Version = .current, password: String? = nil, progressHandler: ((Double) -> Bool)? = nil) throws -> Bool {
+    public func save(to url: URL, flags: OpenFlags = [], password: String? = nil, progressHandler: ((Double) -> Bool)? = nil) throws -> Bool {
         guard url.isFileURL else {
             throw ZipError.unsupportedURL
         }
@@ -64,7 +62,7 @@ extension ZipEntry {
             return false
         }
 
-        let file = try open(flags: flags, version: version, password: password)
+        let file = try open(flags: flags, password: password)
         defer { file.close() }
 
         guard FileManager.default.createFile(atPath: path, contents: nil, attributes: nil) else {
