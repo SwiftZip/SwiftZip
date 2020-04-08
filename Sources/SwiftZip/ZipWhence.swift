@@ -27,8 +27,15 @@ public struct ZipWhence: RawRepresentable, Equatable {
     public init(rawValue: Int32) {
         self.rawValue = rawValue
     }
+}
 
+extension ZipWhence {
+    /// The reference point is the beginning of the file.
     public static let set = ZipWhence(rawValue: SEEK_SET)
+
+    /// The reference point is the current value of the file-position indicator.
     public static let cur = ZipWhence(rawValue: SEEK_CUR)
+
+    /// The reference point is end of the file.
     public static let end = ZipWhence(rawValue: SEEK_END)
 }

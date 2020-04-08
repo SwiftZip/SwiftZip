@@ -23,36 +23,15 @@
 import zip
 
 extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
+    public struct FDOpenFlags: OptionSet {
+        public let rawValue: Int32
+        public init(rawValue: Int32) {
+            self.rawValue = rawValue
+        }
     }
 }
 
-extension ZipArchive {
-    /// Exposes archive entries as a Swift `Collection`
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
-
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
-
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
-        }
-    }
-
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
-    }
+extension ZipArchive.FDOpenFlags {
+    /// Perform additional stricter consistency checks on the archive, and error if they fail.
+    public static let checkConsistency = ZipArchive.FDOpenFlags(rawValue: ZIP_CHECKCONS)
 }

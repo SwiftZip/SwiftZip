@@ -20,39 +20,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Foundation
 import zip
 
-extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
-    }
-}
-
-extension ZipArchive {
-    /// Exposes archive entries as a Swift `Collection`
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
-
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
-
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
+extension Optional {
+    internal func unwrapped(function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> Wrapped {
+        switch self {
+        case let .some(value):
+            return value
+        case .none:
+            assertionFailure("Unexpected `nil` when unwrapping value in `\(function)` at `\(file):\(line)`")
+            throw ZipError.internalInconsistency
         }
     }
 
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
+    internal func unwrapped(or error: Error) throws -> Wrapped {
+        switch self {
+        case let .some(value):
+            return value
+        case .none:
+            throw error
+        }
+    }
+
+    internal func unwrapped(or error: zip_error) throws -> Wrapped {
+        switch self {
+        case let .some(value):
+            return value
+        case .none:
+            throw ZipError.zipError(error)
+        }
+    }
+
+    internal func forceUnwrap(function: StaticString = #function, file: StaticString = #file, line: Int = #line) -> Wrapped {
+        switch self {
+        case let .some(value):
+            return value
+        case .none:
+            preconditionFailure("Unexpected `nil` when unwrapping value in `\(function)` at `\(file):\(line)`")
         }
     }
 }

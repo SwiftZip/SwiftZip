@@ -43,7 +43,7 @@ private final class ZipSourceData: ZipSourceSeekable {
 
     func read(to buffer: UnsafeMutableRawPointer, count: Int) throws -> Int {
         guard count >= 0 else {
-            throw ZipError.invalidArgument
+            throw ZipError.invalidArgument("count")
         }
 
         let available = min(count, data.count - position)
@@ -72,11 +72,11 @@ private final class ZipSourceData: ZipSourceSeekable {
         case .end:
             newPosition = data.count + offset
         default:
-            throw ZipError.invalidArgument
+            throw ZipError.invalidArgument("offset")
         }
 
         guard newPosition >= 0 && newPosition <= data.count else {
-            throw ZipError.invalidArgument
+            throw ZipError.invalidArgument("offset")
         }
 
         position = newPosition

@@ -23,36 +23,20 @@
 import zip
 
 extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
+    public struct LookupFlags: OptionSet {
+        public let rawValue: UInt32
+        public init(rawValue: UInt32) {
+            self.rawValue = rawValue
+        }
     }
 }
 
-extension ZipArchive {
-    /// Exposes archive entries as a Swift `Collection`
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
+extension ZipArchive.LookupFlags {
+    /// Ignore case distinctions. (Will only work well if the file names are ASCII.)
+    /// With this flag, `ZipArchive.locate` will be slow for archives with many files.
+    public static let caseInsensitive = ZipArchive.LookupFlags(rawValue: ZIP_FL_NOCASE)
 
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
-
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
-        }
-    }
-
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
-    }
+    /// Ignore directory part of file name in archive.
+    /// With this flag, `ZipArchive.locate` will be slow for archives with many files.
+    public static let ignoreDirectory = ZipArchive.LookupFlags(rawValue: ZIP_FL_NODIR)
 }

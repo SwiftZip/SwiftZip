@@ -23,36 +23,27 @@
 import zip
 
 extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
+    public struct OpenFlags: OptionSet {
+        public let rawValue: Int32
+        public init(rawValue: Int32) {
+            self.rawValue = rawValue
+        }
     }
 }
 
-extension ZipArchive {
-    /// Exposes archive entries as a Swift `Collection`
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
+extension ZipArchive.OpenFlags {
+    /// Perform additional stricter consistency checks on the archive, and error if they fail.
+    public static let checkConsistency = ZipArchive.OpenFlags(rawValue: ZIP_CHECKCONS)
 
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
+    /// Create the archive if it does not exist.
+    public static let create = ZipArchive.OpenFlags(rawValue: ZIP_CREATE)
 
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
-        }
-    }
+    /// Error if archive already exists.
+    public static let exclusive = ZipArchive.OpenFlags(rawValue: ZIP_EXCL)
 
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
-    }
+    /// If archive exists, ignore its current contents. In other words, handle it the same way as an empty archive.
+    public static let truncate = ZipArchive.OpenFlags(rawValue: ZIP_TRUNCATE)
+
+    /// Open archive in read-only mode.
+    public static let readOnly = ZipArchive.OpenFlags(rawValue: ZIP_RDONLY)
 }

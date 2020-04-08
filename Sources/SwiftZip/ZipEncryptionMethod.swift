@@ -22,37 +22,26 @@
 
 import zip
 
-extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
+public struct ZipEncryptionMethod: RawRepresentable, Equatable {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) {
+        self.rawValue = rawValue
     }
 }
 
-extension ZipArchive {
-    /// Exposes archive entries as a Swift `Collection`
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
+extension ZipEncryptionMethod {
+    /// Not encrypted.
+    public static let none = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_NONE))
 
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
+    /// Traditional PKWARE encryption.
+    public static let pkware = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_TRAD_PKWARE))
 
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
-        }
-    }
+    /// Winzip AES-128 encryption.
+    public static let aes128 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_128))
 
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
-    }
+    /// Winzip AES-192 encryption.
+    public static let aes192 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_192))
+
+    /// Winzip AES-256 encryption.
+    public static let aes256 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_256))
 }

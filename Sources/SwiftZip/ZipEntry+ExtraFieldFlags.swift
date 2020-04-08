@@ -22,37 +22,19 @@
 
 import zip
 
-extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
+extension ZipEntry {
+    public struct ExtraFieldFlags: OptionSet {
+        public let rawValue: UInt32
+        public init(rawValue: UInt32) {
+            self.rawValue = rawValue
+        }
     }
 }
 
-extension ZipArchive {
-    /// Exposes archive entries as a Swift `Collection`
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
+extension ZipEntry.ExtraFieldFlags {
+    /// Access extra fields from the archive's central directory.
+    public static let central = ZipEntry.ExtraFieldFlags(rawValue: ZIP_FL_CENTRAL)
 
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
-
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
-        }
-    }
-
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
-    }
+    /// Access extra fields from the local file headers.
+    public static let local = ZipEntry.ExtraFieldFlags(rawValue: ZIP_FL_LOCAL)
 }

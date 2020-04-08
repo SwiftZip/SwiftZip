@@ -133,6 +133,8 @@ internal final class ZipSourceCallbackProxy {
                 let source = try zipCast(self.callback, as: ZipSourceReadable.self)
                 let stat = try source.stat()
                 let data = try data.unwrapped().assumingMemoryBound(to: zip_stat.self)
+                zip_stat_init(data)
+
                 if let value = stat.size { data.pointee.size = try zipCast(value) }
                 if let value = stat.compressedSize { data.pointee.comp_size = try zipCast(value) }
                 if let value = stat.modificationDate { data.pointee.mtime = try zipCast(Int(value.timeIntervalSince1970)) }

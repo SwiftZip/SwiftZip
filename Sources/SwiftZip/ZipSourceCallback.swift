@@ -28,11 +28,11 @@ public struct ZipSourceStat {
     public var compressedSize: Int?
     public var modificationDate: Date?
     public var crc32: UInt32?
-    public var compressionMethod: ZipEntry.CompressionMethod?
-    public var encryptionMethod: ZipEntry.EncryptionMethod?
+    public var compressionMethod: ZipCompressionMethod?
+    public var encryptionMethod: ZipEncryptionMethod?
     public var flags: UInt32?
 
-    public init(size: Int? = nil, compressedSize: Int? = nil, modificationDate: Date? = nil, crc32: UInt32? = nil, compressionMethod: ZipEntry.CompressionMethod? = nil, encryptionMethod: ZipEntry.EncryptionMethod? = nil, flags: UInt32? = nil) {
+    public init(size: Int? = nil, compressedSize: Int? = nil, modificationDate: Date? = nil, crc32: UInt32? = nil, compressionMethod: ZipCompressionMethod? = nil, encryptionMethod: ZipEncryptionMethod? = nil, flags: UInt32? = nil) {
         self.size = size
         self.compressedSize = compressedSize
         self.modificationDate = modificationDate

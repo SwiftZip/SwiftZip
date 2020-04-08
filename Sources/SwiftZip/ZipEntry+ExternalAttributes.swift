@@ -28,10 +28,16 @@ import Glibc
 #error("Platform not supported")
 #endif
 
+extension ZipEntry {
+    public struct ExternalAttributes {
+        public let operatingSystem: ZipOperatingSystem
+        public let attributes: UInt32
+    }
+}
+
+// MARK: - Platform-Specific Attribute Accessors
+
 extension ZipEntry.ExternalAttributes {
-
-    // MARK: - Platform-Specific Attribute Accessors
-
     public var posixAttributes: mode_t {
         return mode_t(attributes >> 16)
     }
@@ -43,9 +49,11 @@ extension ZipEntry.ExternalAttributes {
     public var posixFileType: mode_t {
         return posixAttributes & S_IFMT
     }
+}
 
-    // MARK: - Universal Helpers
+// MARK: - Universal Helpers
 
+extension ZipEntry.ExternalAttributes {
     public var isDirectory: Bool {
         switch operatingSystem {
         case .dos,

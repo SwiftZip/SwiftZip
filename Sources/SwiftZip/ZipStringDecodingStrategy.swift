@@ -22,37 +22,19 @@
 
 import zip
 
-extension ZipArchive {
-    public struct Entries {
-        internal let archive: ZipArchive
+public struct ZipStringDecodingStrategy: RawRepresentable, Equatable {
+    public let rawValue: UInt32
+    public init(rawValue: UInt32) {
+        self.rawValue = rawValue
     }
 }
 
-extension ZipArchive {
-    /// Exposes archive entries as a Swift `Collection`
-    public var entries: Entries {
-        return Entries(archive: self)
-    }
-}
+extension ZipStringDecodingStrategy {
+    /// Guess the encoding of the string in the ZIP archive and convert it to UTF-8, if necessary.
+    public static let guess = ZipStringDecodingStrategy(rawValue: ZIP_FL_ENC_GUESS)
 
-extension ZipArchive.Entries: RandomAccessCollection {
-    public var startIndex: Int {
-        return 0
-    }
-
-    public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
-        }
-    }
-
-    public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
-        }
-    }
+    /// Follow the ZIP specification for file names and extend it to file comments, expecting them
+    /// to be encoded in CP-437 in the ZIP archive (except if it is a UTF-8 comment from the
+    /// special extra field). Convert it to UTF-8.
+    public static let strict = ZipStringDecodingStrategy(rawValue: ZIP_FL_ENC_STRICT)
 }

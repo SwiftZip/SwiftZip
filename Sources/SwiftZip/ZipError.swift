@@ -28,10 +28,9 @@ import zip
 public enum ZipError: Error {
     case zipError(zip_error_t)
     case integerCastFailed
-    case stringDecodingFailed
     case createFileFailed
     case unsupportedURL
-    case invalidArgument
+    case invalidArgument(String)
     case internalInconsistency
 }
 
@@ -42,14 +41,12 @@ extension ZipError: LocalizedError {
             return String(cString: zip_error_strerror(&error))
         case .integerCastFailed:
             return "Failed to cast integer value."
-        case .stringDecodingFailed:
-            return "Failed to decode string."
         case .createFileFailed:
             return "Failed to create file."
         case .unsupportedURL:
             return "SwiftZip supports file URLs only."
-        case .invalidArgument:
-            return "Invalid argument passed."
+        case let .invalidArgument(name):
+            return "Invalid value passed for argument `\(name)`."
         case .internalInconsistency:
             return "SwiftZip internal inconsistency."
         }
@@ -67,78 +64,19 @@ internal func zipCheckError(_ errorCode: Int32) throws {
     }
 }
 
-// MARK: - Int Cast
-
-internal func zipCast<T, U>(_ value: T, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {
-    if let result = U(exactly: value) {
-        return result
-    } else {
-        assertionFailure("Numeric cast failed in `\(function)` at `\(file):\(line)`")
-        throw ZipError.integerCastFailed
-    }
-}
-
-internal func zipCast<T, U>(_ value: T, as _: U.Type, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U {
-    if let result = value as? U {
-        return result
-    } else {
-        assertionFailure("Dynamic cast failed in `\(function)` at `\(file):\(line)`")
-        throw ZipError.internalInconsistency
-    }
-}
-
-// MARK: - Optional Unwrapping
-
-extension Optional {
-    internal func unwrapped(function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> Wrapped {
-        switch self {
-        case let .some(value):
-            return value
-        case .none:
-            assertionFailure("Unexpected `nil` when unwrapping value in `\(function)` at `\(file):\(line)`")
-            throw ZipError.internalInconsistency
-        }
-    }
-
-    internal func unwrapped(or error: Error) throws -> Wrapped {
-        switch self {
-        case let .some(value):
-            return value
-        case .none:
-            throw error
-        }
-    }
-
-    internal func unwrapped(or error: zip_error) throws -> Wrapped {
-        switch self {
-        case let .some(value):
-            return value
-        case .none:
-            throw ZipError.zipError(error)
-        }
-    }
-
-    internal func forceUnwrap(function: StaticString = #function, file: StaticString = #file, line: Int = #line) -> Wrapped {
-        switch self {
-        case let .some(value):
-            return value
-        case .none:
-            preconditionFailure("Unexpected `nil` when unwrapping value in `\(function)` at `\(file):\(line)`")
-        }
-    }
-}
-
 // MARK: - Error Context
 
 internal protocol ZipErrorContext {
-    var error: ZipError? { get }
+    var error: zip_error_t? { get }
+    func clearError()
 }
 
 extension ZipErrorContext {
     @discardableResult
-    internal func zipCheckResult<T>(_ returnCode: T) throws -> T where T: BinaryInteger {
+    internal func zipCheckResult<T>(_ returnCode: T) throws -> T where T: SignedInteger {
         if returnCode == -1 {
-            throw try error.unwrapped()
+            defer { clearError() }
+            throw try ZipError.zipError(error.unwrapped())
         } else {
             return returnCode
         }
@@ -149,18 +87,8 @@ extension ZipErrorContext {
         case let .some(value):
             return value
         case .none:
-            throw try error.unwrapped()
+            defer { clearError() }
+            throw try ZipError.zipError(error.unwrapped())
         }
     }
 }
-
-// MARK: - Utils
-
-#if !canImport(ObjectiveC)
-
-@_transparent
-internal func autoreleasepool<T>(_ block: () throws -> T) rethrows -> T {
-    return try block()
-}
-
-#endif
