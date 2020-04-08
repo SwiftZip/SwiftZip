@@ -64,37 +64,19 @@ internal func zipCheckError(_ errorCode: Int32) throws {
     }
 }
 
-// MARK: - Int Cast
-
-internal func zipCast<T, U>(_ value: T, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {
-    if let result = U(exactly: value) {
-        return result
-    } else {
-        assertionFailure("Numeric cast failed in `\(function)` at `\(file):\(line)`")
-        throw ZipError.integerCastFailed
-    }
-}
-
-internal func zipCast<T, U>(_ value: T, as _: U.Type, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U {
-    if let result = value as? U {
-        return result
-    } else {
-        assertionFailure("Dynamic cast failed in `\(function)` at `\(file):\(line)`")
-        throw ZipError.internalInconsistency
-    }
-}
-
 // MARK: - Error Context
 
 internal protocol ZipErrorContext {
-    var error: ZipError? { get }
+    var error: zip_error_t? { get }
+    func clearError()
 }
 
 extension ZipErrorContext {
     @discardableResult
-    internal func zipCheckResult<T>(_ returnCode: T) throws -> T where T: BinaryInteger {
+    internal func zipCheckResult<T>(_ returnCode: T) throws -> T where T: SignedInteger {
         if returnCode == -1 {
-            throw try error.unwrapped()
+            defer { clearError() }
+            throw try ZipError.zipError(error.unwrapped())
         } else {
             return returnCode
         }
@@ -105,7 +87,8 @@ extension ZipErrorContext {
         case let .some(value):
             return value
         case .none:
-            throw try error.unwrapped()
+            defer { clearError() }
+            throw try ZipError.zipError(error.unwrapped())
         }
     }
 }

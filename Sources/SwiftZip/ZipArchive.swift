@@ -34,8 +34,12 @@ public final class ZipArchive: ZipErrorContext {
 
     // MARK: - Error Context
 
-    internal var error: ZipError? {
-        return .zipError(zip_get_error(handle).pointee)
+    internal var error: zip_error_t? {
+        return zip_get_error(handle).pointee
+    }
+
+    internal func clearError() {
+        zip_error_clear(handle)
     }
 
     // MARK: - Open/Close Archive
@@ -214,7 +218,7 @@ public final class ZipArchive: ZipErrorContext {
     ///
     /// - Parameter index: index of entry to retrieve
     public func getEntry(index: Int) throws -> ZipEntry {
-        return try ZipEntry(archive: self, index: zipCast(index))
+        return try ZipEntry(archive: self, entry: zipCast(index))
     }
 
     // MARK: - Locate Entry
@@ -231,7 +235,7 @@ public final class ZipArchive: ZipErrorContext {
     public func locate(filename: String, lookupFlags: LookupFlags = []) throws -> ZipEntry {
         return try filename.withCString { filename in
             let index = try zipCheckResult(zip_name_locate(handle, filename, lookupFlags.rawValue | ZIP_FL_ENC_UTF_8))
-            return try ZipEntry(archive: self, index: zipCast(index))
+            return try ZipEntry(archive: self, entry: zipCast(index))
         }
     }
 
@@ -298,7 +302,7 @@ public final class ZipArchive: ZipErrorContext {
             return try zipCast(zipCheckResult(zip_dir_add(handle, name, ZIP_FL_ENC_UTF_8)))
         }
 
-        return ZipEntry(archive: self, index: index)
+        return ZipEntry(archive: self, entry: index)
     }
 
     /// Adds a file to a zip archive.
@@ -318,7 +322,7 @@ public final class ZipArchive: ZipErrorContext {
 
         // compensate unbalanced `free` inside `zip_file_add`
         source.keep()
-        return ZipEntry(archive: self, index: index)
+        return ZipEntry(archive: self, entry: index)
     }
 
     // MARK: - Revert Changes

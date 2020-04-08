@@ -22,11 +22,37 @@
 
 import Foundation
 
+// MARK: - Throwing numeric cast
+
+internal func zipCast<T, U>(_ value: T, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {
+    if let result = U(exactly: value) {
+        return result
+    } else {
+        assertionFailure("Numeric cast failed in `\(function)` at `\(file):\(line)`")
+        throw ZipError.integerCastFailed
+    }
+}
+
+// MARK: - Throwing downcast
+
+internal func zipCast<T, U>(_ value: T, as _: U.Type, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U {
+    if let result = value as? U {
+        return result
+    } else {
+        assertionFailure("Dynamic cast failed in `\(function)` at `\(file):\(line)`")
+        throw ZipError.internalInconsistency
+    }
+}
+
+// MARK: - Create `Data` from NULL-terminated string
+
 extension Data {
     internal init(cString bytes: UnsafePointer<Int8>) {
         self.init(bytes: bytes, count: strlen(bytes) + 1)
     }
 }
+
+// MARK: - Linux shim for `autoreleasepool`
 
 #if !canImport(ObjectiveC)
 

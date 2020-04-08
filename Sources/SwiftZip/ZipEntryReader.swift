@@ -38,8 +38,12 @@ public final class ZipEntryReader: ZipErrorContext {
 
     // MARK: - Error Context
 
-    internal var error: ZipError? {
-        return .zipError(zip_file_get_error(handle).pointee)
+    internal var error: zip_error_t? {
+        return zip_file_get_error(handle).pointee
+    }
+
+    internal func clearError() {
+        zip_file_error_clear(handle)
     }
 
     // MARK: - Open/Close

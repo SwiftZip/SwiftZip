@@ -23,17 +23,11 @@
 import Foundation
 import zip
 
-public final class ZipSource: ZipErrorContext {
+public final class ZipSource {
     internal let handle: OpaquePointer
 
     deinit {
         zip_source_free(handle)
-    }
-
-    // MARK: - Error Context
-
-    internal var error: ZipError? {
-        return .zipError(zip_source_error(handle).pointee)
     }
 
     // MARK: - Create/Destroy
@@ -53,7 +47,7 @@ public final class ZipSource: ZipErrorContext {
         self.handle = try zip_source_buffer_create(buffer, zipCast(length), freeWhenDone ? 1 : 0, &error).unwrapped(or: error)
     }
 
-    /// Create a zip source from a file. Opens `filename` and read `length` bytes from offset `start` from it.
+    /// Create a zip source from a file. Opens `path` and read `length` bytes from offset `start` from it.
     /// If `length` is 0 or -1, the whole file (starting from `start`) is used.
     /// If the file supports seek, the source can be used to open a zip archive from.
     /// The file is opened and read when the data from the source is used.
@@ -65,30 +59,30 @@ public final class ZipSource: ZipErrorContext {
     ///
     /// - See also:
     ///   - https://libzip.org/documentation/zip_source_file_create.html
-    public init(filename: String, start: Int = 0, length: Int = -1) throws {
-        self.handle = try filename.withCString { filename in
+    public init(path: String, start: Int = 0, length: Int = -1) throws {
+        self.handle = try path.withCString { path in
             var error = zip_error_t()
-            return try zip_source_file_create(filename, zipCast(start), zipCast(length), &error).unwrapped(or: error)
+            return try zip_source_file_create(path, zipCast(start), zipCast(length), &error).unwrapped(or: error)
         }
     }
 
-    /// Create a zip source from a file. Opens `filename` and read `length` bytes from offset `start` from it.
+    /// Create a zip source from a file. Opens `url` and read `length` bytes from offset `start` from it.
     /// If `length` is 0 or -1, the whole file (starting from `start`) is used.
     /// If the file supports seek, the source can be used to open a zip archive from.
     /// The file is opened and read when the data from the source is used.
     ///
     /// - Parameters:
-    ///   - filename: file URL to open
+    ///   - url: file URL to open
     ///   - start: data offset, defaults to 0
     ///   - length: data length, defaults to -1
     ///
     /// - See also:
     ///   - https://libzip.org/documentation/zip_source_file_create.html
     public init(url: URL, start: Int = 0, length: Int = -1) throws {
-        self.handle = try url.withUnsafeFileSystemRepresentation { filename in
-            if let filename = filename {
+        self.handle = try url.withUnsafeFileSystemRepresentation { path in
+            if let path = path {
                 var error = zip_error_t()
-                return try zip_source_file_create(filename, zipCast(start), zipCast(length), &error).unwrapped(or: error)
+                return try zip_source_file_create(path, zipCast(start), zipCast(length), &error).unwrapped(or: error)
             } else {
                 throw ZipError.unsupportedURL
             }
