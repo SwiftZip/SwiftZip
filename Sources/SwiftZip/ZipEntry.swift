@@ -23,9 +23,6 @@
 import Foundation
 import zip
 
-/// `ZipEntry` class provides a read-only access to a specific entry of the archive.
-/// The `ZipEntry` instance may be used to access either `.current` or `.unchanged`
-/// version of the archive.
 public class ZipEntry: ZipErrorContext {
     internal let archive: ZipArchive
     internal let entry: zip_uint64_t

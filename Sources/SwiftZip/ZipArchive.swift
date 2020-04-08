@@ -23,8 +23,6 @@
 import Foundation
 import zip
 
-/// The `ZipArchive` class provides an access to zip archive global properties and
-/// its directory contents. An archive may be opened from disk file or `ZipSource`.
 public final class ZipArchive: ZipErrorContext {
     internal var handle: OpaquePointer!
 

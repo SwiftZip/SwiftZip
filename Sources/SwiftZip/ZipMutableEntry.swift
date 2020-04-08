@@ -23,7 +23,6 @@
 import Foundation
 import zip
 
-/// `ZipMutableEntry` class provides a read-write access to a specific entry of the archive.
 public final class ZipMutableEntry: ZipEntry {
 
     // MARK: - Attributes
