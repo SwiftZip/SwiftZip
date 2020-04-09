@@ -21,23 +21,32 @@
 // SOFTWARE.
 
 import Foundation
-import XCTest
 
-class ZipTestCase: XCTestCase {
-    private static let tempRoot = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-    private static let tempDirectory = tempRoot.appendingPathComponent(UUID().uuidString, isDirectory: true)
+enum Constants {
+    static let archiveComment = "test archive comment"
 
-    override class func setUp() {
-        super.setUp()
-        try? FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true, attributes: nil)
-    }
+    static let entryName = "test.txt"
 
-    override class func tearDown() {
-        try? FileManager.default.removeItem(at: tempDirectory)
-        super.tearDown()
-    }
+    static let entryComment = "test entry comment"
 
-    func tempFile(type ext: String) -> URL {
-        return Self.tempDirectory.appendingPathComponent(UUID().uuidString, isDirectory: false).appendingPathExtension(ext)
-    }
+    static let firstExtraField: UInt16 = 0xAA
+
+    static let firstExtraFieldDataLocal = "first extra field local"
+        .data(using: .utf8)!
+
+    static let firstExtraFieldDataCentral = "first extra field central"
+        .data(using: .utf8)!
+
+    static let secondExtraField: UInt16 = 0xBB
+
+    static let secondExtraFieldData = "second extra field"
+        .data(using: .utf8)!
+
+    static let helloData = "Hello, World!"
+        .data(using: .utf8)!
+
+    static let largeData = stride(from: 0, to: 17 * 17 * 17 * 17, by: 1)
+        .map { "Hello, World #\($0)!" }
+        .joined(separator: " ")
+        .data(using: .utf8)!
 }

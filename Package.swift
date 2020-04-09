@@ -42,6 +42,7 @@ let package = Package(
     products: [
         .library(name: "zip", targets: ["zip"]),
         .library(name: "SwiftZip", targets: ["SwiftZip"]),
+        .executable(name: "SwiftZipTestDataGenerator", targets: ["SwiftZipTestDataGenerator"]),
     ],
     targets: [
         .target(
@@ -132,6 +133,11 @@ let package = Package(
             name: "SwiftZip",
             dependencies: ["zip"],
             path: "Sources/SwiftZip"
+        ),
+        .target(
+            name: "SwiftZipTestDataGenerator",
+            dependencies: ["SwiftZip"],
+            path: "Sources/SwiftZipTestDataGenerator"
         ),
         .testTarget(
             name: "SwiftZipTests",

@@ -26,14 +26,14 @@ import XCTest
 
 class SampleTest: ZipTestCase {
     func testExample() throws {
-        let archive = try ZipMutableArchive(url: tempFile(type: "zip"), flags: [.create, .truncate])
+        let archive = try ZipMutableArchive(url: tempFileURL(type: "zip"), flags: [.create, .truncate])
         let source = try ZipSource(data: "Hello".data(using: .utf8)!)
         try archive.addFile(name: "test.txt", source: source)
         try archive.close()
     }
 
     func testExample2() throws {
-        let archiveUrl = tempFile(type: "zip")
+        let archiveUrl = tempFileURL(ext: "zip")
         let largeString = Array(repeating: String("Hello, world!"), count: 1000).joined()
 
         do {
@@ -52,18 +52,11 @@ class SampleTest: ZipTestCase {
         }
 
         do {
-            let fileUrl = tempFile(type: "txt")
+            let fileUrl = tempFileURL(type: "txt")
             let archive = try ZipArchive(url: archiveUrl)
             let entry = try archive.locate(filename: "large.txt")
             try entry.save(to: fileUrl)
             try XCTAssertEqual(String(contentsOf: fileUrl, encoding: .utf8), largeString)
         }
     }
-
-    #if !canImport(ObjectiveC)
-    static let allTests = [
-        ("testExample", testExample),
-        ("testExample2", testExample2),
-    ]
-    #endif
 }

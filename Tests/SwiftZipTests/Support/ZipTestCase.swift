@@ -20,12 +20,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Foundation
 import XCTest
 
-#if !canImport(ObjectiveC)
-public func allTests() -> [XCTestCaseEntry] {
-    return [
-        testCase(SampleTest.allTests),
-    ]
+class ZipTestCase: XCTestCase {
+    private static let tempRoot = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+
+    private static let dataDirectory = URL(fileURLWithPath: #file)
+        .deletingLastPathComponent() // Root/Tests/SwiftZipTests/Support/
+        .deletingLastPathComponent() // Root/Tests/SwiftZipTests/
+        .appendingPathComponent("Data", isDirectory: true)
+
+    private let tempDirectory = tempRoot
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+
+    override func setUpWithError() throws {
+        super.setUp()
+        try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true, attributes: nil)
+    }
+
+    override func tearDownWithError() throws {
+        try FileManager.default.removeItem(at: tempDirectory)
+        super.tearDown()
+    }
+
+    func tempFileURL(ext: String) -> URL {
+        return tempDirectory.appendingPathComponent(UUID().uuidString, isDirectory: false).appendingPathExtension(ext)
+    }
+
+    func dataFileURL(name: String) -> URL {
+        return Self.dataDirectory.appendingPathComponent(name, isDirectory: false)
+    }
 }
-#endif
