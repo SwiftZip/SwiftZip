@@ -48,7 +48,7 @@ class ZipTestCase: XCTestCase {
         return tempDirectory.appendingPathComponent(UUID().uuidString, isDirectory: false).appendingPathExtension(ext)
     }
 
-    func dataFileURL(name: String) -> URL {
-        return Self.dataDirectory.appendingPathComponent(name, isDirectory: false)
+    func dataFileURL(for archive: TestArchive) -> URL {
+        return Self.dataDirectory.appendingPathComponent(archive.rawValue, isDirectory: false)
     }
 }
