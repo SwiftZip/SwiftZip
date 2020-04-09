@@ -22,6 +22,7 @@
 
 import zip
 
+/// A reference point specifier for stream `seek` methods.
 public struct ZipWhence: RawRepresentable, Equatable {
     public let rawValue: Int32
     public init(rawValue: Int32) {

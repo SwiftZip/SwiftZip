@@ -22,6 +22,7 @@
 
 import zip
 
+/// A reader for the archive entry data stream.
 public final class ZipEntryReader: ZipErrorContext {
     internal var handle: OpaquePointer!
 

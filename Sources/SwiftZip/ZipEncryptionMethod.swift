@@ -22,6 +22,7 @@
 
 import zip
 
+/// An encryption method.
 public struct ZipEncryptionMethod: RawRepresentable, Equatable {
     public let rawValue: UInt16
     public init(rawValue: UInt16) {

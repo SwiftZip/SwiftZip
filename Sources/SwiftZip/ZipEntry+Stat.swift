@@ -24,6 +24,7 @@ import Foundation
 import zip
 
 extension ZipEntry {
+    /// Properties of the archive etry.
     public struct Stat {
         internal var stat: zip_stat = zip_stat()
     }

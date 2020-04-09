@@ -29,6 +29,7 @@ import Glibc
 #endif
 
 extension ZipEntry {
+    /// A platform-specific external attributes of the archive entry.
     public struct ExternalAttributes {
         public let operatingSystem: ZipOperatingSystem
         public let attributes: UInt32

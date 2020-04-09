@@ -23,6 +23,7 @@
 import Foundation
 import zip
 
+/// A read-write accessor for an entry in the archive.
 public final class ZipMutableEntry: ZipEntry {
 
     // MARK: - Attributes

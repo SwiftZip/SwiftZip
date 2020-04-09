@@ -23,6 +23,7 @@
 import Foundation
 import zip
 
+/// Properties of the source to be returned by `ZipSourceReadable.stat`.
 public struct ZipSourceStat {
     public var size: Int?
     public var compressedSize: Int?
@@ -43,8 +44,10 @@ public struct ZipSourceStat {
     }
 }
 
+/// A base protocol for all custom sources.
 public protocol ZipSourceCallback { }
 
+/// A protocol for custom readable sources.
 public protocol ZipSourceReadable: ZipSourceCallback {
     func open() throws
     func read(to buffer: UnsafeMutableRawPointer, count: Int) throws -> Int
@@ -52,11 +55,13 @@ public protocol ZipSourceReadable: ZipSourceCallback {
     func stat() throws -> ZipSourceStat
 }
 
+/// A protocol for custom readable and seekable sources.
 public protocol ZipSourceSeekable: ZipSourceReadable {
     func seek(offset: Int, whence: ZipWhence) throws
     func tell() throws -> Int
 }
 
+/// A protocol for custom writable sources.
 public protocol ZipSourceWritable: ZipSourceCallback {
     func beginWrite() throws
     func write(bytes: UnsafeMutableRawPointer, count: Int) throws -> Int

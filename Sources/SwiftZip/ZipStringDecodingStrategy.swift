@@ -22,6 +22,7 @@
 
 import zip
 
+/// A strategy used to parse string values in the archive
 public struct ZipStringDecodingStrategy: RawRepresentable, Equatable {
     public let rawValue: UInt32
     public init(rawValue: UInt32) {

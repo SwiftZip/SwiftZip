@@ -23,6 +23,7 @@
 import zip
 
 extension ZipEntry {
+    /// A set of flags to be used with `ZipEntry.open`.
     public struct OpenFlags: OptionSet {
         public let rawValue: UInt32
         public init(rawValue: UInt32) {

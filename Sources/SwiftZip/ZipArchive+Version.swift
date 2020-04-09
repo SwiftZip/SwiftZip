@@ -23,6 +23,7 @@
 import zip
 
 extension ZipArchive {
+    /// A version of the archive.
     public struct Version: RawRepresentable, Equatable {
         public let rawValue: UInt32
         public init(rawValue: UInt32) {

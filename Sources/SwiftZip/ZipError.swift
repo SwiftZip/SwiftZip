@@ -25,6 +25,7 @@ import zip
 
 // MARK: - ZipError
 
+/// An error originating from SwiftZip or libzip.
 public enum ZipError: Error {
     case zipError(zip_error_t)
     case integerCastFailed
