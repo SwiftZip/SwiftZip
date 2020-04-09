@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - name: Build and Test
-      run: swift build -v
+    - name: Build
+      run: swift build
     - name: Run tests
-      run: swift test -v --enable-test-discovery
+      run: swift test --enable-test-discovery
