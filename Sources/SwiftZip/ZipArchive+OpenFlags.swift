@@ -23,6 +23,7 @@
 import zip
 
 extension ZipArchive {
+    /// A set of flags to be used with `ZipArchive.init`.
     public struct OpenFlags: OptionSet {
         public let rawValue: Int32
         public init(rawValue: Int32) {

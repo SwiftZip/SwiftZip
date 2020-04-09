@@ -23,6 +23,7 @@
 import Foundation
 import zip
 
+/// An archive.
 public final class ZipArchive: ZipErrorContext {
     internal var handle: OpaquePointer!
 
@@ -245,10 +246,10 @@ public final class ZipArchive: ZipErrorContext {
     ///
     /// - Parameters:
     ///   - filename: entry name to locate
-    ///   - lookupFlags: lookup options, defaults to `[]`
-    public func locate(filename: String, lookupFlags: LookupFlags = []) throws -> ZipMutableEntry {
+    ///   - locateFlags: lookup options, defaults to `[]`
+    public func locate(filename: String, locateFlags: LocateFlags = []) throws -> ZipMutableEntry {
         return try filename.withCString { filename in
-            let index = try zipCheckResult(zip_name_locate(handle, filename, lookupFlags.rawValue | ZIP_FL_ENC_UTF_8))
+            let index = try zipCheckResult(zip_name_locate(handle, filename, locateFlags.rawValue | ZIP_FL_ENC_UTF_8))
             return try ZipMutableEntry(archive: self, entry: zipCast(index), version: .current)
         }
     }
@@ -262,12 +263,12 @@ public final class ZipArchive: ZipErrorContext {
     ///
     /// - Parameters:
     ///   - filename: entry name
-    ///   - lookupFlags: lookup options, defaults to `[]`
+    ///   - locateFlags: lookup options, defaults to `[]`
     ///   - version: archive version to use, defaults to `.current`
-    public func stat(filename: String, lookupFlags: LookupFlags = [], version: Version = .current) throws -> ZipEntry.Stat {
+    public func stat(filename: String, locateFlags: LocateFlags = [], version: Version = .current) throws -> ZipEntry.Stat {
         var result = ZipEntry.Stat()
         let resultCode = filename.withCString { filename in
-            return zip_stat(handle, filename, lookupFlags.rawValue | version.rawValue, &result.stat)
+            return zip_stat(handle, filename, locateFlags.rawValue | version.rawValue, &result.stat)
         }
 
         try zipCheckResult(resultCode)
@@ -285,17 +286,17 @@ public final class ZipArchive: ZipErrorContext {
     /// - Parameters:
     ///   - filename: entry name to open
     ///   - flags: open flags, defaults to `[]`
-    ///   - lookupFlags: lookup options, defaults to `[]`
+    ///   - locateFlags: lookup options, defaults to `[]`
     ///   - version: archive version to use, defaults to `.current`
     ///   - password: optional password to decrypt the entry
-    public func open(filename: String, flags: ZipEntry.OpenFlags = [], lookupFlags: LookupFlags = [], version: Version = .current, password: String? = nil) throws -> ZipEntryReader {
+    public func open(filename: String, flags: ZipEntry.OpenFlags = [], locateFlags: LocateFlags = [], version: Version = .current, password: String? = nil) throws -> ZipEntryReader {
         let entryHandle: OpaquePointer? = filename.withCString { filename in
             if let password = password {
                 return password.withCString { password in
-                    return zip_fopen_encrypted(handle, filename, flags.rawValue | lookupFlags.rawValue | version.rawValue, password)
+                    return zip_fopen_encrypted(handle, filename, flags.rawValue | locateFlags.rawValue | version.rawValue, password)
                 }
             } else {
-                return zip_fopen(handle, filename, flags.rawValue | lookupFlags.rawValue | version.rawValue)
+                return zip_fopen(handle, filename, flags.rawValue | locateFlags.rawValue | version.rawValue)
             }
         }
 

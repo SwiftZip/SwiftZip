@@ -23,6 +23,7 @@
 import zip
 
 extension ZipEntry.Stat {
+    /// A set of valid property values in the `ZipEntry.Stat` struct.
     public struct ValidFields: OptionSet {
         public let rawValue: UInt64
         public init(rawValue: UInt64) {

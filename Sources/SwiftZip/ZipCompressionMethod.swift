@@ -22,6 +22,7 @@
 
 import zip
 
+/// A compression algorithm.
 public struct ZipCompressionMethod: RawRepresentable, Equatable {
     public let rawValue: Int32
     public init(rawValue: Int32) {

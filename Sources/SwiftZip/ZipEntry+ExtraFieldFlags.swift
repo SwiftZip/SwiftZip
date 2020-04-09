@@ -23,6 +23,7 @@
 import zip
 
 extension ZipEntry {
+    /// A lookup flag for extra fields of the archive entry.
     public struct ExtraFieldFlags: OptionSet {
         public let rawValue: UInt32
         public init(rawValue: UInt32) {

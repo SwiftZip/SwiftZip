@@ -23,7 +23,8 @@
 import zip
 
 extension ZipArchive {
-    public struct LookupFlags: OptionSet {
+    /// A set of flags to be used with `ZipArchive` name-based APIs: `locate`, `stat` and `open`.
+    public struct LocateFlags: OptionSet {
         public let rawValue: UInt32
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
@@ -31,12 +32,12 @@ extension ZipArchive {
     }
 }
 
-extension ZipArchive.LookupFlags {
+extension ZipArchive.LocateFlags {
     /// Ignore case distinctions. (Will only work well if the file names are ASCII.)
-    /// With this flag, `ZipArchive.locate` will be slow for archives with many files.
-    public static let caseInsensitive = ZipArchive.LookupFlags(rawValue: ZIP_FL_NOCASE)
+    /// With this flag, operation will be slow for archives with many files.
+    public static let caseInsensitive = ZipArchive.LocateFlags(rawValue: ZIP_FL_NOCASE)
 
     /// Ignore directory part of file name in archive.
-    /// With this flag, `ZipArchive.locate` will be slow for archives with many files.
-    public static let ignoreDirectory = ZipArchive.LookupFlags(rawValue: ZIP_FL_NODIR)
+    /// With this flag, operation will be slow for archives with many files.
+    public static let ignoreDirectory = ZipArchive.LocateFlags(rawValue: ZIP_FL_NODIR)
 }

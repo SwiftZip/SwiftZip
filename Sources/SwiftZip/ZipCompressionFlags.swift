@@ -22,6 +22,7 @@
 
 import zip
 
+/// A compression preference for deflate.
 public struct ZipCompressionFlags: RawRepresentable, Equatable {
     public let rawValue: UInt32
     public init(rawValue: UInt32) {

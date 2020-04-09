@@ -56,6 +56,7 @@ private final class ZipSourceData: ZipSourceSeekable {
     }
 
     func close() {
+        // Nothing to do here.
     }
 
     func stat() -> ZipSourceStat {

@@ -22,6 +22,7 @@
 
 import zip
 
+/// An operating system used to create the archive entry.
 public struct ZipOperatingSystem: RawRepresentable, Equatable {
     public let rawValue: UInt8
     public init(rawValue: UInt8) {

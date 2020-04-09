@@ -23,6 +23,7 @@
 import Foundation
 import zip
 
+/// A read-only accessor for an entry in the archive.
 public class ZipEntry: ZipErrorContext {
     internal let archive: ZipArchive
     internal let entry: zip_uint64_t
