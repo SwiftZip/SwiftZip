@@ -29,6 +29,7 @@ public enum ZipError: Error {
     case integerCastFailed
     case createFileFailed
     case unsupportedURL
+    case archiveNotMutable
     case invalidArgument(String)
     case internalInconsistency
 }
@@ -44,6 +45,8 @@ extension ZipError: LocalizedError {
             return "Failed to create file."
         case .unsupportedURL:
             return "SwiftZip supports file URLs only."
+        case .archiveNotMutable:
+            return "Failed to open the archive in read-write mode."
         case let .invalidArgument(name):
             return "Invalid value passed for argument `\(name)`."
         case .internalInconsistency:

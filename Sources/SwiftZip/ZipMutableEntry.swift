@@ -24,10 +24,11 @@ import Foundation
 import zip
 
 /// A read-write accessor for an entry in the archive.
-public final class ZipMutableEntry: ZipEntry {
+public final class ZipMutableEntry: ZipEntry { }
 
-    // MARK: - Attributes
+// MARK: - Attributes
 
+extension ZipMutableEntry {
     /// Sets the operating system and external attributes for the file in the zip archive.
     ///
     /// - SeeAlso:
@@ -51,9 +52,11 @@ public final class ZipMutableEntry: ZipEntry {
     public func setExternalAttributes(operatingSystem: ZipOperatingSystem = .unix, posixAttributes: mode_t) throws {
         try zipCheckResult(zip_file_set_external_attributes(archive.handle, entry, 0, operatingSystem.rawValue, UInt32(posixAttributes) << 16))
     }
+}
 
-    // MARK: - Extra fields
+// MARK: - Extra fields
 
+extension ZipMutableEntry {
     /// Sets the extra field with ID (two-byte signature) `id` and index `index` for the file in the zip archive.
     /// The extra field's data will be set to `data`. If a new entry shall be appended, set `index` to `nil`.
     ///
@@ -105,9 +108,11 @@ public final class ZipMutableEntry: ZipEntry {
         let index = index ?? Int(ZIP_EXTRA_FIELD_ALL)
         try zipCheckResult(zip_file_extra_field_delete(archive.handle, entry, zipCast(index), flags.rawValue))
     }
+}
 
-    // MARK: - Comments
+// MARK: - Comments
 
+extension ZipMutableEntry {
     /// Sets the comment for the file in the zip archive.If `comment` is set to `nil`,
     /// the comment is deleted from the archive.
     ///
@@ -125,9 +130,11 @@ public final class ZipMutableEntry: ZipEntry {
             try zipCheckResult(zip_file_set_comment(archive.handle, entry, nil, 0, 0))
         }
     }
+}
 
-    // MARK: - Entry properties
+// MARK: - Entry properties
 
+extension ZipMutableEntry {
     /// Sets the last modification time (mtime) for the file in the zip archive to `date`.
     ///
     /// - SeeAlso:
@@ -138,9 +145,11 @@ public final class ZipMutableEntry: ZipEntry {
     public func setModifiedDate(_ date: Date) throws {
         try zipCheckResult(zip_file_set_mtime(archive.handle, entry, zipCast(Int(date.timeIntervalSince1970)), 0))
     }
+}
 
-    // MARK: - Compression
+// MARK: - Compression
 
+extension ZipMutableEntry {
     /// Sets the compression method for the file in the zip archive.
     ///
     /// - SeeAlso:
@@ -152,9 +161,11 @@ public final class ZipMutableEntry: ZipEntry {
     public func setCompression(method: ZipCompressionMethod = .default, flags: ZipCompressionFlags = .default) throws {
         try zipCheckResult(zip_set_file_compression(archive.handle, entry, method.rawValue, flags.rawValue))
     }
+}
 
-    // MARK: - Encryption
+// MARK: - Encryption
 
+extension ZipMutableEntry {
     /// Sets the encryption method and password for the file in the zip archive.
     /// If `password` is `nil`, the default password provided by `ZipArchive.setDefaultPassword` is used.
     ///
@@ -173,9 +184,11 @@ public final class ZipMutableEntry: ZipEntry {
             try zipCheckResult(zip_file_set_encryption(archive.handle, entry, method.rawValue, nil))
         }
     }
+}
 
-    // MARK: - Deletion
+// MARK: - Deletion
 
+extension ZipMutableEntry {
     /// Marks the file the archive as deleted.
     ///
     /// - SeeAlso:
@@ -183,9 +196,11 @@ public final class ZipMutableEntry: ZipEntry {
     public func delete() throws {
         try zipCheckResult(zip_delete(archive.handle, entry))
     }
+}
 
-    // MARK: - Revert changes
+// MARK: - Revert changes
 
+extension ZipMutableEntry {
     /// Changes to the file are reverted.
     ///
     /// - SeeAlso:

@@ -30,12 +30,22 @@ import zip
 public final class ZipSource {
     internal let handle: OpaquePointer
 
+    internal init(sourceHandle handle: OpaquePointer) {
+        self.handle = handle
+    }
+
+    internal func keep() {
+        zip_source_keep(handle)
+    }
+
     deinit {
         zip_source_free(handle)
     }
+}
 
-    // MARK: - Create/Destroy
+// MARK: - Create/Destroy
 
+extension ZipSource {
     /// Create a zip source from the `buffer` data of size `length`. If `freeWhenDone` is `true`, the buffer
     /// will be freed when it is no longer needed. `buffer` must remain valid for the lifetime of the created source.
     ///
@@ -46,9 +56,11 @@ public final class ZipSource {
     ///   - buffer: data buffer
     ///   - length: data size
     ///   - freeWhenDone: buffer ownership flag
-    public init(buffer: UnsafeRawPointer, length: Int, freeWhenDone: Bool) throws {
+    public convenience init(buffer: UnsafeRawPointer, length: Int, freeWhenDone: Bool) throws {
         var error = zip_error_t()
-        self.handle = try zip_source_buffer_create(buffer, zipCast(length), freeWhenDone ? 1 : 0, &error).unwrapped(or: error)
+        let optionalHandle = try zip_source_buffer_create(buffer, zipCast(length), freeWhenDone ? 1 : 0, &error)
+        let handle = try optionalHandle.unwrapped(or: error)
+        self.init(sourceHandle: handle)
     }
 
     /// Create a zip source from a file. Opens `path` and read `length` bytes from offset `start` from it.
@@ -63,11 +75,14 @@ public final class ZipSource {
     ///   - filename: file path to open
     ///   - start: data offset, defaults to 0
     ///   - length: data length, defaults to -1
-    public init(path: String, start: Int = 0, length: Int = -1) throws {
-        self.handle = try path.withCString { path in
-            var error = zip_error_t()
-            return try zip_source_file_create(path, zipCast(start), zipCast(length), &error).unwrapped(or: error)
+    public convenience init(path: String, start: Int = 0, length: Int = -1) throws {
+        var error = zip_error_t()
+        let optionalHandle = try path.withCString { path in
+            return try zip_source_file_create(path, zipCast(start), zipCast(length), &error)
         }
+
+        let handle = try optionalHandle.unwrapped(or: error)
+        self.init(sourceHandle: handle)
     }
 
     /// Create a zip source from a file. Opens `url` and read `length` bytes from offset `start` from it.
@@ -82,15 +97,22 @@ public final class ZipSource {
     ///   - url: file URL to open
     ///   - start: data offset, defaults to 0
     ///   - length: data length, defaults to -1
-    public init(url: URL, start: Int = 0, length: Int = -1) throws {
-        self.handle = try url.withUnsafeFileSystemRepresentation { path in
+    public convenience init(url: URL, start: Int = 0, length: Int = -1) throws {
+        guard url.isFileURL else {
+            throw ZipError.unsupportedURL
+        }
+
+        var error = zip_error_t()
+        let optionalHandle: OpaquePointer? = try url.withUnsafeFileSystemRepresentation { path in
             if let path = path {
-                var error = zip_error_t()
-                return try zip_source_file_create(path, zipCast(start), zipCast(length), &error).unwrapped(or: error)
+                return try zip_source_file_create(path, zipCast(start), zipCast(length), &error)
             } else {
-                throw ZipError.unsupportedURL
+                throw ZipError.internalInconsistency
             }
         }
+
+        let handle = try optionalHandle.unwrapped(or: error)
+        self.init(sourceHandle: handle)
     }
 
     /// Create a zip source from a file stream. Reads `length` bytes from offset `start` from the open
@@ -105,9 +127,11 @@ public final class ZipSource {
     ///   - file: file stream to use
     ///   - start: data offset, defaults to 0
     ///   - length: data length, defaults to -1
-    public init(file: UnsafeMutablePointer<FILE>, start: Int = 0, length: Int = -1) throws {
+    public convenience init(file: UnsafeMutablePointer<FILE>, start: Int = 0, length: Int = -1) throws {
         var error = zip_error_t()
-        self.handle = try zip_source_filep_create(file, zipCast(start), zipCast(length), &error).unwrapped(or: error)
+        let optionalHandle = try zip_source_filep_create(file, zipCast(start), zipCast(length), &error)
+        let handle = try optionalHandle.unwrapped(or: error)
+        self.init(sourceHandle: handle)
     }
 
     /// Creates a zip source from the user-provided function `callback`.
@@ -118,9 +142,11 @@ public final class ZipSource {
     /// - Parameters:
     ///   - callback: user-defined callback function
     ///   - userdata: custom data to be passed to `callback`
-    public init(callback: @escaping zip_source_callback, userdata: UnsafeMutableRawPointer? = nil) throws {
+    public convenience init(callback: @escaping zip_source_callback, userdata: UnsafeMutableRawPointer? = nil) throws {
         var error = zip_error_t()
-        self.handle = try zip_source_function_create(callback, userdata, &error).unwrapped(or: error)
+        let optionalHandle = zip_source_function_create(callback, userdata, &error)
+        let handle = try optionalHandle.unwrapped(or: error)
+        self.init(sourceHandle: handle)
     }
 
     /// Creates a zip source from the user-provided `callback` instance.
@@ -131,20 +157,15 @@ public final class ZipSource {
     ///
     /// - Parameters:
     ///   - callback: user-provided callback instance
-    public init(callback: ZipSourceCallback) throws {
-        var error = zip_error_t()
+    public convenience init(callback: ZipSourceCallback) throws {
         let proxy = ZipSourceCallbackProxy(callback: callback)
         let userdata = Unmanaged.passRetained(proxy)
 
         do {
-            self.handle = try zip_source_function_create(zipSourceCallbackProxy, userdata.toOpaque(), &error).unwrapped(or: error)
+            try self.init(callback: zipSourceCallbackProxy, userdata: userdata.toOpaque())
         } catch {
             userdata.release()
             throw error
         }
-    }
-
-    internal func keep() {
-        zip_source_keep(handle)
     }
 }

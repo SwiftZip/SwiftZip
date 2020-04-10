@@ -22,8 +22,8 @@
 
 import zip
 
-extension ZipArchive {
-    /// A set of flags to be used with `ZipArchive.init`.
+extension ZipMutableArchive {
+    /// A set of flags to be used with `ZipMutableArchive.init`.
     public struct OpenFlags: OptionSet {
         public let rawValue: Int32
         public init(rawValue: Int32) {
@@ -32,7 +32,16 @@ extension ZipArchive {
     }
 }
 
-extension ZipArchive.OpenFlags {
+extension ZipMutableArchive.OpenFlags {
     /// Perform additional stricter consistency checks on the archive, and error if they fail.
-    public static let checkConsistency = ZipArchive.OpenFlags(rawValue: ZIP_CHECKCONS)
+    public static let checkConsistency = ZipMutableArchive.OpenFlags(rawValue: ZIP_CHECKCONS)
+
+    /// Create the archive if it does not exist.
+    public static let create = ZipMutableArchive.OpenFlags(rawValue: ZIP_CREATE)
+
+    /// Error if archive already exists.
+    public static let exclusive = ZipMutableArchive.OpenFlags(rawValue: ZIP_EXCL)
+
+    /// If archive exists, ignore its current contents. In other words, handle it the same way as an empty archive.
+    public static let truncate = ZipMutableArchive.OpenFlags(rawValue: ZIP_TRUNCATE)
 }

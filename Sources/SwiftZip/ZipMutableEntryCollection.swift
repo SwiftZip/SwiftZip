@@ -22,17 +22,36 @@
 
 import zip
 
-extension ZipArchive {
-    /// A set of flags to be used with `ZipArchive.init`.
-    public struct OpenFlags: OptionSet {
-        public let rawValue: Int32
-        public init(rawValue: Int32) {
-            self.rawValue = rawValue
+/// A collection of mutable entries in the archive.
+public final class ZipMutableEntryColection {
+    internal let archive: ZipMutableArchive
+
+    internal init(archive: ZipMutableArchive) {
+        self.archive = archive
+    }
+}
+
+extension ZipMutableEntryColection: RandomAccessCollection {
+    public var startIndex: Int {
+        return 0
+    }
+
+    public var endIndex: Int {
+        return zipNoThrow(or: 0) {
+            try archive.getEntryCount(version: .current)
+        }
+    }
+
+    public subscript(position: Int) -> ZipMutableEntry {
+        return zipNoThrow {
+            try archive.getMutableEntry(index: position)
         }
     }
 }
 
-extension ZipArchive.OpenFlags {
-    /// Perform additional stricter consistency checks on the archive, and error if they fail.
-    public static let checkConsistency = ZipArchive.OpenFlags(rawValue: ZIP_CHECKCONS)
+extension ZipMutableArchive {
+    /// Exposes mutable archive entries as a Swift `Collection`
+    public var mutableEntries: ZipMutableEntryColection {
+        return ZipMutableEntryColection(archive: self)
+    }
 }

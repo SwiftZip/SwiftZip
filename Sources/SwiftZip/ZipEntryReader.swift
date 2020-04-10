@@ -23,7 +23,7 @@
 import zip
 
 /// A reader for the archive entry data stream.
-public final class ZipEntryReader: ZipErrorContext {
+public final class ZipEntryReader {
     internal var handle: OpaquePointer!
 
     internal init(_ handle: OpaquePointer) {
@@ -36,9 +36,11 @@ public final class ZipEntryReader: ZipErrorContext {
             assert(result == ZIP_ER_OK, "Failed to close file, error code: \(result)")
         }
     }
+}
 
-    // MARK: - Error context
+// MARK: - Error context
 
+extension ZipEntryReader: ZipErrorContext {
     internal var lastError: zip_error_t? {
         return zip_file_get_error(handle).pointee
     }
@@ -46,9 +48,11 @@ public final class ZipEntryReader: ZipErrorContext {
     internal func clearError() {
         zip_file_error_clear(handle)
     }
+}
 
-    // MARK: - Open/close
+// MARK: - Open/close
 
+extension ZipEntryReader {
     /// Closes the file and invalidates `ZipEntryReader` instance.
     ///
     /// - SeeAlso:
@@ -58,9 +62,11 @@ public final class ZipEntryReader: ZipErrorContext {
         assert(result == ZIP_ER_OK, "Failed to close file, error code: \(result)")
         handle = nil
     }
+}
 
-    // MARK: - Entry I/O
+// MARK: - Entry I/O
 
+extension ZipEntryReader {
     /// Reads at most `count` bytes from file into `buf`.
     /// Returns number of bytes read.
     ///

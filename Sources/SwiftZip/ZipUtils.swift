@@ -40,6 +40,7 @@ internal func zipNoThrow<T>(or `default`: T, _ block: () throws -> T) -> T {
         return `default`
     }
 }
+
 // MARK: - Throwing numeric cast
 
 internal func zipCast<T, U>(_ value: T, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {

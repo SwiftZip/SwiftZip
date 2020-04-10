@@ -26,7 +26,7 @@ import XCTest
 
 class SampleTest: ZipTestCase {
     func testExample() throws {
-        let archive = try ZipArchive(url: tempFile(type: "zip"), flags: [.create, .truncate])
+        let archive = try ZipMutableArchive(url: tempFile(type: "zip"), flags: [.create, .truncate])
         let source = try ZipSource(data: "Hello".data(using: .utf8)!)
         try archive.addFile(name: "test.txt", source: source)
         try archive.close()
@@ -37,7 +37,7 @@ class SampleTest: ZipTestCase {
         let largeString = Array(repeating: String("Hello, world!"), count: 1000).joined()
 
         do {
-            let archive = try ZipArchive(url: archiveUrl, flags: [.create, .truncate])
+            let archive = try ZipMutableArchive(url: archiveUrl, flags: [.create, .truncate])
             let source1 = try ZipSource(data: "Hello".data(using: .utf8)!)
             try archive.addFile(name: "test.txt", source: source1)
             let source2 = try ZipSource(data: largeString.data(using: .utf8)!)
@@ -46,19 +46,17 @@ class SampleTest: ZipTestCase {
         }
 
         do {
-            let archive = try ZipArchive(url: archiveUrl, flags: [.readOnly])
+            let archive = try ZipArchive(url: archiveUrl)
             let entry = try archive.locate(filename: "test.txt")
             try XCTAssertEqual(String(data: entry.data(), encoding: .utf8)!, "Hello")
-            try archive.close()
         }
 
         do {
             let fileUrl = tempFile(type: "txt")
-            let archive = try ZipArchive(url: archiveUrl, flags: [.readOnly])
+            let archive = try ZipArchive(url: archiveUrl)
             let entry = try archive.locate(filename: "large.txt")
             try entry.save(to: fileUrl)
             try XCTAssertEqual(String(contentsOf: fileUrl, encoding: .utf8), largeString)
-            try archive.close()
         }
     }
 

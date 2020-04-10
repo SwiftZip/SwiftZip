@@ -41,11 +41,13 @@ internal final class ZipSourceCallbackProxy {
     private let callback: ZipSourceCallback
     private var error: Error?
 
-    init(callback: ZipSourceCallback) {
+    internal init(callback: ZipSourceCallback) {
         self.callback = callback
     }
+}
 
-    func callback(data: UnsafeMutableRawPointer?, length: zip_uint64_t, command: zip_source_cmd_t) -> zip_int64_t {
+extension ZipSourceCallbackProxy {
+    fileprivate func callback(data: UnsafeMutableRawPointer?, length: zip_uint64_t, command: zip_source_cmd_t) -> zip_int64_t {
         do {
             switch command {
             case ZIP_SOURCE_ACCEPT_EMPTY:

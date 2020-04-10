@@ -24,19 +24,21 @@ import Foundation
 import zip
 
 /// A read-only accessor for an entry in the archive.
-public class ZipEntry: ZipErrorContext {
+public class ZipEntry {
     internal let archive: ZipArchive
     internal let entry: zip_uint64_t
-    private let version: ZipArchive.Version
+    internal let version: ZipArchive.Version
 
     internal init(archive: ZipArchive, entry: zip_uint64_t, version: ZipArchive.Version) {
         self.archive = archive
         self.entry = entry
         self.version = version
     }
+}
 
-    // MARK: - Error context
+// MARK: - Error context
 
+extension ZipEntry: ZipErrorContext {
     internal final var lastError: zip_error_t? {
         return archive.lastError
     }
@@ -44,9 +46,11 @@ public class ZipEntry: ZipErrorContext {
     internal final func clearError() {
         archive.clearError()
     }
+}
 
-    // MARK: - Name
+// MARK: - Name
 
+extension ZipEntry {
     /// Returns the name of the file in the archive.
     ///
     /// - SeeAlso:
@@ -65,9 +69,11 @@ public class ZipEntry: ZipErrorContext {
     public final func getRawName() throws -> Data {
         return try Data(cString: zipCheckResult(zip_get_name(archive.handle, entry, ZIP_FL_ENC_RAW | version.rawValue)))
     }
+}
 
-    // MARK: - Attributes
+// MARK: - Attributes
 
+extension ZipEntry {
     /// Returns the operating system and external attributes for the file in the zip archive.
     /// The external attributes usually contain the operating system-specific file permissions.
     ///
@@ -79,9 +85,11 @@ public class ZipEntry: ZipErrorContext {
         try zipCheckResult(zip_file_get_external_attributes(archive.handle, entry, version.rawValue, &operatingSystem, &attributes))
         return ExternalAttributes(operatingSystem: ZipOperatingSystem(rawValue: operatingSystem), attributes: attributes)
     }
+}
 
-    // MARK: - Stat
+// MARK: - Stat
 
+extension ZipEntry {
     /// Obtains information about the file in archive.
     ///
     /// - SeeAlso:
@@ -91,9 +99,11 @@ public class ZipEntry: ZipErrorContext {
         try zipCheckResult(zip_stat_index(archive.handle, entry, version.rawValue, &result.stat))
         return result
     }
+}
 
-    // MARK: - Extra fields
+// MARK: - Extra fields
 
+extension ZipEntry {
     /// Counts the extra fields for the file in the zip archive.
     ///
     /// - SeeAlso:
@@ -146,9 +156,11 @@ public class ZipEntry: ZipErrorContext {
         let fieldData = try zipCheckResult(zip_file_extra_field_get_by_id(archive.handle, entry, id, zipCast(index), &fieldLength, flags.rawValue | version.rawValue))
         return try Data(bytes: fieldData, count: zipCast(fieldLength))
     }
+}
 
-    // MARK: - Comments
+// MARK: - Comments
 
+extension ZipEntry {
     /// Returns the comment for the file in the zip archive.
     ///
     /// - SeeAlso:
@@ -167,9 +179,11 @@ public class ZipEntry: ZipErrorContext {
     public final func getRawComment() throws -> Data {
         return try Data(cString: zipCheckResult(zip_file_get_comment(archive.handle, entry, nil, ZIP_FL_ENC_RAW | version.rawValue)))
     }
+}
 
-    // MARK: - Open for reading
+// MARK: - Open for reading
 
+extension ZipEntry {
     /// Opens the file using the password given in the password argument.
     ///
     /// - SeeAlso:
