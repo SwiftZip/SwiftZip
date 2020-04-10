@@ -22,27 +22,36 @@
 
 import zip
 
-/// An encryption method.
-public struct ZipEncryptionMethod: RawRepresentable, Equatable {
-    public let rawValue: UInt16
-    public init(rawValue: UInt16) {
-        self.rawValue = rawValue
+/// A collection of mutable entries in the archive.
+public final class ZipMutableArchiveEntryCollection {
+    internal let archive: ZipMutableArchive
+
+    internal init(archive: ZipMutableArchive) {
+        self.archive = archive
     }
 }
 
-extension ZipEncryptionMethod {
-    /// Not encrypted.
-    public static let none = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_NONE))
+extension ZipMutableArchiveEntryCollection: RandomAccessCollection {
+    public var startIndex: Int {
+        return 0
+    }
 
-    /// Traditional PKWARE encryption.
-    public static let pkware = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_TRAD_PKWARE))
+    public var endIndex: Int {
+        return zipNoThrow(or: 0) {
+            try archive.getEntryCount(version: .current)
+        }
+    }
 
-    /// Winzip AES-128 encryption.
-    public static let aes128 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_128))
+    public subscript(position: Int) -> ZipMutableEntry {
+        return zipNoThrow {
+            try archive.getMutableEntry(index: position)
+        }
+    }
+}
 
-    /// Winzip AES-192 encryption.
-    public static let aes192 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_192))
-
-    /// Winzip AES-256 encryption.
-    public static let aes256 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_256))
+extension ZipMutableArchive {
+    /// Exposes mutable archive entries as a Swift `Collection`
+    public var mutableEntries: ZipMutableArchiveEntryCollection {
+        return ZipMutableArchiveEntryCollection(archive: self)
+    }
 }

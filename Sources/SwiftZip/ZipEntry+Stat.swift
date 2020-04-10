@@ -95,7 +95,7 @@ extension ZipEntry.Stat {
     }
 
     /// Compression method used
-    public var compressionMethod: ZipCompressionMethod? {
+    public var compressionMethod: ZipEntry.CompressionMethod? {
         if validFields.contains(.compressionMethod) {
             return .init(rawValue: Int32(stat.comp_method))
         } else {
@@ -104,7 +104,7 @@ extension ZipEntry.Stat {
     }
 
     /// Encryption method used
-    public var encryptionMethod: ZipEncryptionMethod? {
+    public var encryptionMethod: ZipEntry.EncryptionMethod? {
         if validFields.contains(.encryptionMethod) {
             return .init(rawValue: stat.encryption_method)
         } else {

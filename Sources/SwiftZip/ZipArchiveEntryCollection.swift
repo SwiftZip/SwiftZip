@@ -23,7 +23,7 @@
 import zip
 
 /// A collection of read-only entries in the archive.
-public final class ZipEntryColection {
+public final class ZipArchiveEntryCollection {
     internal let archive: ZipArchive
     internal let version: ZipArchive.Version
 
@@ -33,7 +33,7 @@ public final class ZipEntryColection {
     }
 }
 
-extension ZipEntryColection: RandomAccessCollection {
+extension ZipArchiveEntryCollection: RandomAccessCollection {
     public var startIndex: Int {
         return 0
     }
@@ -53,7 +53,7 @@ extension ZipEntryColection: RandomAccessCollection {
 
 extension ZipArchive {
     /// Exposes archive entries as a Swift `Collection`
-    public func entries(version: ZipArchive.Version = .current) -> ZipEntryColection {
-        return ZipEntryColection(archive: self, version: version)
+    public func entries(version: ZipArchive.Version = .current) -> ZipArchiveEntryCollection {
+        return ZipArchiveEntryCollection(archive: self, version: version)
     }
 }

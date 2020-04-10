@@ -158,7 +158,7 @@ extension ZipMutableEntry {
     /// - Parameters:
     ///   - method: compression method to set
     ///   - flags: compression method specific flags
-    public func setCompression(method: ZipCompressionMethod = .default, flags: ZipCompressionFlags = .default) throws {
+    public func setCompression(method: CompressionMethod = .default, flags: CompressionFlags = .default) throws {
         try zipCheckResult(zip_set_file_compression(archive.handle, entry, method.rawValue, flags.rawValue))
     }
 }
@@ -175,7 +175,7 @@ extension ZipMutableEntry {
     /// - Parameters:
     ///   - method: encryption method to set
     ///   - password: encryption password
-    public func setEncryption(method: ZipEncryptionMethod, password: String? = nil) throws {
+    public func setEncryption(method: EncryptionMethod, password: String? = nil) throws {
         if let password = password {
             try password.withCString { password in
                 _ = try zipCheckResult(zip_file_set_encryption(archive.handle, entry, method.rawValue, password))
