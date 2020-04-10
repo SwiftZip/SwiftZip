@@ -36,7 +36,7 @@ extension ZipEntry {
     }
 }
 
-// MARK: - Platform-Specific Attribute Accessors
+// MARK: - Platform-specific attribute accessors
 
 extension ZipEntry.ExternalAttributes {
     public var posixAttributes: mode_t {
@@ -52,7 +52,7 @@ extension ZipEntry.ExternalAttributes {
     }
 }
 
-// MARK: - Universal Helpers
+// MARK: - Universal helpers
 
 extension ZipEntry.ExternalAttributes {
     public var isDirectory: Bool {

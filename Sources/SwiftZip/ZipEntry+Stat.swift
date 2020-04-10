@@ -57,10 +57,8 @@ extension ZipEntry.Stat {
     /// Size of file (uncompressed)
     public var size: Int? {
         if validFields.contains(.size) {
-            do {
-                return try zipCast(stat.size)
-            } catch {
-                preconditionFailure("Failed to cast entry size: \(error)")
+            return zipNoThrow {
+                try zipCast(stat.size)
             }
         } else {
             return nil
@@ -70,10 +68,8 @@ extension ZipEntry.Stat {
     /// Size of file (compressed)
     public var compressedSize: Int? {
         if validFields.contains(.compressedSize) {
-            do {
-                return try zipCast(stat.comp_size)
-            } catch {
-                preconditionFailure("Failed to cast entry compressed size: \(error)")
+            return zipNoThrow {
+                try zipCast(stat.comp_size)
             }
         } else {
             return nil

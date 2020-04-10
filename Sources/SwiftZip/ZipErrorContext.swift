@@ -23,42 +23,29 @@
 import Foundation
 import zip
 
-/// An error originating from SwiftZip or libzip.
-public enum ZipError: Error {
-    case zipError(zip_error_t)
-    case integerCastFailed
-    case createFileFailed
-    case unsupportedURL
-    case invalidArgument(String)
-    case internalInconsistency
+internal protocol ZipErrorContext {
+    var lastError: zip_error_t? { get }
+    func clearError()
 }
 
-extension ZipError: LocalizedError {
-    public var errorDescription: String? {
-        switch self {
-        case var .zipError(error):
-            return String(cString: zip_error_strerror(&error))
-        case .integerCastFailed:
-            return "Failed to cast integer value."
-        case .createFileFailed:
-            return "Failed to create file."
-        case .unsupportedURL:
-            return "SwiftZip supports file URLs only."
-        case let .invalidArgument(name):
-            return "Invalid value passed for argument `\(name)`."
-        case .internalInconsistency:
-            return "SwiftZip internal inconsistency."
+extension ZipErrorContext {
+    @discardableResult
+    internal func zipCheckResult<T>(_ returnCode: T) throws -> T where T: SignedInteger {
+        if returnCode == -1 {
+            defer { clearError() }
+            throw try ZipError.zipError(lastError.unwrapped())
+        } else {
+            return returnCode
         }
     }
-}
 
-// MARK: - Error code checks
-
-internal func zipCheckError(_ errorCode: Int32) throws {
-    switch errorCode {
-    case ZIP_ER_OK:
-        return
-    case let errorCode:
-        throw ZipError.zipError(.init(zip_err: errorCode, sys_err: 0, str: nil))
+    internal func zipCheckResult<T>(_ value: T?) throws -> T {
+        switch value {
+        case let .some(value):
+            return value
+        case .none:
+            defer { clearError() }
+            throw try ZipError.zipError(lastError.unwrapped())
+        }
     }
 }

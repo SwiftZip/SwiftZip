@@ -35,10 +35,10 @@ public class ZipEntry: ZipErrorContext {
         self.version = version
     }
 
-    // MARK: - Error Context
+    // MARK: - Error context
 
-    internal final var error: zip_error_t? {
-        return archive.error
+    internal final var lastError: zip_error_t? {
+        return archive.lastError
     }
 
     internal final func clearError() {
@@ -92,7 +92,7 @@ public class ZipEntry: ZipErrorContext {
         return result
     }
 
-    // MARK: - Extra Fields
+    // MARK: - Extra fields
 
     /// Counts the extra fields for the file in the zip archive.
     ///
@@ -168,7 +168,7 @@ public class ZipEntry: ZipErrorContext {
         return try Data(cString: zipCheckResult(zip_file_get_comment(archive.handle, entry, nil, ZIP_FL_ENC_RAW | version.rawValue)))
     }
 
-    // MARK: - Open for Reading
+    // MARK: - Open for reading
 
     /// Opens the file using the password given in the password argument.
     ///

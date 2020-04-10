@@ -52,7 +52,7 @@ public final class ZipMutableEntry: ZipEntry {
         try zipCheckResult(zip_file_set_external_attributes(archive.handle, entry, 0, operatingSystem.rawValue, UInt32(posixAttributes) << 16))
     }
 
-    // MARK: - Extra Fields
+    // MARK: - Extra fields
 
     /// Sets the extra field with ID (two-byte signature) `id` and index `index` for the file in the zip archive.
     /// The extra field's data will be set to `data`. If a new entry shall be appended, set `index` to `nil`.
@@ -126,7 +126,7 @@ public final class ZipMutableEntry: ZipEntry {
         }
     }
 
-    // MARK: - Entry Properties
+    // MARK: - Entry properties
 
     /// Sets the last modification time (mtime) for the file in the zip archive to `date`.
     ///
@@ -184,7 +184,7 @@ public final class ZipMutableEntry: ZipEntry {
         try zipCheckResult(zip_delete(archive.handle, entry))
     }
 
-    // MARK: - Revert Changes
+    // MARK: - Revert changes
 
     /// Changes to the file are reverted.
     ///

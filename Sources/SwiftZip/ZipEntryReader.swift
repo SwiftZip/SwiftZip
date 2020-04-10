@@ -37,9 +37,9 @@ public final class ZipEntryReader: ZipErrorContext {
         }
     }
 
-    // MARK: - Error Context
+    // MARK: - Error context
 
-    internal var error: zip_error_t? {
+    internal var lastError: zip_error_t? {
         return zip_file_get_error(handle).pointee
     }
 
@@ -47,7 +47,7 @@ public final class ZipEntryReader: ZipErrorContext {
         zip_file_error_clear(handle)
     }
 
-    // MARK: - Open/Close
+    // MARK: - Open/close
 
     /// Closes the file and invalidates `ZipEntryReader` instance.
     ///

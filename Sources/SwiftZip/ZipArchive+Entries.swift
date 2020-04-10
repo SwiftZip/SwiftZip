@@ -41,18 +41,14 @@ extension ZipArchive.Entries: RandomAccessCollection {
     }
 
     public var endIndex: Int {
-        do {
-            return try archive.getEntryCount()
-        } catch {
-            return 0
+        return zipNoThrow(or: 0) {
+            try archive.getEntryCount()
         }
     }
 
     public subscript(position: Int) -> ZipEntry {
-        do {
-            return try archive.getEntry(index: position)
-        } catch {
-            preconditionFailure("Failed to get entry from an archive: \(error)")
+        return zipNoThrow {
+            try archive.getEntry(index: position)
         }
     }
 }

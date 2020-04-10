@@ -33,9 +33,9 @@ public final class ZipArchive: ZipErrorContext {
         }
     }
 
-    // MARK: - Error Context
+    // MARK: - Error context
 
-    internal var error: zip_error_t? {
+    internal var lastError: zip_error_t? {
         return zip_get_error(handle).pointee
     }
 
@@ -43,7 +43,7 @@ public final class ZipArchive: ZipErrorContext {
         zip_error_clear(handle)
     }
 
-    // MARK: - Open/Close Archive
+    // MARK: - Open/close archive
 
     /// Opens the zip archive specified by path and sets up an instance, used to manipulate the archive.
     ///
@@ -142,7 +142,7 @@ public final class ZipArchive: ZipErrorContext {
         handle = nil
     }
 
-    // MARK: - Password Handling
+    // MARK: - Password handling
 
     /// Sets the default password used when accessing encrypted files. If password is `nil`, the default password is unset.
     /// If you prefer a different password for single files, pass password to `ZipArchive.open` or `ZipEntry.open` instead.
@@ -206,7 +206,7 @@ public final class ZipArchive: ZipErrorContext {
         }
     }
 
-    // MARK: - Entry Enumeration
+    // MARK: - Entry enumeration
 
     /// Returns the number of files in archive.
     ///
@@ -236,7 +236,7 @@ public final class ZipArchive: ZipErrorContext {
         return try ZipEntry(archive: self, entry: zipCast(index), version: .unchanged)
     }
 
-    // MARK: - Locate Entry
+    // MARK: - Locate entry
 
     ///  Returns the index of the file named `filename` in archive. If archive does not contain a file
     ///  with that name, an error is thrown.
@@ -254,7 +254,7 @@ public final class ZipArchive: ZipErrorContext {
         }
     }
 
-    // MARK: - Entry Stats
+    // MARK: - Entry stats
 
     /// Obtains information about the file named `filename` in archive.
     ///
@@ -275,7 +275,7 @@ public final class ZipArchive: ZipErrorContext {
         return result
     }
 
-    // MARK: - Open Entry for Reading
+    // MARK: - Open entry for reading
 
     /// Opens the file named `filename` in archive using the password given in the password argument.
     ///
@@ -303,7 +303,7 @@ public final class ZipArchive: ZipErrorContext {
         return try ZipEntryReader(zipCheckResult(entryHandle))
     }
 
-    // MARK: - Add/Remove Entries
+    // MARK: - Add/remove entries
 
     /// Adds a directory to a zip archive.
     ///
@@ -341,7 +341,7 @@ public final class ZipArchive: ZipErrorContext {
         return ZipMutableEntry(archive: self, entry: index, version: .current)
     }
 
-    // MARK: - Revert Changes
+    // MARK: - Revert changes
 
     /// Revert all global changes to the archive.
     /// This reverts changes to the archive comment and global flags.

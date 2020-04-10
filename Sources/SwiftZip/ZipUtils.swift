@@ -22,6 +22,24 @@
 
 import Foundation
 
+// MARK: - Throwing utilities
+
+internal func zipNoThrow<T>(_ block: () throws -> T) -> T {
+    do {
+        return try block()
+    } catch {
+        preconditionFailure("SwiftZip operation failed: \(error)")
+    }
+}
+
+internal func zipNoThrow<T>(or `default`: T, _ block: () throws -> T) -> T {
+    do {
+        return try block()
+    } catch {
+        assertionFailure("SwiftZip operation failed: \(error)")
+        return `default`
+    }
+}
 // MARK: - Throwing numeric cast
 
 internal func zipCast<T, U>(_ value: T, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {

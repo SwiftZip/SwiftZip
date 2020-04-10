@@ -24,6 +24,24 @@ import Foundation
 import zip
 
 extension Optional {
+    internal func unwrapped(or error: @autoclosure () -> Error) throws -> Wrapped {
+        switch self {
+        case let .some(value):
+            return value
+        case .none:
+            throw error()
+        }
+    }
+
+    internal func unwrapped(or error: @autoclosure () -> zip_error) throws -> Wrapped {
+        switch self {
+        case let .some(value):
+            return value
+        case .none:
+            throw ZipError.zipError(error())
+        }
+    }
+
     internal func unwrapped(function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> Wrapped {
         switch self {
         case let .some(value):
@@ -31,24 +49,6 @@ extension Optional {
         case .none:
             assertionFailure("Unexpected `nil` when unwrapping value in `\(function)` at `\(file):\(line)`")
             throw ZipError.internalInconsistency
-        }
-    }
-
-    internal func unwrapped(or error: Error) throws -> Wrapped {
-        switch self {
-        case let .some(value):
-            return value
-        case .none:
-            throw error
-        }
-    }
-
-    internal func unwrapped(or error: zip_error) throws -> Wrapped {
-        switch self {
-        case let .some(value):
-            return value
-        case .none:
-            throw ZipError.zipError(error)
         }
     }
 
