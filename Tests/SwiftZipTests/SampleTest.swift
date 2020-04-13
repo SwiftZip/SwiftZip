@@ -26,7 +26,7 @@ import XCTest
 
 class SampleTest: ZipTestCase {
     func testExample() throws {
-        let archive = try ZipMutableArchive(url: tempFileURL(type: "zip"), flags: [.create, .truncate])
+        let archive = try ZipMutableArchive(url: tempFileURL(ext: "zip"), flags: [.create, .truncate])
         let source = try ZipSource(data: "Hello".data(using: .utf8)!)
         try archive.addFile(name: "test.txt", source: source)
         try archive.close()
@@ -52,7 +52,7 @@ class SampleTest: ZipTestCase {
         }
 
         do {
-            let fileUrl = tempFileURL(type: "txt")
+            let fileUrl = tempFileURL(ext: "txt")
             let archive = try ZipArchive(url: archiveUrl)
             let entry = try archive.locate(filename: "large.txt")
             try entry.save(to: fileUrl)

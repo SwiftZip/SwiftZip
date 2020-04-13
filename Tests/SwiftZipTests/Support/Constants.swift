@@ -46,7 +46,7 @@ enum Constants {
     static let entryName = "test.txt"
     static let password = "test password"
     static let modifiedDate = Date(timeIntervalSinceReferenceDate: 42)
-    static let externalSystem = ZipOperatingSystem.beOS
+    static let externalSystem = ZipEntry.ExternalAttributes.OperatingSystem.beOS
     static let externalAttributes: UInt32 = 0xABBABABA
     static let archiveComment = "test archive comment"
     static let entryComment = "test entry comment"

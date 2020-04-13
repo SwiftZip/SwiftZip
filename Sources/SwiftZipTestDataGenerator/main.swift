@@ -38,75 +38,75 @@ func testFileURL(for archive: TestArchive) -> URL {
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .simpleSmall), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .simpleSmall), flags: [.create, .truncate])
     try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try zip.close()
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .simpleLarge), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .simpleLarge), flags: [.create, .truncate])
     try zip.addFile(name: Constants.entryName, source: ZipSource(data: .large))
     try zip.close()
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .modifiedDate), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .modifiedDate), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setModifiedDate(Constants.modifiedDate)
     try zip.close()
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .externalAttributes), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .externalAttributes), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setExternalAttributes(operatingSystem: Constants.externalSystem, attributes: Constants.externalAttributes)
     try zip.close()
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .encryptedSmall), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .encryptedSmall), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setEncryption(method: .aes192, password: Constants.password)
     try zip.close()
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .encryptedLarge), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .encryptedLarge), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .large))
     try entry.setEncryption(method: .aes256, password: Constants.password)
     try zip.close()
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .archiveComment), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .archiveComment), flags: [.create, .truncate])
     try zip.setComment(Constants.archiveComment)
     try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try zip.close()
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .entryComment), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .entryComment), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setComment(Constants.entryComment)
     try zip.close()
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .extraSingleLocal), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .extraSingleLocal), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldLocal, flags: .local)
     try zip.close()
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .extraSingleCentral), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .extraSingleCentral), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldCentral, flags: .central)
     try zip.close()
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .extraSingleBoth), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .extraSingleBoth), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldLocal, flags: .local)
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldCentral, flags: .central)
@@ -114,7 +114,7 @@ do {
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .extraDoubleLocal), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .extraDoubleLocal), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldLocal, flags: .local)
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldLocal2, flags: .local)
@@ -122,7 +122,7 @@ do {
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .extraDoubleCentral), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .extraDoubleCentral), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldCentral, flags: .central)
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldCentral2, flags: .central)
@@ -130,7 +130,7 @@ do {
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .extraDoubleBoth), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .extraDoubleBoth), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldLocal, flags: .local)
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldLocal2, flags: .local)
@@ -140,7 +140,7 @@ do {
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .extraTwoLocal), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .extraTwoLocal), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldLocal, flags: .local)
     try entry.setExtraField(id: Constants.secondExtraField, index: nil, data: .secondExtraField, flags: .local)
@@ -148,7 +148,7 @@ do {
 }
 
 do {
-    let zip = try ZipArchive(url: testFileURL(for: .extraTwoCentral), flags: [.create, .truncate])
+    let zip = try ZipMutableArchive(url: testFileURL(for: .extraTwoCentral), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
     try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldLocal, flags: .central)
     try entry.setExtraField(id: Constants.secondExtraField, index: nil, data: .secondExtraField, flags: .central)
