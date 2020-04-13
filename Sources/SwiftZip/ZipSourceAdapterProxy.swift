@@ -22,12 +22,12 @@
 
 import zip
 
-internal func zipSourceCallbackProxy(userdata: UnsafeMutableRawPointer?, data: UnsafeMutableRawPointer?, length: zip_uint64_t, command: zip_source_cmd_t) -> zip_int64_t {
+internal func zipSourceAdapterTrampoline(userdata: UnsafeMutableRawPointer?, data: UnsafeMutableRawPointer?, length: zip_uint64_t, command: zip_source_cmd_t) -> zip_int64_t {
     guard let userdata = userdata else {
         preconditionFailure("")
     }
 
-    let proxy = Unmanaged<ZipSourceCallbackProxy>.fromOpaque(userdata)
+    let proxy = Unmanaged<ZipSourceAdapterProxy>.fromOpaque(userdata)
     let result = proxy.takeUnretainedValue().callback(data: data, length: length, command: command)
 
     if command == ZIP_SOURCE_FREE {
@@ -37,16 +37,16 @@ internal func zipSourceCallbackProxy(userdata: UnsafeMutableRawPointer?, data: U
     return result
 }
 
-internal final class ZipSourceCallbackProxy {
-    private let callback: ZipSourceCallback
+internal final class ZipSourceAdapterProxy {
+    private let callback: ZipSourceAdapter
     private var error: Error?
 
-    internal init(callback: ZipSourceCallback) {
+    internal init(_ callback: ZipSourceAdapter) {
         self.callback = callback
     }
 }
 
-extension ZipSourceCallbackProxy {
+extension ZipSourceAdapterProxy {
     fileprivate func callback(data: UnsafeMutableRawPointer?, length: zip_uint64_t, command: zip_source_cmd_t) -> zip_int64_t {
         do {
             switch command {
@@ -102,7 +102,7 @@ extension ZipSourceCallbackProxy {
             case ZIP_SOURCE_OPEN:
                 // Prepare for reading.
 
-                let source = try zipCast(self.callback, as: ZipSourceReadable.self)
+                let source = try dynamicCast(self.callback, as: ZipSourceReadable.self)
                 try source.open()
                 return 0
 
@@ -110,13 +110,13 @@ extension ZipSourceCallbackProxy {
                 // Read data into the buffer data of size len. Return the number of bytes placed into data on success, and
                 // zero for end-of-file.
 
-                let source = try zipCast(self.callback, as: ZipSourceReadable.self)
-                return try zipCast(source.read(to: data.unwrapped(), count: zipCast(length)))
+                let source = try dynamicCast(self.callback, as: ZipSourceReadable.self)
+                return try integerCast(source.read(to: data.unwrapped(), count: integerCast(length)))
 
             case ZIP_SOURCE_CLOSE:
                 // Reading is done.
 
-                let source = try zipCast(self.callback, as: ZipSourceReadable.self)
+                let source = try dynamicCast(self.callback, as: ZipSourceReadable.self)
                 try source.close()
                 return 0
 
@@ -132,19 +132,10 @@ extension ZipSourceCallbackProxy {
                 // NOTE: zip_source_function() may be called with this argument even after being called with ZIP_SOURCE_CLOSE.
                 // Return sizeof(struct zip_stat) on success.
 
-                let source = try zipCast(self.callback, as: ZipSourceReadable.self)
-                let stat = try source.stat()
+                let source = try dynamicCast(self.callback, as: ZipSourceReadable.self)
                 let data = try data.unwrapped().assumingMemoryBound(to: zip_stat.self)
-                zip_stat_init(data)
-
-                if let value = stat.size { data.pointee.size = try zipCast(value) }
-                if let value = stat.compressedSize { data.pointee.comp_size = try zipCast(value) }
-                if let value = stat.modificationDate { data.pointee.mtime = try zipCast(Int(value.timeIntervalSince1970)) }
-                if let value = stat.crc32 { data.pointee.crc = value }
-                if let value = stat.compressionMethod { data.pointee.comp_method = try zipCast(value.rawValue) }
-                if let value = stat.encryptionMethod { data.pointee.encryption_method = value.rawValue }
-                if let value = stat.flags { data.pointee.flags = value }
-                return try zipCast(MemoryLayout<zip_stat>.size)
+                data.pointee = try source.stat().rawValue
+                return try integerCast(MemoryLayout<zip_stat>.size)
 
             case ZIP_SOURCE_ERROR:
                 // Get error information. data points to an array of two ints, which should be filled with the libzip error
@@ -153,7 +144,7 @@ extension ZipSourceCallbackProxy {
                 // and return its return value. Otherwise, return 2 * sizeof(int).
 
                 // TODO: expose error to libzip
-                return try zipCast(2 * MemoryLayout<Int>.size)
+                return try integerCast(2 * MemoryLayout<Int>.size)
 
             // MARK: ZipSourceSeekable
 
@@ -167,23 +158,23 @@ extension ZipSourceCallbackProxy {
                 // If the size of the source's data is known, use zip_source_seek_compute_offset(3) to validate
                 // the arguments and compute the new offset.
 
-                let source = try zipCast(self.callback, as: ZipSourceSeekable.self)
+                let source = try dynamicCast(self.callback, as: ZipSourceSeekable.self)
                 let data = try data.unwrapped().assumingMemoryBound(to: zip_source_args_seek_t.self)
-                try source.seek(offset: zipCast(data.pointee.offset), whence: ZipWhence(rawValue: data.pointee.whence))
+                try source.seek(offset: integerCast(data.pointee.offset), relativeTo: ZipWhence(rawValue: data.pointee.whence))
                 return 0
 
             case ZIP_SOURCE_TELL:
                 // Return the current read offset in the source, like ftell(3).
 
-                let source = try zipCast(self.callback, as: ZipSourceSeekable.self)
-                return try zipCast(source.tell())
+                let source = try dynamicCast(self.callback, as: ZipSourceSeekable.self)
+                return try integerCast(source.tell())
 
             // MARK: ZipSourceWritable
 
             case ZIP_SOURCE_BEGIN_WRITE:
                 // Prepare the source for writing. Use this to create any temporary file(s).
 
-                let source = try zipCast(self.callback, as: ZipSourceWritable.self)
+                let source = try dynamicCast(self.callback, as: ZipSourceWritable.self)
                 try source.beginWrite()
                 return 0
 
@@ -198,14 +189,14 @@ extension ZipSourceCallbackProxy {
             case ZIP_SOURCE_WRITE:
                 // Write data to the source. Return number of bytes written.
 
-                let source = try zipCast(self.callback, as: ZipSourceWritable.self)
-                return try zipCast(source.write(bytes: data.unwrapped(), count: zipCast(length)))
+                let source = try dynamicCast(self.callback, as: ZipSourceWritable.self)
+                return try integerCast(source.write(bytes: data.unwrapped(), count: integerCast(length)))
 
             case ZIP_SOURCE_COMMIT_WRITE:
                 // Finish writing to the source. Replace the original data with the newly written data. Clean up temporary
                 // files or internal buffers. Subsequently opening and reading from the source should return the newly written data.
 
-                let source = try zipCast(self.callback, as: ZipSourceWritable.self)
+                let source = try dynamicCast(self.callback, as: ZipSourceWritable.self)
                 try source.commitWrite()
                 return 0
 
@@ -213,28 +204,28 @@ extension ZipSourceCallbackProxy {
                 // Abort writing to the source. Discard written data. Clean up temporary files or internal buffers.
                 // Subsequently opening and reading from the source should return the original data.
 
-                let source = try zipCast(self.callback, as: ZipSourceWritable.self)
+                let source = try dynamicCast(self.callback, as: ZipSourceWritable.self)
                 try source.rollbackWrite()
                 return 0
 
             case ZIP_SOURCE_SEEK_WRITE:
                 // Specify position to write next byte to, like fseek(3). See ZIP_SOURCE_SEEK for details.
 
-                let source = try zipCast(self.callback, as: ZipSourceWritable.self)
+                let source = try dynamicCast(self.callback, as: ZipSourceWritable.self)
                 let data = try data.unwrapped().assumingMemoryBound(to: zip_source_args_seek_t.self)
-                try source.seekWrite(offset: zipCast(data.pointee.offset), whence: ZipWhence(rawValue: data.pointee.whence))
+                try source.seekWrite(offset: integerCast(data.pointee.offset), relativeTo: ZipWhence(rawValue: data.pointee.whence))
                 return 0
 
             case ZIP_SOURCE_TELL_WRITE:
                 // Return the current write offset in the source, like ftell(3).
 
-                let source = try zipCast(self.callback, as: ZipSourceWritable.self)
-                return try zipCast(source.tellWrite())
+                let source = try dynamicCast(self.callback, as: ZipSourceWritable.self)
+                return try integerCast(source.tellWrite())
 
             case ZIP_SOURCE_REMOVE:
                 // Remove the underlying file. This is called if a zip archive is empty when closed.
 
-                let source = try zipCast(self.callback, as: ZipSourceWritable.self)
+                let source = try dynamicCast(self.callback, as: ZipSourceWritable.self)
                 try source.remove()
                 return 0
 

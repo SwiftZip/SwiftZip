@@ -23,29 +23,41 @@
 import Foundation
 import zip
 
-internal protocol ZipErrorContext {
-    var lastError: zip_error_t? { get }
-    func clearError()
-}
-
-extension ZipErrorContext {
-    @discardableResult
-    internal func zipCheckResult<T>(_ returnCode: T) throws -> T where T: SignedInteger {
-        if returnCode == -1 {
-            defer { clearError() }
-            throw try ZipError.zipError(lastError.unwrapped())
-        } else {
-            return returnCode
-        }
-    }
-
-    internal func zipCheckResult<T>(_ value: T?) throws -> T {
-        switch value {
+extension Optional {
+    internal func unwrapped(or error: @autoclosure () -> Error) throws -> Wrapped {
+        switch self {
         case let .some(value):
             return value
         case .none:
-            defer { clearError() }
-            throw try ZipError.zipError(lastError.unwrapped())
+            throw error()
+        }
+    }
+
+    internal func unwrapped(or error: @autoclosure () -> zip_error) throws -> Wrapped {
+        switch self {
+        case let .some(value):
+            return value
+        case .none:
+            throw ZipError.libzipError(error())
+        }
+    }
+
+    internal func unwrapped(function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> Wrapped {
+        switch self {
+        case let .some(value):
+            return value
+        case .none:
+            assertionFailure("Unexpected `nil` when unwrapping value in `\(function)` at `\(file):\(line)`")
+            throw ZipError.internalInconsistency
+        }
+    }
+
+    internal func forceUnwrap(function: StaticString = #function, file: StaticString = #file, line: Int = #line) -> Wrapped {
+        switch self {
+        case let .some(value):
+            return value
+        case .none:
+            preconditionFailure("Unexpected `nil` when unwrapping value in `\(function)` at `\(file):\(line)`")
         }
     }
 }

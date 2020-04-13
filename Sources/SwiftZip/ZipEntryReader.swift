@@ -78,7 +78,7 @@ extension ZipEntryReader {
     ///   - count: buffer size
     @discardableResult
     public func read(buf: UnsafeMutableRawPointer, count: Int) throws -> Int {
-        return try zipCast(zipCheckResult(zip_fread(handle, buf, zipCast(count))))
+        return try integerCast(zipCheckResult(zip_fread(handle, buf, integerCast(count))))
     }
 
     /// Reads at most `count` bytes from file into `buf`.
@@ -102,8 +102,8 @@ extension ZipEntryReader {
     /// - Parameters:
     ///   - offset: relative offset
     ///   - whence: anchor point
-    public func seek(offset: Int, whence: ZipWhence = .cur) throws {
-        try zipCheckResult(zip_fseek(handle, zipCast(offset), whence.rawValue))
+    public func seek(offset: Int, relativeTo whence: ZipWhence = .origin) throws {
+        try zipCheckResult(zip_fseek(handle, integerCast(offset), whence.rawValue))
     }
 
     /// Reports the current offset in the file. `tell` only works on uncompressed (stored) data.
@@ -112,6 +112,6 @@ extension ZipEntryReader {
     /// - SeeAlso:
     ///   - [zip_ftell](https://libzip.org/documentation/zip_ftell.html)
     public func tell() throws -> Int {
-        return try zipCast(zipCheckResult(zip_ftell(handle)))
+        return try integerCast(zipCheckResult(zip_ftell(handle)))
     }
 }

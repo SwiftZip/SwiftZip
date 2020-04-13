@@ -45,7 +45,7 @@ extension ZipMutableArchive {
     /// - Parameters:
     ///   - path: path to open
     ///   - flags: open flags, defaults to `[]`
-    public convenience init(path: String, flags: OpenFlags = []) throws {
+    public convenience init(path: String, flags: MutableOpenFlags = []) throws {
         var status: Int32 = ZIP_ER_OK
         let optionalHandle = path.withCString { path in
             return zip_open(path, flags.rawValue, &status)
@@ -64,7 +64,7 @@ extension ZipMutableArchive {
     /// - Parameters:
     ///   - url: URL to open
     ///   - flags: open flags, defaults to `[]`
-    public convenience init(url: URL, flags: OpenFlags = []) throws {
+    public convenience init(url: URL, flags: MutableOpenFlags = []) throws {
         guard url.isFileURL else {
             throw ZipError.unsupportedURL
         }
@@ -91,7 +91,7 @@ extension ZipMutableArchive {
     /// - Parameters:
     ///   - source: source to open
     ///   - flags: open flags, defaults to `[]`
-    public convenience init(source: ZipSource, flags: OpenFlags = []) throws {
+    public convenience init(source: ZipSource, flags: MutableOpenFlags = []) throws {
         var error = zip_error()
         let optionalHandle = zip_open_from_source(source.handle, flags.rawValue, &error)
         let handle = try optionalHandle.unwrapped(or: error)
@@ -126,7 +126,7 @@ extension ZipMutableArchive {
     public func setComment(_ comment: String?) throws {
         if let comment = comment {
             try comment.withCString { comment in
-                _ = try zipCheckResult(zip_set_archive_comment(handle, comment, zipCast(strlen(comment))))
+                _ = try zipCheckResult(zip_set_archive_comment(handle, comment, integerCast(strlen(comment))))
             }
         } else {
             try zipCheckResult(zip_set_archive_comment(handle, nil, 0))
@@ -143,7 +143,7 @@ extension ZipMutableArchive {
     /// - Parameters:
     ///   - index: index of entry to retrieve
     public func getMutableEntry(index: Int) throws -> ZipMutableEntry {
-        return try ZipMutableEntry(archive: self, entry: zipCast(index), version: .current)
+        return try ZipMutableEntry(archive: self, entry: integerCast(index), version: .current)
     }
 }
 
@@ -160,7 +160,7 @@ extension ZipMutableArchive {
     @discardableResult
     public func addDirectory(name: String) throws -> ZipMutableEntry {
         let index: zip_uint64_t = try name.withCString { name in
-            return try zipCast(zipCheckResult(zip_dir_add(handle, name, ZIP_FL_ENC_UTF_8)))
+            return try integerCast(zipCheckResult(zip_dir_add(handle, name, ZIP_FL_ENC_UTF_8)))
         }
 
         return ZipMutableEntry(archive: self, entry: index, version: .current)
@@ -178,7 +178,7 @@ extension ZipMutableArchive {
     @discardableResult
     public func addFile(name: String, source: ZipSource, flags: AddFileFlags = []) throws -> ZipMutableEntry {
         let index: zip_uint64_t = try name.withCString { name in
-            return try zipCast(zipCheckResult(zip_file_add(handle, name, source.handle, flags.rawValue | ZIP_FL_ENC_UTF_8)))
+            return try integerCast(zipCheckResult(zip_file_add(handle, name, source.handle, flags.rawValue | ZIP_FL_ENC_UTF_8)))
         }
 
         // compensate unbalanced `free` inside `zip_file_add`

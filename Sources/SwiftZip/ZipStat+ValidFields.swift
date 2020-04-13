@@ -22,18 +22,25 @@
 
 import zip
 
-extension ZipArchive {
-    /// A set of flags to be used with `ZipArchive.addFile`.
-    public struct AddFileFlags: OptionSet {
-        public let rawValue: UInt32
+extension ZipStat {
+    /// A set of valid property values in the `ZipEntry.Stat` struct.
+    public struct ValidFields: OptionSet {
+        public let rawValue: UInt64
 
-        public init(rawValue: UInt32) {
+        public init(rawValue: UInt64) {
             self.rawValue = rawValue
         }
     }
 }
 
-extension ZipArchive.AddFileFlags {
-    /// Overwrite any existing file of the same name.
-    public static let overwrite = ZipArchive.AddFileFlags(rawValue: ZIP_FL_OVERWRITE)
+extension ZipStat.ValidFields {
+    public static let name = ZipStat.ValidFields(rawValue: UInt64(ZIP_STAT_NAME))
+    public static let index = ZipStat.ValidFields(rawValue: UInt64(ZIP_STAT_INDEX))
+    public static let size = ZipStat.ValidFields(rawValue: UInt64(ZIP_STAT_SIZE))
+    public static let compressedSize = ZipStat.ValidFields(rawValue: UInt64(ZIP_STAT_COMP_SIZE))
+    public static let modificationDate = ZipStat.ValidFields(rawValue: UInt64(ZIP_STAT_MTIME))
+    public static let crc32 = ZipStat.ValidFields(rawValue: UInt64(ZIP_STAT_CRC))
+    public static let compressionMethod = ZipStat.ValidFields(rawValue: UInt64(ZIP_STAT_COMP_METHOD))
+    public static let encryptionMethod = ZipStat.ValidFields(rawValue: UInt64(ZIP_STAT_ENCRYPTION_METHOD))
+    public static let flags = ZipStat.ValidFields(rawValue: UInt64(ZIP_STAT_FLAGS))
 }

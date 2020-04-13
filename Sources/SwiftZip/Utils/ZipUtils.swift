@@ -24,15 +24,15 @@ import Foundation
 
 // MARK: - Throwing utilities
 
-internal func zipNoThrow<T>(_ block: () throws -> T) -> T {
+internal func assertNoThrow(_ block: () throws -> Void) {
     do {
-        return try block()
+        try block()
     } catch {
-        preconditionFailure("SwiftZip operation failed: \(error)")
+        assertionFailure("SwiftZip operation failed: \(error)")
     }
 }
 
-internal func zipNoThrow<T>(or `default`: T, _ block: () throws -> T) -> T {
+internal func assertNoThrow<T>(or `default`: T, _ block: () throws -> T) -> T {
     do {
         return try block()
     } catch {
@@ -41,9 +41,17 @@ internal func zipNoThrow<T>(or `default`: T, _ block: () throws -> T) -> T {
     }
 }
 
-// MARK: - Throwing numeric cast
+internal func preconditionNoThrow<T>(_ block: () throws -> T) -> T {
+    do {
+        return try block()
+    } catch {
+        preconditionFailure("SwiftZip operation failed: \(error)")
+    }
+}
 
-internal func zipCast<T, U>(_ value: T, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {
+// MARK: - Throwing integer cast
+
+internal func integerCast<T, U>(_ value: T, as: U.Type = U.self, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {
     if let result = U(exactly: value) {
         return result
     } else {
@@ -52,9 +60,9 @@ internal func zipCast<T, U>(_ value: T, function: StaticString = #function, file
     }
 }
 
-// MARK: - Throwing downcast
+// MARK: - Throwing dynamic downcast
 
-internal func zipCast<T, U>(_ value: T, as _: U.Type, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U {
+internal func dynamicCast<T, U>(_ value: T, as _: U.Type, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U {
     if let result = value as? U {
         return result
     } else {

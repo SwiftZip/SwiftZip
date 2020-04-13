@@ -22,18 +22,27 @@
 
 import zip
 
-extension ZipEntry {
-    /// A compression preference for deflate.
-    public struct CompressionFlags: RawRepresentable, Equatable {
-        public let rawValue: UInt32
-        public init(rawValue: UInt32) {
+extension ZipMutableArchive {
+    /// A set of flags to be used with `ZipMutableArchive.init`.
+    public struct MutableOpenFlags: OptionSet {
+        public let rawValue: Int32
+
+        public init(rawValue: Int32) {
             self.rawValue = rawValue
         }
     }
 }
 
-extension ZipEntry.CompressionFlags {
-    public static let `default` = ZipEntry.CompressionFlags(rawValue: 0)
-    public static let fastest = ZipEntry.CompressionFlags(rawValue: 1)
-    public static let best = ZipEntry.CompressionFlags(rawValue: 9)
+extension ZipMutableArchive.MutableOpenFlags {
+    /// Perform additional stricter consistency checks on the archive, and error if they fail.
+    public static let checkConsistency = ZipMutableArchive.MutableOpenFlags(rawValue: ZIP_CHECKCONS)
+
+    /// Create the archive if it does not exist.
+    public static let create = ZipMutableArchive.MutableOpenFlags(rawValue: ZIP_CREATE)
+
+    /// Error if archive already exists.
+    public static let exclusive = ZipMutableArchive.MutableOpenFlags(rawValue: ZIP_EXCL)
+
+    /// If archive exists, ignore its current contents. In other words, handle it the same way as an empty archive.
+    public static let truncate = ZipMutableArchive.MutableOpenFlags(rawValue: ZIP_TRUNCATE)
 }

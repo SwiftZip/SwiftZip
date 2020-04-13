@@ -22,18 +22,30 @@
 
 import zip
 
-extension ZipArchive {
-    /// A set of flags to be used with `ZipArchive.addFile`.
-    public struct AddFileFlags: OptionSet {
-        public let rawValue: UInt32
+extension ZipStat {
+    /// An encryption method.
+    public struct EncryptionMethod: RawRepresentable, Equatable {
+        public let rawValue: UInt16
 
-        public init(rawValue: UInt32) {
+        public init(rawValue: UInt16) {
             self.rawValue = rawValue
         }
     }
 }
 
-extension ZipArchive.AddFileFlags {
-    /// Overwrite any existing file of the same name.
-    public static let overwrite = ZipArchive.AddFileFlags(rawValue: ZIP_FL_OVERWRITE)
+extension ZipStat.EncryptionMethod {
+    /// Not encrypted.
+    public static let none = ZipStat.EncryptionMethod(rawValue: UInt16(ZIP_EM_NONE))
+
+    /// Traditional PKWARE encryption.
+    public static let pkware = ZipStat.EncryptionMethod(rawValue: UInt16(ZIP_EM_TRAD_PKWARE))
+
+    /// Winzip AES-128 encryption.
+    public static let aes128 = ZipStat.EncryptionMethod(rawValue: UInt16(ZIP_EM_AES_128))
+
+    /// Winzip AES-192 encryption.
+    public static let aes192 = ZipStat.EncryptionMethod(rawValue: UInt16(ZIP_EM_AES_192))
+
+    /// Winzip AES-256 encryption.
+    public static let aes256 = ZipStat.EncryptionMethod(rawValue: UInt16(ZIP_EM_AES_256))
 }

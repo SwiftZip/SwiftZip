@@ -20,28 +20,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Foundation
 import zip
 
-extension ZipMutableArchive {
-    /// A set of flags to be used with `ZipMutableArchive.init`.
-    public struct OpenFlags: OptionSet {
-        public let rawValue: Int32
-        public init(rawValue: Int32) {
-            self.rawValue = rawValue
-        }
-    }
+/// A base protocol for all custom sources.
+public protocol ZipSourceAdapter { }
+
+/// A protocol for custom readable sources.
+public protocol ZipSourceReadable: ZipSourceAdapter {
+    func open() throws
+    func read(to buffer: UnsafeMutableRawPointer, count: Int) throws -> Int
+    func close() throws
+    func stat() throws -> ZipStat
 }
 
-extension ZipMutableArchive.OpenFlags {
-    /// Perform additional stricter consistency checks on the archive, and error if they fail.
-    public static let checkConsistency = ZipMutableArchive.OpenFlags(rawValue: ZIP_CHECKCONS)
+/// A protocol for custom readable and seekable sources.
+public protocol ZipSourceSeekable: ZipSourceReadable {
+    func seek(offset: Int, relativeTo whence: ZipWhence) throws
+    func tell() throws -> Int
+}
 
-    /// Create the archive if it does not exist.
-    public static let create = ZipMutableArchive.OpenFlags(rawValue: ZIP_CREATE)
-
-    /// Error if archive already exists.
-    public static let exclusive = ZipMutableArchive.OpenFlags(rawValue: ZIP_EXCL)
-
-    /// If archive exists, ignore its current contents. In other words, handle it the same way as an empty archive.
-    public static let truncate = ZipMutableArchive.OpenFlags(rawValue: ZIP_TRUNCATE)
+/// A protocol for custom writable sources.
+public protocol ZipSourceWritable: ZipSourceAdapter {
+    func beginWrite() throws
+    func write(bytes: UnsafeMutableRawPointer, count: Int) throws -> Int
+    func commitWrite() throws
+    func rollbackWrite() throws
+    func seekWrite(offset: Int, relativeTo whence: ZipWhence) throws
+    func tellWrite() throws -> Int
+    func remove() throws
 }

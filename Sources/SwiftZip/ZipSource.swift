@@ -58,9 +58,22 @@ extension ZipSource {
     ///   - freeWhenDone: buffer ownership flag
     public convenience init(buffer: UnsafeRawPointer, length: Int, freeWhenDone: Bool) throws {
         var error = zip_error_t()
-        let optionalHandle = try zip_source_buffer_create(buffer, zipCast(length), freeWhenDone ? 1 : 0, &error)
+        let optionalHandle = try zip_source_buffer_create(buffer, integerCast(length), freeWhenDone ? 1 : 0, &error)
         let handle = try optionalHandle.unwrapped(or: error)
         self.init(sourceHandle: handle)
+    }
+
+    /// Create a zip source from the `buffer` data of size `length`. If `freeWhenDone` is `true`, the buffer
+    /// will be freed when it is no longer needed. `buffer` must remain valid for the lifetime of the created source.
+    ///
+    /// - SeeAlso:
+    ///   - [zip_source_buffer_create](https://libzip.org/documentation/zip_source_buffer_create.html)
+    ///
+    /// - Parameters:
+    ///   - buffer: data buffer
+    ///   - freeWhenDone: buffer ownership flag
+    public convenience init(buffer: UnsafeRawBufferPointer, freeWhenDone: Bool) throws {
+        try self.init(buffer: buffer.baseAddress.unwrapped(), length: buffer.count, freeWhenDone: freeWhenDone)
     }
 
     /// Create a zip source from a file. Opens `path` and read `length` bytes from offset `start` from it.
@@ -78,7 +91,7 @@ extension ZipSource {
     public convenience init(path: String, start: Int = 0, length: Int = -1) throws {
         var error = zip_error_t()
         let optionalHandle = try path.withCString { path in
-            return try zip_source_file_create(path, zipCast(start), zipCast(length), &error)
+            return try zip_source_file_create(path, integerCast(start), integerCast(length), &error)
         }
 
         let handle = try optionalHandle.unwrapped(or: error)
@@ -105,7 +118,7 @@ extension ZipSource {
         var error = zip_error_t()
         let optionalHandle: OpaquePointer? = try url.withUnsafeFileSystemRepresentation { path in
             if let path = path {
-                return try zip_source_file_create(path, zipCast(start), zipCast(length), &error)
+                return try zip_source_file_create(path, integerCast(start), integerCast(length), &error)
             } else {
                 throw ZipError.internalInconsistency
             }
@@ -129,7 +142,7 @@ extension ZipSource {
     ///   - length: data length, defaults to -1
     public convenience init(file: UnsafeMutablePointer<FILE>, start: Int = 0, length: Int = -1) throws {
         var error = zip_error_t()
-        let optionalHandle = try zip_source_filep_create(file, zipCast(start), zipCast(length), &error)
+        let optionalHandle = try zip_source_filep_create(file, integerCast(start), integerCast(length), &error)
         let handle = try optionalHandle.unwrapped(or: error)
         self.init(sourceHandle: handle)
     }
@@ -157,12 +170,12 @@ extension ZipSource {
     ///
     /// - Parameters:
     ///   - callback: user-provided callback instance
-    public convenience init(callback: ZipSourceCallback) throws {
-        let proxy = ZipSourceCallbackProxy(callback: callback)
+    public convenience init(adapter: ZipSourceAdapter) throws {
+        let proxy = ZipSourceAdapterProxy(adapter)
         let userdata = Unmanaged.passRetained(proxy)
 
         do {
-            try self.init(callback: zipSourceCallbackProxy, userdata: userdata.toOpaque())
+            try self.init(callback: zipSourceAdapterTrampoline, userdata: userdata.toOpaque())
         } catch {
             userdata.release()
             throw error

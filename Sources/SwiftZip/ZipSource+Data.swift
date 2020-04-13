@@ -24,11 +24,11 @@ import Foundation
 
 extension ZipSource {
     public convenience init(data: Data) throws {
-        try self.init(callback: ZipSourceData(data: data))
+        try self.init(adapter: DataZipSourceAdapter(data: data))
     }
 }
 
-private final class ZipSourceData: ZipSourceSeekable {
+private final class DataZipSourceAdapter: ZipSourceSeekable {
     private let data: Data
     private var position: Int
 
@@ -59,16 +59,16 @@ private final class ZipSourceData: ZipSourceSeekable {
         // Nothing to do here.
     }
 
-    func stat() -> ZipSourceStat {
-        return ZipSourceStat(size: data.count)
+    func stat() -> ZipStat {
+        return ZipStat(size: data.count)
     }
 
-    func seek(offset: Int, whence: ZipWhence) throws {
+    func seek(offset: Int, relativeTo whence: ZipWhence) throws {
         let newPosition: Int
         switch whence {
-        case .set:
+        case .origin:
             newPosition = offset
-        case .cur:
+        case .currentPosition:
             newPosition = position + offset
         case .end:
             newPosition = data.count + offset

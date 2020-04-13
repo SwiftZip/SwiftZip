@@ -20,26 +20,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Foundation
 import zip
 
-extension ZipEntry.Stat {
-    /// A set of valid property values in the `ZipEntry.Stat` struct.
-    public struct ValidFields: OptionSet {
-        public let rawValue: UInt64
-        public init(rawValue: UInt64) {
-            self.rawValue = rawValue
-        }
+internal protocol ZipErrorContext {
+    var lastError: zip_error_t? { get }
+    func clearError()
+}
+
+// MARK: - Error code checks
+
+internal func zipCheckError(_ errorCode: Int32) throws {
+    switch errorCode {
+    case ZIP_ER_OK:
+        return
+    case let errorCode:
+        throw ZipError.libzipError(.init(zip_err: errorCode, sys_err: 0, str: nil))
     }
 }
 
-extension ZipEntry.Stat.ValidFields {
-    public static let name = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_NAME))
-    public static let index = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_INDEX))
-    public static let size = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_SIZE))
-    public static let compressedSize = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_COMP_SIZE))
-    public static let modificationDate = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_MTIME))
-    public static let crc32 = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_CRC))
-    public static let compressionMethod = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_COMP_METHOD))
-    public static let encryptionMethod = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_ENCRYPTION_METHOD))
-    public static let flags = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_FLAGS))
+extension ZipErrorContext {
+    @discardableResult
+    internal func zipCheckResult<T>(_ returnCode: T) throws -> T where T: SignedInteger {
+        if returnCode == -1 {
+            defer { clearError() }
+            throw try ZipError.libzipError(lastError.unwrapped())
+        } else {
+            return returnCode
+        }
+    }
+
+    internal func zipCheckResult<T>(_ value: T?) throws -> T {
+        switch value {
+        case let .some(value):
+            return value
+        case .none:
+            defer { clearError() }
+            throw try ZipError.libzipError(lastError.unwrapped())
+        }
+    }
 }

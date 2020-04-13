@@ -210,7 +210,7 @@ extension ZipArchive {
     /// - Parameters:
     ///   - version: archive version to use, defaults to `.current`
     public func getEntryCount(version: Version = .current) throws -> Int {
-        return try zipCast(zipCheckResult(zip_get_num_entries(handle, version.rawValue)))
+        return try integerCast(zipCheckResult(zip_get_num_entries(handle, version.rawValue)))
     }
 
     /// Retrieves archive entry by index.
@@ -218,7 +218,7 @@ extension ZipArchive {
     /// - Parameters:
     ///   - index: index of entry to retrieve
     public func getEntry(index: Int, version: Version = .current) throws -> ZipEntry {
-        return try ZipEntry(archive: self, entry: zipCast(index), version: version)
+        return try ZipEntry(archive: self, entry: integerCast(index), version: version)
     }
 }
 
@@ -238,7 +238,7 @@ extension ZipArchive {
     public func locate(filename: String, locateFlags: LocateFlags = [], version: Version = .current) throws -> ZipEntry {
         return try filename.withCString { filename in
             let index = try zipCheckResult(zip_name_locate(handle, filename, locateFlags.rawValue | version.rawValue | ZIP_FL_ENC_UTF_8))
-            return try ZipEntry(archive: self, entry: zipCast(index), version: version)
+            return try ZipEntry(archive: self, entry: integerCast(index), version: version)
         }
     }
 }
@@ -255,10 +255,10 @@ extension ZipArchive {
     ///   - filename: entry name
     ///   - locateFlags: lookup options, defaults to `[]`
     ///   - version: archive version to use, defaults to `.current`
-    public func stat(filename: String, locateFlags: LocateFlags = [], version: Version = .current) throws -> ZipEntry.Stat {
-        var result = ZipEntry.Stat()
+    public func stat(filename: String, locateFlags: LocateFlags = [], version: Version = .current) throws -> ZipStat {
+        var result = ZipStat(uninitialized: ())
         let resultCode = filename.withCString { filename in
-            return zip_stat(handle, filename, locateFlags.rawValue | version.rawValue, &result.stat)
+            return zip_stat(handle, filename, locateFlags.rawValue | version.rawValue, &result.rawValue)
         }
 
         try zipCheckResult(resultCode)

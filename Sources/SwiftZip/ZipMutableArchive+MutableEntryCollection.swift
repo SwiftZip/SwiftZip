@@ -22,29 +22,43 @@
 
 import zip
 
-extension ZipEntry {
-    /// An encryption method.
-    public struct EncryptionMethod: RawRepresentable, Equatable {
-        public let rawValue: UInt16
-        public init(rawValue: UInt16) {
-            self.rawValue = rawValue
+extension ZipMutableArchive {
+    /// A collection of mutable entries in the archive.
+    public final class MutableEntryCollection {
+        internal let archive: ZipMutableArchive
+
+        internal init(archive: ZipMutableArchive) {
+            self.archive = archive
         }
     }
 }
 
-extension ZipEntry.EncryptionMethod {
-    /// Not encrypted.
-    public static let none = ZipEntry.EncryptionMethod(rawValue: UInt16(ZIP_EM_NONE))
+extension ZipMutableArchive.MutableEntryCollection: RandomAccessCollection {
+    public var startIndex: Int {
+        return 0
+    }
 
-    /// Traditional PKWARE encryption.
-    public static let pkware = ZipEntry.EncryptionMethod(rawValue: UInt16(ZIP_EM_TRAD_PKWARE))
+    public var endIndex: Int {
+        return assertNoThrow(or: 0) {
+            try archive.getEntryCount(version: .current)
+        }
+    }
 
-    /// Winzip AES-128 encryption.
-    public static let aes128 = ZipEntry.EncryptionMethod(rawValue: UInt16(ZIP_EM_AES_128))
+    public subscript(position: Int) -> ZipMutableEntry {
+        return preconditionNoThrow {
+            try archive.getMutableEntry(index: position)
+        }
+    }
+}
 
-    /// Winzip AES-192 encryption.
-    public static let aes192 = ZipEntry.EncryptionMethod(rawValue: UInt16(ZIP_EM_AES_192))
+extension ZipMutableArchive {
+    /// Exposes the original unmodified archive entries as a Swift `Collection`
+    public var unchangedEntries: EntryCollection {
+        return entries(version: .unchanged)
+    }
 
-    /// Winzip AES-256 encryption.
-    public static let aes256 = ZipEntry.EncryptionMethod(rawValue: UInt16(ZIP_EM_AES_256))
+    /// Exposes mutable archive entries as a Swift `Collection`
+    public var mutableEntries: MutableEntryCollection {
+        return MutableEntryCollection(archive: self)
+    }
 }

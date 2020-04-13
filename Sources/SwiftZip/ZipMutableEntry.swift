@@ -37,7 +37,7 @@ extension ZipMutableEntry {
     /// - Parameters:
     ///   - operatingSystem: operating system value
     ///   - attributes: external attributes to set
-    public func setExternalAttributes(operatingSystem: ZipOperatingSystem, attributes: UInt32) throws {
+    public func setExternalAttributes(operatingSystem: ExternalAttributes.OperatingSystem, attributes: UInt32) throws {
         try zipCheckResult(zip_file_set_external_attributes(archive.handle, entry, 0, operatingSystem.rawValue, attributes))
     }
 
@@ -49,7 +49,7 @@ extension ZipMutableEntry {
     /// - Parameters:
     ///   - operatingSystem: operating system value, defaults to `.unix`
     ///   - posixAttributes: POSIX attributes to be set
-    public func setExternalAttributes(operatingSystem: ZipOperatingSystem = .unix, posixAttributes: mode_t) throws {
+    public func setExternalAttributes(operatingSystem: ExternalAttributes.OperatingSystem = .unix, posixAttributes: mode_t) throws {
         try zipCheckResult(zip_file_set_external_attributes(archive.handle, entry, 0, operatingSystem.rawValue, UInt32(posixAttributes) << 16))
     }
 }
@@ -75,7 +75,7 @@ extension ZipMutableEntry {
     public func setExtraField(id: UInt16, index: Int?, data: Data, flags: ExtraFieldFlags) throws {
         let index = index ?? Int(ZIP_EXTRA_FIELD_NEW)
         try data.withUnsafeBytes { data in
-            _ = try zipCheckResult(zip_file_extra_field_set(archive.handle, entry, id, zipCast(index), data.bindMemory(to: zip_uint8_t.self).baseAddress, zipCast(data.count), flags.rawValue))
+            _ = try zipCheckResult(zip_file_extra_field_set(archive.handle, entry, id, integerCast(index), data.bindMemory(to: zip_uint8_t.self).baseAddress, integerCast(data.count), flags.rawValue))
         }
     }
 
@@ -91,7 +91,7 @@ extension ZipMutableEntry {
     ///   - flags: field lookup flags
     public func deleteExtraField(index: Int?, flags: ExtraFieldFlags) throws {
         let index = index ?? Int(ZIP_EXTRA_FIELD_ALL)
-        try zipCheckResult(zip_file_extra_field_delete(archive.handle, entry, zipCast(index), flags.rawValue))
+        try zipCheckResult(zip_file_extra_field_delete(archive.handle, entry, integerCast(index), flags.rawValue))
     }
 
     /// Deletes the `index`-s extra field with a specified field ID for the file in the zip archive.
@@ -106,7 +106,7 @@ extension ZipMutableEntry {
     ///   - flags: field lookup flags
     public func deleteExtraField(id: UInt16, index: Int?, flags: ExtraFieldFlags) throws {
         let index = index ?? Int(ZIP_EXTRA_FIELD_ALL)
-        try zipCheckResult(zip_file_extra_field_delete(archive.handle, entry, zipCast(index), flags.rawValue))
+        try zipCheckResult(zip_file_extra_field_delete(archive.handle, entry, integerCast(index), flags.rawValue))
     }
 }
 
@@ -124,7 +124,7 @@ extension ZipMutableEntry {
     public func setComment(_ comment: String?) throws {
         if let comment = comment {
             try comment.withCString { comment in
-                _ = try zipCheckResult(zip_file_set_comment(archive.handle, entry, comment, zipCast(strlen(comment)), ZIP_FL_ENC_UTF_8))
+                _ = try zipCheckResult(zip_file_set_comment(archive.handle, entry, comment, integerCast(strlen(comment)), ZIP_FL_ENC_UTF_8))
             }
         } else {
             try zipCheckResult(zip_file_set_comment(archive.handle, entry, nil, 0, 0))
@@ -143,7 +143,7 @@ extension ZipMutableEntry {
     /// - Parameters:
     ///   - date: new file modification time
     public func setModifiedDate(_ date: Date) throws {
-        try zipCheckResult(zip_file_set_mtime(archive.handle, entry, zipCast(Int(date.timeIntervalSince1970)), 0))
+        try zipCheckResult(zip_file_set_mtime(archive.handle, entry, integerCast(Int(date.timeIntervalSince1970)), 0))
     }
 }
 
@@ -158,7 +158,7 @@ extension ZipMutableEntry {
     /// - Parameters:
     ///   - method: compression method to set
     ///   - flags: compression method specific flags
-    public func setCompression(method: CompressionMethod = .default, flags: CompressionFlags = .default) throws {
+    public func setCompression(method: ZipStat.CompressionMethod = .default, flags: ZipStat.CompressionFlags = .default) throws {
         try zipCheckResult(zip_set_file_compression(archive.handle, entry, method.rawValue, flags.rawValue))
     }
 }
@@ -175,7 +175,7 @@ extension ZipMutableEntry {
     /// - Parameters:
     ///   - method: encryption method to set
     ///   - password: encryption password
-    public func setEncryption(method: EncryptionMethod, password: String? = nil) throws {
+    public func setEncryption(method: ZipStat.EncryptionMethod, password: String? = nil) throws {
         if let password = password {
             try password.withCString { password in
                 _ = try zipCheckResult(zip_file_set_encryption(archive.handle, entry, method.rawValue, password))

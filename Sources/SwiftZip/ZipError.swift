@@ -25,7 +25,7 @@ import zip
 
 /// An error originating from SwiftZip or libzip.
 public enum ZipError: Error {
-    case zipError(zip_error_t)
+    case libzipError(zip_error_t)
     case integerCastFailed
     case createFileFailed
     case unsupportedURL
@@ -37,7 +37,7 @@ public enum ZipError: Error {
 extension ZipError: LocalizedError {
     public var errorDescription: String? {
         switch self {
-        case var .zipError(error):
+        case var .libzipError(error):
             return String(cString: zip_error_strerror(&error))
         case .integerCastFailed:
             return "Failed to cast integer value."
@@ -52,16 +52,5 @@ extension ZipError: LocalizedError {
         case .internalInconsistency:
             return "SwiftZip internal inconsistency."
         }
-    }
-}
-
-// MARK: - Error code checks
-
-internal func zipCheckError(_ errorCode: Int32) throws {
-    switch errorCode {
-    case ZIP_ER_OK:
-        return
-    case let errorCode:
-        throw ZipError.zipError(.init(zip_err: errorCode, sys_err: 0, str: nil))
     }
 }
