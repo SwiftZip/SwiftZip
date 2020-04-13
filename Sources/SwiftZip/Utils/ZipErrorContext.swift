@@ -21,44 +21,42 @@
 // SOFTWARE.
 
 import Foundation
+import zip
 
-// MARK: - Throwing numeric cast
+internal protocol ZipErrorContext {
+    var lastError: zip_error_t? { get }
+    func clearError()
+}
 
-internal func zipCast<T, U>(_ value: T, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {
-    if let result = U(exactly: value) {
-        return result
-    } else {
-        assertionFailure("Numeric cast failed in `\(function)` at `\(file):\(line)`")
-        throw ZipError.integerCastFailed
+// MARK: - Error code checks
+
+internal func zipCheckError(_ errorCode: Int32) throws {
+    switch errorCode {
+    case ZIP_ER_OK:
+        return
+    case let errorCode:
+        throw ZipError.libzipError(.init(zip_err: errorCode, sys_err: 0, str: nil))
     }
 }
 
-// MARK: - Throwing downcast
+extension ZipErrorContext {
+    @discardableResult
+    internal func zipCheckResult<T>(_ returnCode: T) throws -> T where T: SignedInteger {
+        if returnCode == -1 {
+            defer { clearError() }
+            throw try ZipError.libzipError(lastError.unwrapped())
+        } else {
+            return returnCode
+        }
+    }
 
-internal func zipCast<T, U>(_ value: T, as _: U.Type, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U {
-    if let result = value as? U {
-        return result
-    } else {
-        assertionFailure("Dynamic cast failed in `\(function)` at `\(file):\(line)`")
-        throw ZipError.internalInconsistency
+    internal func zipCheckResult<T>(_ value: T?) throws -> T {
+        switch value {
+        case let .some(value):
+            return value
+        case .none:
+            defer { clearError() }
+            throw try ZipError.libzipError(lastError.unwrapped())
+        }
     }
 }
-
-// MARK: - Create `Data` from NULL-terminated string
-
-extension Data {
-    internal init(cString bytes: UnsafePointer<Int8>) {
-        self.init(bytes: bytes, count: strlen(bytes) + 1)
-    }
-}
-
-// MARK: - Linux shim for `autoreleasepool`
-
-#if !canImport(ObjectiveC)
-
-@_transparent
-internal func autoreleasepool<T>(_ block: () throws -> T) rethrows -> T {
-    return try block()
-}
-
-#endif

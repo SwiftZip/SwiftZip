@@ -23,32 +23,15 @@ private func when<Element>(_ condition: Bool, use items: [Element]) -> [Element]
     }
 }
 
-private struct Platform: OptionSet {
-    let rawValue: UInt
-
-    static let macOS = Platform(rawValue: 1 << 0)
-    static let iOS = Platform(rawValue: 1 << 1)
-    static let tvOS = Platform(rawValue: 1 << 2)
-    static let watchOS = Platform(rawValue: 1 << 3)
-    static let linux = Platform(rawValue: 1 << 4)
-    static let windows = Platform(rawValue: 1 << 5)
-
-    static let darwinFamily: Platform = [.macOS, .iOS, .tvOS, .watchOS]
-    static let linuxFamily: Platform = [.linux]
-    static let windowsFamily: Platform = [.windows]
+private enum Platform: Equatable {
+    case darwin
+    case linux
+    case windows
 
     #if os(macOS)
-    static let current = Platform.macOS
-    #elseif os(iOS)
-    static let current = Platform.iOS
-    #elseif os(tvOS)
-    static let current = Platform.tvOS
-    #elseif os(watchOS)
-    static let current = Platform.watchOS
+    static let current = Platform.darwin
     #elseif os(Linux)
     static let current = Platform.linux
-    #elseif os(Windows)
-    static let current = Platform.windows
     #else
     #error("Unsupported platform.")
     #endif
@@ -84,19 +67,19 @@ let package = Package(
                 ]),
 
                 // Exclude Darwin-specific items
-                when(Platform.current.isDisjoint(with: .darwinFamily), use: [
+                when(Platform.current != .darwin, use: [
                     // CommonCrypto
                     "libzip/lib/zip_crypto_commoncrypto.c",
                 ]),
 
                 // Exclude Linux-specific items
-                when(Platform.current.isDisjoint(with: .linuxFamily), use: [
+                when(Platform.current != .linux, use: [
                     // OpenSSL crypto
                     "libzip/lib/zip_crypto_openssl.c",
                 ]),
 
                 // Exclude Windows-specific items
-                when(Platform.current.isDisjoint(with: .windowsFamily), use: [
+                when(Platform.current != .windows, use: [
                     // Windows crypro
                     "libzip/lib/zip_crypto_win.c",
 
@@ -122,12 +105,12 @@ let package = Package(
                 ]),
 
                 // Darwin-specific settings
-                when(Platform.current.isSubset(of: .darwinFamily), use: [
+                when(Platform.current == .darwin, use: [
                     .headerSearchPath("include-private/darwin"),
                 ]),
 
                 // Linux-specific settings
-                when(Platform.current.isSubset(of: .linuxFamily), use: [
+                when(Platform.current == .linux, use: [
                     .headerSearchPath("include-private/linux"),
                 ]),
             ]),
@@ -139,7 +122,7 @@ let package = Package(
                 ]),
 
                 // Linux-specific linker settings
-                when(Platform.current.isSubset(of: .linuxFamily), use: [
+                when(Platform.current == .linux, use: [
                     .linkedLibrary("ssl"),
                     .linkedLibrary("crypto")
                 ]),

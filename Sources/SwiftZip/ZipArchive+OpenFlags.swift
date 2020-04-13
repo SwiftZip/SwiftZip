@@ -26,6 +26,7 @@ extension ZipArchive {
     /// A set of flags to be used with `ZipArchive.init`.
     public struct OpenFlags: OptionSet {
         public let rawValue: Int32
+
         public init(rawValue: Int32) {
             self.rawValue = rawValue
         }
@@ -35,16 +36,4 @@ extension ZipArchive {
 extension ZipArchive.OpenFlags {
     /// Perform additional stricter consistency checks on the archive, and error if they fail.
     public static let checkConsistency = ZipArchive.OpenFlags(rawValue: ZIP_CHECKCONS)
-
-    /// Create the archive if it does not exist.
-    public static let create = ZipArchive.OpenFlags(rawValue: ZIP_CREATE)
-
-    /// Error if archive already exists.
-    public static let exclusive = ZipArchive.OpenFlags(rawValue: ZIP_EXCL)
-
-    /// If archive exists, ignore its current contents. In other words, handle it the same way as an empty archive.
-    public static let truncate = ZipArchive.OpenFlags(rawValue: ZIP_TRUNCATE)
-
-    /// Open archive in read-only mode.
-    public static let readOnly = ZipArchive.OpenFlags(rawValue: ZIP_RDONLY)
 }

@@ -23,14 +23,13 @@
 import Foundation
 import zip
 
-// MARK: - ZipError
-
 /// An error originating from SwiftZip or libzip.
 public enum ZipError: Error {
-    case zipError(zip_error_t)
+    case libzipError(zip_error_t)
     case integerCastFailed
     case createFileFailed
     case unsupportedURL
+    case archiveNotMutable
     case invalidArgument(String)
     case internalInconsistency
 }
@@ -38,7 +37,7 @@ public enum ZipError: Error {
 extension ZipError: LocalizedError {
     public var errorDescription: String? {
         switch self {
-        case var .zipError(error):
+        case var .libzipError(error):
             return String(cString: zip_error_strerror(&error))
         case .integerCastFailed:
             return "Failed to cast integer value."
@@ -46,50 +45,12 @@ extension ZipError: LocalizedError {
             return "Failed to create file."
         case .unsupportedURL:
             return "SwiftZip supports file URLs only."
+        case .archiveNotMutable:
+            return "Failed to open the archive in read-write mode."
         case let .invalidArgument(name):
             return "Invalid value passed for argument `\(name)`."
         case .internalInconsistency:
             return "SwiftZip internal inconsistency."
-        }
-    }
-}
-
-// MARK: - Error Code Handling
-
-internal func zipCheckError(_ errorCode: Int32) throws {
-    switch errorCode {
-    case ZIP_ER_OK:
-        return
-    case let errorCode:
-        throw ZipError.zipError(.init(zip_err: errorCode, sys_err: 0, str: nil))
-    }
-}
-
-// MARK: - Error Context
-
-internal protocol ZipErrorContext {
-    var error: zip_error_t? { get }
-    func clearError()
-}
-
-extension ZipErrorContext {
-    @discardableResult
-    internal func zipCheckResult<T>(_ returnCode: T) throws -> T where T: SignedInteger {
-        if returnCode == -1 {
-            defer { clearError() }
-            throw try ZipError.zipError(error.unwrapped())
-        } else {
-            return returnCode
-        }
-    }
-
-    internal func zipCheckResult<T>(_ value: T?) throws -> T {
-        switch value {
-        case let .some(value):
-            return value
-        case .none:
-            defer { clearError() }
-            throw try ZipError.zipError(error.unwrapped())
         }
     }
 }

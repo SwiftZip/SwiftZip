@@ -23,7 +23,7 @@
 import zip
 
 /// A reader for the archive entry data stream.
-public final class ZipEntryReader: ZipErrorContext {
+public final class ZipEntryReader {
     internal var handle: OpaquePointer!
 
     internal init(_ handle: OpaquePointer) {
@@ -36,19 +36,23 @@ public final class ZipEntryReader: ZipErrorContext {
             assert(result == ZIP_ER_OK, "Failed to close file, error code: \(result)")
         }
     }
+}
 
-    // MARK: - Error Context
+// MARK: - Error context
 
-    internal var error: zip_error_t? {
+extension ZipEntryReader: ZipErrorContext {
+    internal var lastError: zip_error_t? {
         return zip_file_get_error(handle).pointee
     }
 
     internal func clearError() {
         zip_file_error_clear(handle)
     }
+}
 
-    // MARK: - Open/Close
+// MARK: - Open/close
 
+extension ZipEntryReader {
     /// Closes the file and invalidates `ZipEntryReader` instance.
     ///
     /// - SeeAlso:
@@ -58,9 +62,11 @@ public final class ZipEntryReader: ZipErrorContext {
         assert(result == ZIP_ER_OK, "Failed to close file, error code: \(result)")
         handle = nil
     }
+}
 
-    // MARK: - Entry I/O
+// MARK: - Entry I/O
 
+extension ZipEntryReader {
     /// Reads at most `count` bytes from file into `buf`.
     /// Returns number of bytes read.
     ///
@@ -72,7 +78,7 @@ public final class ZipEntryReader: ZipErrorContext {
     ///   - count: buffer size
     @discardableResult
     public func read(buf: UnsafeMutableRawPointer, count: Int) throws -> Int {
-        return try zipCast(zipCheckResult(zip_fread(handle, buf, zipCast(count))))
+        return try integerCast(zipCheckResult(zip_fread(handle, buf, integerCast(count))))
     }
 
     /// Reads at most `count` bytes from file into `buf`.
@@ -96,8 +102,8 @@ public final class ZipEntryReader: ZipErrorContext {
     /// - Parameters:
     ///   - offset: relative offset
     ///   - whence: anchor point
-    public func seek(offset: Int, whence: ZipWhence = .cur) throws {
-        try zipCheckResult(zip_fseek(handle, zipCast(offset), whence.rawValue))
+    public func seek(offset: Int, relativeTo whence: ZipWhence = .origin) throws {
+        try zipCheckResult(zip_fseek(handle, integerCast(offset), whence.rawValue))
     }
 
     /// Reports the current offset in the file. `tell` only works on uncompressed (stored) data.
@@ -106,6 +112,6 @@ public final class ZipEntryReader: ZipErrorContext {
     /// - SeeAlso:
     ///   - [zip_ftell](https://libzip.org/documentation/zip_ftell.html)
     public func tell() throws -> Int {
-        return try zipCast(zipCheckResult(zip_ftell(handle)))
+        return try integerCast(zipCheckResult(zip_ftell(handle)))
     }
 }

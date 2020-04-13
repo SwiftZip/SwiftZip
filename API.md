@@ -6,7 +6,7 @@
 | ⛔️ | [zip_add_dir](https://libzip.org/documentation/zip_add_dir.html) | obsolete | add directory to zip archive (obsolete interface) |
 | ✅ | [zip_close](https://libzip.org/documentation/zip_close.html) | `ZipArchive.close` | close zip archive |
 | ✅ | [zip_delete](https://libzip.org/documentation/zip_delete.html) | `ZipMutableEntry.delete` | delete file from zip archive |
-| ✅ | [zip_dir_add](https://libzip.org/documentation/zip_dir_add.html) | `ZipArchive.addDirectory` | add directory to zip archive |
+| ✅ | [zip_dir_add](https://libzip.org/documentation/zip_dir_add.html) | `ZipMutableArchive.addDirectory` | add directory to zip archive |
 | ✅ | [zip_discard](https://libzip.org/documentation/zip_discard.html) | `ZipArchive.discard` | close zip archive and discard changes |
 | ❌ | [zip_errors](https://libzip.org/documentation/zip_errors.html) | missing | list of all libzip error codes |
 | 📦 | [zip_error_clear](https://libzip.org/documentation/zip_error_clear.html) | used internally | clear error state for archive or file |
@@ -24,7 +24,7 @@
 | ⛔️ | [zip_error_to_str](https://libzip.org/documentation/zip_error_to_str.html) | obsolete | get string representation of zip error (obsolete interface) |
 | ✅ | [zip_fclose](https://libzip.org/documentation/zip_fclose.html) | `ZipEntryReader.close` | close file in zip archive |
 | ✅ | [zip_fdopen](https://libzip.org/documentation/zip_fdopen.html) | `ZipArchive.init` | open zip archive using open file descriptor |
-| ✅ | [zip_file_add](https://libzip.org/documentation/zip_file_add.html) | `ZipArchive.addFile` | add file to zip archive or replace file in zip archive |
+| ✅ | [zip_file_add](https://libzip.org/documentation/zip_file_add.html) | `ZipMutableArchive.addFile` | add file to zip archive or replace file in zip archive |
 | 📦 | [zip_file_error_clear](https://libzip.org/documentation/zip_file_error_clear.html) | used internally | clear error state for archive or file |
 | ⛔️ | [zip_file_error_get](https://libzip.org/documentation/zip_file_error_get.html) | obsolete | get error codes for archive or file (obsolete interface) |
 | ✅ | [zip_file_extra_fields_count](https://libzip.org/documentation/zip_file_extra_fields_count.html) | `ZipEntry.getExtraFieldsCount` | count extra fields for file in zip |
@@ -53,7 +53,7 @@
 | ✅ | [zip_fseek](https://libzip.org/documentation/zip_fseek.html) | `ZipEntryReader.seek` | seek in file |
 | ✅ | [zip_ftell](https://libzip.org/documentation/zip_ftell.html) | `ZipEntryReader.tell` | tell position in file |
 | ✅ | [zip_get_archive_comment](https://libzip.org/documentation/zip_get_archive_comment.html) | `ZipArchive.getComment` | get zip archive comment |
-| ❌ | [zip_get_archive_flag](https://libzip.org/documentation/zip_get_archive_flag.html) | missing | get status flags for zip |
+| 📦 | [zip_get_archive_flag](https://libzip.org/documentation/zip_get_archive_flag.html) | used internally | get status flags for zip |
 | 📦 | [zip_get_error](https://libzip.org/documentation/zip_get_error.html) | used internally | get zip error for archive |
 | ⛔️ | [zip_get_file_comment](https://libzip.org/documentation/zip_get_file_comment.html) | obsolete | get comment for file in zip (obsolete interface) |
 | ✅ | [zip_get_name](https://libzip.org/documentation/zip_get_name.html) | `ZipEntry.getName` | get name of file by index |
@@ -67,7 +67,7 @@
 | ❌ | [zip_register_progress_callback_with_state](https://libzip.org/documentation/zip_register_progress_callback_with_state.html) | missing | provide updates during zip_close |
 | ⛔️ | [zip_rename](https://libzip.org/documentation/zip_rename.html) | obsolete | rename file in zip archive (obsolete interface) |
 | ⛔️ | [zip_replace](https://libzip.org/documentation/zip_replace.html) | obsolete | add file to zip archive or replace file in zip archive (obsolete interface) |
-| ✅ | [zip_set_archive_comment](https://libzip.org/documentation/zip_set_archive_comment.html) | `ZipArchive.setComment` | set zip archive comment |
+| ✅ | [zip_set_archive_comment](https://libzip.org/documentation/zip_set_archive_comment.html) | `ZipMutableArchive.setComment` | set zip archive comment |
 | ❌ | [zip_set_archive_flag](https://libzip.org/documentation/zip_set_archive_flag.html) | missing | set zip archive flag |
 | ✅ | [zip_set_default_password](https://libzip.org/documentation/zip_set_default_password.html) | `ZipArchive.setDefaultPassword` | set default password for encrypted files in zip |
 | ⛔️ | [zip_set_file_comment](https://libzip.org/documentation/zip_set_file_comment.html) | obsolete | set comment for file in zip (obsolete interface) |
@@ -114,5 +114,5 @@
 | 📦 | [zip_stat_init](https://libzip.org/documentation/zip_stat_init.html) | used internally | initialize zip_stat structure |
 | 🚫 | [zip_strerror](https://libzip.org/documentation/zip_strerror.html) | not relevant | get string representation for a zip error |
 | ✅ | [zip_unchange](https://libzip.org/documentation/zip_unchange.html) | `ZipMutableEntry.unchange` | undo changes to file in zip archive |
-| ✅ | [zip_unchange_all](https://libzip.org/documentation/zip_unchange_all.html) | `ZipArchive.unchangeAll` | undo all changes in a zip archive |
-| ✅ | [zip_unchange_archive](https://libzip.org/documentation/zip_unchange_archive.html) | `ZipArchive.unchangeGlobals` | undo global changes to zip archive |
+| ✅ | [zip_unchange_all](https://libzip.org/documentation/zip_unchange_all.html) | `ZipMutableArchive.unchangeAll` | undo all changes in a zip archive |
+| ✅ | [zip_unchange_archive](https://libzip.org/documentation/zip_unchange_archive.html) | `ZipMutableArchive.unchangeGlobals` | undo global changes to zip archive |

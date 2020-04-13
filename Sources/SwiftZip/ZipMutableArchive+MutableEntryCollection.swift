@@ -22,16 +22,43 @@
 
 import zip
 
-/// A compression preference for deflate.
-public struct ZipCompressionFlags: RawRepresentable, Equatable {
-    public let rawValue: UInt32
-    public init(rawValue: UInt32) {
-        self.rawValue = rawValue
+extension ZipMutableArchive {
+    /// A collection of mutable entries in the archive.
+    public final class MutableEntryCollection {
+        internal let archive: ZipMutableArchive
+
+        internal init(archive: ZipMutableArchive) {
+            self.archive = archive
+        }
     }
 }
 
-extension ZipCompressionFlags {
-    public static let `default` = ZipCompressionFlags(rawValue: 0)
-    public static let fastest = ZipCompressionFlags(rawValue: 1)
-    public static let best = ZipCompressionFlags(rawValue: 9)
+extension ZipMutableArchive.MutableEntryCollection: RandomAccessCollection {
+    public var startIndex: Int {
+        return 0
+    }
+
+    public var endIndex: Int {
+        return assertNoThrow(or: 0) {
+            try archive.getEntryCount(version: .current)
+        }
+    }
+
+    public subscript(position: Int) -> ZipMutableEntry {
+        return preconditionNoThrow {
+            try archive.getMutableEntry(index: position)
+        }
+    }
+}
+
+extension ZipMutableArchive {
+    /// Exposes the original unmodified archive entries as a Swift `Collection`
+    public var unchangedEntries: EntryCollection {
+        return entries(version: .unchanged)
+    }
+
+    /// Exposes mutable archive entries as a Swift `Collection`
+    public var mutableEntries: MutableEntryCollection {
+        return MutableEntryCollection(archive: self)
+    }
 }

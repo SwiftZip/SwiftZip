@@ -22,27 +22,19 @@
 
 import zip
 
-/// An encryption method.
-public struct ZipEncryptionMethod: RawRepresentable, Equatable {
-    public let rawValue: UInt16
-    public init(rawValue: UInt16) {
-        self.rawValue = rawValue
+extension ZipStat {
+    /// A compression preference for deflate.
+    public struct CompressionFlags: RawRepresentable, Equatable {
+        public let rawValue: UInt32
+
+        public init(rawValue: UInt32) {
+            self.rawValue = rawValue
+        }
     }
 }
 
-extension ZipEncryptionMethod {
-    /// Not encrypted.
-    public static let none = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_NONE))
-
-    /// Traditional PKWARE encryption.
-    public static let pkware = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_TRAD_PKWARE))
-
-    /// Winzip AES-128 encryption.
-    public static let aes128 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_128))
-
-    /// Winzip AES-192 encryption.
-    public static let aes192 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_192))
-
-    /// Winzip AES-256 encryption.
-    public static let aes256 = ZipEncryptionMethod(rawValue: UInt16(ZIP_EM_AES_256))
+extension ZipStat.CompressionFlags {
+    public static let `default` = ZipStat.CompressionFlags(rawValue: 0)
+    public static let fastest = ZipStat.CompressionFlags(rawValue: 1)
+    public static let best = ZipStat.CompressionFlags(rawValue: 9)
 }

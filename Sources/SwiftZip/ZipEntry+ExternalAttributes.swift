@@ -31,16 +31,55 @@ import Glibc
 extension ZipEntry {
     /// A platform-specific external attributes of the archive entry.
     public struct ExternalAttributes {
-        public let operatingSystem: ZipOperatingSystem
+        public let operatingSystem: OperatingSystem
         public let attributes: UInt32
     }
 }
 
-// MARK: - Platform-Specific Attribute Accessors
+// MARK: - Universal attributes
+
+extension ZipEntry.ExternalAttributes {
+    public var isDirectory: Bool {
+        return posixFileType == S_IFDIR
+    }
+
+    public var isSymbolicLink: Bool {
+        return posixFileType == S_IFLNK
+    }
+}
+
+// MARK: - Parse POSIX attributes from platform-specific data
 
 extension ZipEntry.ExternalAttributes {
     public var posixAttributes: mode_t {
-        return mode_t(attributes >> 16)
+        switch operatingSystem {
+        case .dos,
+             .vfat,
+             .windowsNTFS:
+            var attributes: mode_t = S_IRUSR | S_IRGRP | S_IROTH
+
+            if attributes & 0x10 != 0 {
+                // FILE_ATTRIBUTE_DIRECTORY
+                attributes |= S_IFDIR
+                attributes |= S_IXUSR | S_IXGRP | S_IXOTH
+            }
+
+            if attributes & 0x01 == 0 {
+                /* FILE_ATTRIBUTE_READONLY */
+                attributes |= S_IWUSR | S_IWGRP | S_IWOTH
+            }
+
+            return attributes
+
+        case .unix,
+             .macintosh,
+             .macOS:
+            return mode_t(attributes >> 16)
+
+        default:
+            assertionFailure("POSIX attributes requested for an unknown platform: `\(operatingSystem)`")
+            return S_IRWXU | S_IRWXG | S_IRWXO
+        }
     }
 
     public var posixPermissions: mode_t {
@@ -49,37 +88,5 @@ extension ZipEntry.ExternalAttributes {
 
     public var posixFileType: mode_t {
         return posixAttributes & S_IFMT
-    }
-}
-
-// MARK: - Universal Helpers
-
-extension ZipEntry.ExternalAttributes {
-    public var isDirectory: Bool {
-        switch operatingSystem {
-        case .dos,
-             .windowsNTFS:
-            return (attributes & 0x10) != 0
-
-        case .unix,
-             .macintosh,
-             .macOS:
-            return posixFileType == S_IFDIR
-
-        default:
-            return false
-        }
-    }
-
-    public var isSymbolicLink: Bool {
-        switch operatingSystem {
-        case .unix,
-             .macintosh,
-             .macOS:
-            return posixFileType == S_IFLNK
-
-        default:
-            return false
-        }
     }
 }

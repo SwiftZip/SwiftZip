@@ -26,6 +26,7 @@ extension ZipArchive {
     /// A set of flags to be used with `ZipArchive.init(fd:flags:)`.
     public struct FDOpenFlags: OptionSet {
         public let rawValue: Int32
+
         public init(rawValue: Int32) {
             self.rawValue = rawValue
         }

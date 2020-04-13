@@ -26,6 +26,7 @@ extension ZipArchive {
     /// A set of flags to be used with `ZipArchive` name-based APIs: `locate`, `stat` and `open`.
     public struct LocateFlags: OptionSet {
         public let rawValue: UInt32
+
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
         }

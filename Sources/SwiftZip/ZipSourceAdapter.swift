@@ -23,51 +23,30 @@
 import Foundation
 import zip
 
-/// Properties of the source to be returned by `ZipSourceReadable.stat`.
-public struct ZipSourceStat {
-    public var size: Int?
-    public var compressedSize: Int?
-    public var modificationDate: Date?
-    public var crc32: UInt32?
-    public var compressionMethod: ZipCompressionMethod?
-    public var encryptionMethod: ZipEncryptionMethod?
-    public var flags: UInt32?
-
-    public init(size: Int? = nil, compressedSize: Int? = nil, modificationDate: Date? = nil, crc32: UInt32? = nil, compressionMethod: ZipCompressionMethod? = nil, encryptionMethod: ZipEncryptionMethod? = nil, flags: UInt32? = nil) {
-        self.size = size
-        self.compressedSize = compressedSize
-        self.modificationDate = modificationDate
-        self.crc32 = crc32
-        self.compressionMethod = compressionMethod
-        self.encryptionMethod = encryptionMethod
-        self.flags = flags
-    }
-}
-
 /// A base protocol for all custom sources.
-public protocol ZipSourceCallback { }
+public protocol ZipSourceAdapter { }
 
 /// A protocol for custom readable sources.
-public protocol ZipSourceReadable: ZipSourceCallback {
+public protocol ZipSourceReadable: ZipSourceAdapter {
     func open() throws
     func read(to buffer: UnsafeMutableRawPointer, count: Int) throws -> Int
     func close() throws
-    func stat() throws -> ZipSourceStat
+    func stat() throws -> ZipStat
 }
 
 /// A protocol for custom readable and seekable sources.
 public protocol ZipSourceSeekable: ZipSourceReadable {
-    func seek(offset: Int, whence: ZipWhence) throws
+    func seek(offset: Int, relativeTo whence: ZipWhence) throws
     func tell() throws -> Int
 }
 
 /// A protocol for custom writable sources.
-public protocol ZipSourceWritable: ZipSourceCallback {
+public protocol ZipSourceWritable: ZipSourceAdapter {
     func beginWrite() throws
     func write(bytes: UnsafeMutableRawPointer, count: Int) throws -> Int
     func commitWrite() throws
     func rollbackWrite() throws
-    func seekWrite(offset: Int, whence: ZipWhence) throws
+    func seekWrite(offset: Int, relativeTo whence: ZipWhence) throws
     func tellWrite() throws -> Int
     func remove() throws
 }

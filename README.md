@@ -42,13 +42,13 @@ Creating an archive:
 ```swift
 do {
     // Open an archive for writing, overwriting any existing file
-    let archive = try ZipArchive(url: archiveUrl, flags: [.create, .truncate])
+    let archive = try ZipMutableArchive(url: archiveUrl, flags: [.create, .truncate])
 
     // Load the test data
     let data = try Data(contentsOf: dataUrl)
 
     // Create a data source and add it to the archive
-    let source = try ZipSourceData(data: data)
+    let source = try ZipSource(data: data)
     try archive.addFile(name: "filename.dat", source: source)
 
     // Commit changes and close the archive

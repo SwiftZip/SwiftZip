@@ -25,6 +25,7 @@ import zip
 /// A reference point specifier for stream `seek` methods.
 public struct ZipWhence: RawRepresentable, Equatable {
     public let rawValue: Int32
+
     public init(rawValue: Int32) {
         self.rawValue = rawValue
     }
@@ -32,10 +33,10 @@ public struct ZipWhence: RawRepresentable, Equatable {
 
 extension ZipWhence {
     /// The reference point is the beginning of the file.
-    public static let set = ZipWhence(rawValue: SEEK_SET)
+    public static let origin = ZipWhence(rawValue: SEEK_SET)
 
     /// The reference point is the current value of the file-position indicator.
-    public static let cur = ZipWhence(rawValue: SEEK_CUR)
+    public static let currentPosition = ZipWhence(rawValue: SEEK_CUR)
 
     /// The reference point is end of the file.
     public static let end = ZipWhence(rawValue: SEEK_END)

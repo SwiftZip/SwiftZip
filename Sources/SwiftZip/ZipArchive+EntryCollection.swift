@@ -22,24 +22,40 @@
 
 import zip
 
-extension ZipEntry.Stat {
-    /// A set of valid property values in the `ZipEntry.Stat` struct.
-    public struct ValidFields: OptionSet {
-        public let rawValue: UInt64
-        public init(rawValue: UInt64) {
-            self.rawValue = rawValue
+extension ZipArchive {
+    /// A collection of read-only entries in the archive.
+    public final class EntryCollection {
+        internal let archive: ZipArchive
+        internal let version: Version
+
+        internal init(archive: ZipArchive, version: Version) {
+            self.archive = archive
+            self.version = version
         }
     }
 }
 
-extension ZipEntry.Stat.ValidFields {
-    public static let name = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_NAME))
-    public static let index = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_INDEX))
-    public static let size = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_SIZE))
-    public static let compressedSize = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_COMP_SIZE))
-    public static let modificationDate = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_MTIME))
-    public static let crc32 = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_CRC))
-    public static let compressionMethod = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_COMP_METHOD))
-    public static let encryptionMethod = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_ENCRYPTION_METHOD))
-    public static let flags = ZipEntry.Stat.ValidFields(rawValue: UInt64(ZIP_STAT_FLAGS))
+extension ZipArchive.EntryCollection: RandomAccessCollection {
+    public var startIndex: Int {
+        return 0
+    }
+
+    public var endIndex: Int {
+        return assertNoThrow(or: 0) {
+            try archive.getEntryCount(version: version)
+        }
+    }
+
+    public subscript(position: Int) -> ZipEntry {
+        return preconditionNoThrow {
+            try archive.getEntry(index: position)
+        }
+    }
+}
+
+extension ZipArchive {
+    /// Exposes archive entries as a Swift `Collection`
+    public func entries(version: Version = .current) -> EntryCollection {
+        return EntryCollection(archive: self, version: version)
+    }
 }
