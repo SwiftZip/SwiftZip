@@ -57,6 +57,7 @@ let package = Package(
 
                     // LZMA compression requires LZMA SDK
                     "libzip/lib/zip_algorithm_xz.c",
+                    "libzip/lib/zip_algorithm_zstd.c",
 
                     // Alternative encryption SDKs
                     "libzip/lib/zip_crypto_gnutls.c",
@@ -87,20 +88,23 @@ let package = Package(
                     "libzip/lib/zip_random_win32.c",
 
                     // Utilities
-                    "libzip/lib/zip_source_win32a.c",
-                    "libzip/lib/zip_source_win32handle.c",
-                    "libzip/lib/zip_source_win32utf8.c",
-                    "libzip/lib/zip_source_win32w.c",
+                    "libzip/lib/zip_source_file_win32_ansi.c",
+                    "libzip/lib/zip_source_file_win32_named.c",
+                    "libzip/lib/zip_source_file_win32_utf8.c",
+                    "libzip/lib/zip_source_file_win32_utf16.c",
+                    "libzip/lib/zip_source_file_win32.c",
                 ]),
             ]),
             sources: [
                 "libzip/lib",
+                "libzip/developer-xcode/zip_err_str.c",
             ],
             publicHeadersPath: "include",
             cSettings: flatten([
                 // Common settings
                 always(use: [
                     .define("HAVE_CONFIG_H"),
+                    .headerSearchPath("libzip/lib"),
                     .headerSearchPath("include-private"),
                 ]),
 

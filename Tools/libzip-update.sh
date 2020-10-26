@@ -7,7 +7,8 @@ git submodule update --remote Sources/zip/libzip
 # so Swift Package Manager can recognize public headers
 cp Sources/zip/libzip/lib/zip.h Sources/zip/include/zip.h
 cp Sources/zip/libzip/developer-xcode/zipconf.h Sources/zip/include/zipconf.h
-cp Sources/zip/libzip/developer-xcode/config.h Sources/zip/include-private/config.h
+cp Sources/zip/libzip/developer-xcode/config.h Sources/zip/include-private/darwin/config.h
+cp Sources/zip/libzip/developer-xcode/config.h Sources/zip/include-private/linux/config.h
 
 # Patch libzip header files to fix clang modular headers:
 # - use `"..."` instead of `<...>` to include `zipconf.h`
