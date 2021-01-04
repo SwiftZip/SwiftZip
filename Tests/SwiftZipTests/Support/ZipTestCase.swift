@@ -36,13 +36,13 @@ class ZipTestCase: XCTestCase {
         .appendingPathComponent(UUID().uuidString, isDirectory: true)
 
     override func setUpWithError() throws {
-        super.setUp()
+        try super.setUpWithError()
         try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true, attributes: nil)
     }
 
     override func tearDownWithError() throws {
         try FileManager.default.removeItem(at: tempDirectory)
-        super.tearDown()
+        try super.tearDownWithError()
     }
 
     func tempFileURL(ext: String) -> URL {
