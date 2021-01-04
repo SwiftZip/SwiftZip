@@ -1,5 +1,5 @@
---- Sources/zip/libzip/developer-xcode/config.h	2020-04-05 19:27:25.000000000 +0300
-+++ Sources/zip/include-private/linux/config.h	2020-04-06 19:50:49.000000000 +0300
+--- Sources/zip/libzip/developer-xcode/config.h	2021-01-04 18:27:53.000000000 +0200
++++ Sources/zip/include-private/linux/config.h	2021-01-04 18:33:55.000000000 +0200
 @@ -19,9 +19,9 @@
  /* #undef HAVE__STRTOUI64 */
  /* #undef HAVE__UMASK */
@@ -27,5 +27,5 @@
 -/* #undef HAVE_OPENSSL */
 +#define HAVE_OPENSSL
  #define HAVE_SETMODE
- #define HAVE_SNPRINTF
  #define HAVE_SSIZE_T_LIBZIP
+ #define HAVE_STRCASECMP
