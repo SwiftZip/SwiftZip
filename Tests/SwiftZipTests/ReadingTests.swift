@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 import Foundation
-import SwiftZip
+@testable import SwiftZip
 import TestData
 import XCTest
 
@@ -41,7 +41,7 @@ class ReadingTests: ZipTestCase {
     func testCanReadModifiedDate() throws {
         let zip = try ZipArchive(url: dataFileURL(for: .modifiedDate))
         let entry = try zip.locate(filename: Constants.entryName)
-        try print(entry.stat().modificationDate)
+        try print(entry.stat().rawValue.mtime)
         try XCTAssertEqual(
             entry.stat().modificationDate!.timeIntervalSinceReferenceDate,
             Constants.modifiedDate.timeIntervalSinceReferenceDate,
