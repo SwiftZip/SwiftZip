@@ -151,7 +151,7 @@ do {
 do {
     let zip = try ZipMutableArchive(url: testFileURL(for: .extraTwoCentral), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
-    try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldLocal, flags: .central)
+    try entry.setExtraField(id: Constants.firstExtraField, index: nil, data: .firstExtraFieldCentral, flags: .central)
     try entry.setExtraField(id: Constants.secondExtraField, index: nil, data: .secondExtraField, flags: .central)
     try zip.close()
 }

@@ -27,9 +27,7 @@ import XCTest
 class ZipTestCase: XCTestCase {
     private static let tempRoot = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
 
-    private static let dataDirectory = URL(fileURLWithPath: #file)
-        .deletingLastPathComponent() // Root/Tests/SwiftZipTests/Support/
-        .deletingLastPathComponent() // Root/Tests/SwiftZipTests/
+    private static let dataDirectory = Bundle.module.resourceURL!
         .appendingPathComponent("Data", isDirectory: true)
 
     private let tempDirectory = tempRoot

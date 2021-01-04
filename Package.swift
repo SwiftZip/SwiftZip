@@ -133,7 +133,10 @@ let package = Package(
         .testTarget(
             name: "SwiftZipTests",
             dependencies: ["SwiftZip", "TestData"],
-            path: "Tests/SwiftZipTests"
+            path: "Tests/SwiftZipTests",
+            resources: [
+                .copy("Data"),
+            ]
         ),
     ]
 )
