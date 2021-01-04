@@ -40,6 +40,7 @@ public enum TestArchive: String {
     case simpleLarge = "simple-large.zip"
     case encryptedSmall = "encrypted-small.zip"
     case encryptedLarge = "encrypted-large.zip"
+    case largeForExport = "large-for-export.zip"
 }
 
 public enum Constants {
@@ -52,6 +53,7 @@ public enum Constants {
     public static let entryComment = "test entry comment"
     public static let firstExtraField: UInt16 = 0xAA
     public static let secondExtraField: UInt16 = 0xBB
+    public static let posixPermissions: mode_t = 0o765
 }
 
 extension Data {

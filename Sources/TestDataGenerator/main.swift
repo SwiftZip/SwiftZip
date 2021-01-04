@@ -155,3 +155,11 @@ do {
     try entry.setExtraField(id: Constants.secondExtraField, index: nil, data: .secondExtraField, flags: .central)
     try zip.close()
 }
+
+do {
+    let zip = try ZipMutableArchive(url: testFileURL(for: .largeForExport), flags: [.create, .truncate])
+    let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .large))
+    try entry.setModifiedDate(Constants.modifiedDate)
+    try entry.setExternalAttributes(posixAttributes: Constants.posixPermissions)
+    try zip.close()
+}
