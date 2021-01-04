@@ -1,1 +1,0 @@
-../../Tests/SwiftZipTests/Support/Constants.swift

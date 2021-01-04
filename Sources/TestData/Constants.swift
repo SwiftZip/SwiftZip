@@ -23,7 +23,7 @@
 import Foundation
 import SwiftZip
 
-enum TestArchive: String {
+public enum TestArchive: String {
     case archiveComment = "archive-comment.zip"
     case entryComment = "entry-comment.zip"
     case modifiedDate = "modified-date.zip"
@@ -42,38 +42,38 @@ enum TestArchive: String {
     case encryptedLarge = "encrypted-large.zip"
 }
 
-enum Constants {
-    static let entryName = "test.txt"
-    static let password = "test password"
-    static let modifiedDate = Date(timeIntervalSinceReferenceDate: 42)
-    static let externalSystem = ZipEntry.ExternalAttributes.OperatingSystem.beOS
-    static let externalAttributes: UInt32 = 0xABBABABA
-    static let archiveComment = "test archive comment"
-    static let entryComment = "test entry comment"
-    static let firstExtraField: UInt16 = 0xAA
-    static let secondExtraField: UInt16 = 0xBB
+public enum Constants {
+    public static let entryName = "test.txt"
+    public static let password = "test password"
+    public static let modifiedDate = Date(timeIntervalSinceReferenceDate: 42)
+    public static let externalSystem = ZipEntry.ExternalAttributes.OperatingSystem.beOS
+    public static let externalAttributes: UInt32 = 0xABBABABA
+    public static let archiveComment = "test archive comment"
+    public static let entryComment = "test entry comment"
+    public static let firstExtraField: UInt16 = 0xAA
+    public static let secondExtraField: UInt16 = 0xBB
 }
 
 extension Data {
-    static let firstExtraFieldLocal = "first extra field local"
+    public static let firstExtraFieldLocal = "first extra field local"
         .data(using: .utf8)!
 
-    static let firstExtraFieldLocal2 = "first extra field local #2"
+    public static let firstExtraFieldLocal2 = "first extra field local #2"
         .data(using: .utf8)!
 
-    static let firstExtraFieldCentral = "first extra field central"
+    public static let firstExtraFieldCentral = "first extra field central"
         .data(using: .utf8)!
 
-    static let firstExtraFieldCentral2 = "first extra field central #2"
+    public static let firstExtraFieldCentral2 = "first extra field central #2"
         .data(using: .utf8)!
 
-    static let secondExtraField = "second extra field"
+    public static let secondExtraField = "second extra field"
         .data(using: .utf8)!
 
-    static let hello = "Hello, World!"
+    public static let hello = "Hello, World!"
         .data(using: .utf8)!
 
-    static let large = stride(from: 0, to: 17 * 17 * 17 * 17, by: 1)
+    public static let large = stride(from: 0, to: 17 * 17 * 17 * 17, by: 1)
         .map { "Hello, World #\($0)!" }
         .joined(separator: " ")
         .data(using: .utf8)!

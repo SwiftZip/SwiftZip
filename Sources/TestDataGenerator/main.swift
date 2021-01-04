@@ -22,6 +22,7 @@
 
 import Foundation
 import SwiftZip
+import TestData
 
 let testDataDirectory = URL(fileURLWithPath: #file)
     .deletingLastPathComponent() // Root/Sources/SwiftZipTestDataGenerator/

@@ -8,7 +8,8 @@ let package = Package(
     products: [
         .library(name: "zip", targets: ["zip"]),
         .library(name: "SwiftZip", targets: ["SwiftZip"]),
-        .executable(name: "SwiftZipTestDataGenerator", targets: ["SwiftZipTestDataGenerator"]),
+        .library(name: "TestData", targets: ["TestData"]),
+        .executable(name: "TestDataGenerator", targets: ["TestDataGenerator"]),
     ],
     targets: [
         .target(
@@ -120,13 +121,18 @@ let package = Package(
             path: "Sources/SwiftZip"
         ),
         .target(
-            name: "SwiftZipTestDataGenerator",
+            name: "TestData",
             dependencies: ["SwiftZip"],
-            path: "Sources/SwiftZipTestDataGenerator"
+            path: "Sources/TestData"
+        ),
+        .target(
+            name: "TestDataGenerator",
+            dependencies: ["SwiftZip", "TestData"],
+            path: "Sources/TestDataGenerator"
         ),
         .testTarget(
             name: "SwiftZipTests",
-            dependencies: ["SwiftZip"],
+            dependencies: ["SwiftZip", "TestData"],
             path: "Tests/SwiftZipTests"
         ),
     ]
