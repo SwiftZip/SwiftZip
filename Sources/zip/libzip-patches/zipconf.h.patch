@@ -1,6 +1,6 @@
---- Sources/zip/libzip/developer-xcode/zipconf.h	2020-04-05 18:57:30.000000000 +0300
-+++ Sources/zip/include/zipconf.h	2020-04-05 19:49:55.000000000 +0300
-@@ -18,7 +18,7 @@
+--- Sources/zip/libzip/developer-xcode/zipconf.h	2021-01-04 18:27:18.000000000 +0200
++++ Sources/zip/include/zipconf.h	2021-01-04 18:33:55.000000000 +0200
+@@ -17,7 +17,7 @@
  
  
  #define __STDC_FORMAT_MACROS 1

@@ -1,5 +1,5 @@
---- Sources/zip/libzip/developer-xcode/config.h	2020-04-05 19:27:25.000000000 +0300
-+++ Sources/zip/include-private/darwin/config.h	2020-04-06 19:50:32.000000000 +0300
+--- Sources/zip/libzip/developer-xcode/config.h	2021-01-04 18:27:53.000000000 +0200
++++ Sources/zip/include-private/darwin/config.h	2021-01-04 18:33:55.000000000 +0200
 @@ -30,7 +30,7 @@
  #define HAVE_GETPROGNAME
  /* #undef HAVE_GNUTLS */

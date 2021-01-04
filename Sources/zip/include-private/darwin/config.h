@@ -38,7 +38,6 @@
 #define HAVE_OPEN
 /* #undef HAVE_OPENSSL */
 #define HAVE_SETMODE
-#define HAVE_SNPRINTF
 #define HAVE_SSIZE_T_LIBZIP
 #define HAVE_STRCASECMP
 #define HAVE_STRDUP
@@ -81,15 +80,15 @@
 #define VERSION "1.5.2a"
 
 #ifndef HAVE_SSIZE_T_LIBZIP
-#  if SIZE_T_LIBZIP == INT_LIBZIP
+#if SIZE_T_LIBZIP == INT_LIBZIP
 typedef int ssize_t;
-#  elif SIZE_T_LIBZIP == LONG_LIBZIP
+#elif SIZE_T_LIBZIP == LONG_LIBZIP
 typedef long ssize_t;
-#  elif SIZE_T_LIBZIP == LONG_LONG_LIBZIP
+#elif SIZE_T_LIBZIP == LONG_LONG_LIBZIP
 typedef long long ssize_t;
-#  else
+#else
 #error no suitable type for ssize_t found
-#  endif
+#endif
 #endif
 
 #endif /* HAD_CONFIG_H */
