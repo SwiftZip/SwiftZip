@@ -41,7 +41,10 @@ class ReadingTests: ZipTestCase {
     func testCanReadModifiedDate() throws {
         let zip = try ZipArchive(url: dataFileURL(for: .modifiedDate))
         let entry = try zip.locate(filename: Constants.entryName)
-        try XCTAssertEqual(entry.stat().modificationDate, Constants.modifiedDate)
+        try XCTAssertEqual(
+            entry.stat().modificationDate!.timeIntervalSinceReferenceDate,
+            Constants.modifiedDate.timeIntervalSinceReferenceDate,
+            accuracy: 0.001)
     }
 
     func testCanReadExternalAttributes() throws {
