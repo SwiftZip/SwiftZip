@@ -69,49 +69,41 @@ extension ZipEntry {
             throw ZipError.createFileFailed
         }
 
-        let completed: Bool = try autoreleasepool {
-            let fileHandle = try FileHandle(forWritingTo: url)
-            defer { fileHandle.closeFile() }
+        let fileHandle = try FileHandle(forWritingTo: url)
+        defer { fileHandle.closeFile() }
 
-            var buffer = Data(count: 64 * 1024)
-            var totalReadCount: Int = 0
-            while true {
-                let readCount = try buffer.withUnsafeMutableBytes { buffer in
-                    return try file.read(buf: buffer)
-                }
-
-                guard readCount > 0 else {
-                    break
-                }
-
-                autoreleasepool {
-                    fileHandle.write(buffer.subdata(in: 0 ..< readCount))
-                }
-
-                totalReadCount += readCount
-
-                if let progressHandler = progressHandler, let size = fileStat.size, size > 0 {
-                    guard progressHandler(Double(totalReadCount) / Double(size)) else {
-                        return false
-                    }
-                }
+        var buffer = Data(count: 64 * 1024)
+        var totalReadCount: Int = 0
+        while true {
+            let readCount = try buffer.withUnsafeMutableBytes { buffer in
+                return try file.read(buf: buffer)
             }
 
-            return true
-        }
+            guard readCount > 0 else {
+                break
+            }
 
-        guard completed else {
-            return false
+            autoreleasepool {
+                fileHandle.write(buffer.subdata(in: 0 ..< readCount))
+            }
+
+            totalReadCount += readCount
+
+            if let progressHandler = progressHandler, let size = fileStat.size, size > 0 {
+                guard progressHandler(Double(totalReadCount) / Double(size)) else {
+                    return false
+                }
+            }
         }
 
         var fileAttributes: [FileAttributeKey: Any] = [:]
 
-//#if !os(Linux)
+#if !os(Linux)
         // TODO: figure out why `.modificationDate` fails on Linux
         if let modificationDate = fileStat.modificationDate {
             fileAttributes[.modificationDate] = modificationDate
         }
-//#endif
+#endif
 
         switch externalAttributes.operatingSystem {
         case .unix,

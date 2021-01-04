@@ -41,6 +41,7 @@ class ReadingTests: ZipTestCase {
     func testCanReadModifiedDate() throws {
         let zip = try ZipArchive(url: dataFileURL(for: .modifiedDate))
         let entry = try zip.locate(filename: Constants.entryName)
+        try print(entry.stat().modificationDate)
         try XCTAssertEqual(
             entry.stat().modificationDate!.timeIntervalSinceReferenceDate,
             Constants.modifiedDate.timeIntervalSinceReferenceDate,
@@ -83,6 +84,7 @@ class ReadingTests: ZipTestCase {
             XCTFail("Failed to read POSIX permissions of `\(fileUrl.absoluteURL.path)`")
         }
 
+#if !os(Linux)
         if let modificationDate = attributes[.modificationDate] as? Date {
             XCTAssertEqual(
                 modificationDate.timeIntervalSinceReferenceDate,
@@ -91,6 +93,7 @@ class ReadingTests: ZipTestCase {
         } else {
             XCTFail("Failed to read modification date of `\(fileUrl.absoluteURL.path)`")
         }
+#endif
     }
 
     func testCanReadArchiveComment() throws {
