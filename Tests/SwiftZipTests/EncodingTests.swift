@@ -20,6 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if canImport(Darwin)
+
+// Test encoding auto-detection on Darwin only
+// Linux Foundation does not support the required API
+
 import Foundation
 import SwiftZip
 import TestData
@@ -84,3 +89,5 @@ class EncodingTests: ZipTestCase {
         }
     }
 }
+
+#endif
