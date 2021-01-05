@@ -51,7 +51,7 @@ internal func preconditionNoThrow<T>(_ block: () throws -> T) -> T {
 
 // MARK: - Throwing integer cast
 
-internal func integerCast<T, U>(_ value: T, as: U.Type = U.self, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {
+internal func integerCast<T, U>(_ value: T, as: U.Type = U.self, function: StaticString = #function, file: StaticString = #filePath, line: Int = #line) throws -> U where T: BinaryInteger, U: BinaryInteger {
     if let result = U(exactly: value) {
         return result
     } else {
@@ -62,12 +62,34 @@ internal func integerCast<T, U>(_ value: T, as: U.Type = U.self, function: Stati
 
 // MARK: - Throwing dynamic downcast
 
-internal func dynamicCast<T, U>(_ value: T, as _: U.Type, function: StaticString = #function, file: StaticString = #file, line: Int = #line) throws -> U {
+internal func dynamicCast<T, U>(_ value: T, as _: U.Type, function: StaticString = #function, file: StaticString = #filePath, line: Int = #line) throws -> U {
     if let result = value as? U {
         return result
     } else {
         assertionFailure("Dynamic cast failed in `\(function)` at `\(file):\(line)`")
         throw ZipError.internalInconsistency
+    }
+}
+
+// MARK: - Guess string encoding
+
+extension Data {
+    internal func decodeStringGuessingEncoding() -> String? {
+#if canImport(Darwin)
+        // Use Foundation string decoder on Darwin platforms
+        var decodedString: NSString? = nil
+        NSString.stringEncoding(for: self, encodingOptions: [.fromWindowsKey: true], convertedString: &decodedString, usedLossyConversion: nil)
+
+        if let decodedString = decodedString {
+            // Trim NULL terminators if any
+            return decodedString.trimmingCharacters(in: ["\0"]) as String
+        } else {
+            return nil
+        }
+#else
+        // No Fpundation-based encoding detection on Linux
+        return nil
+#endif
     }
 }
 

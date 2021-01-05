@@ -147,7 +147,7 @@ extension ZipMutableArchive {
     }
 }
 
-// MARK: - Add/remove entries
+// MARK: - Add entries
 
 extension ZipMutableArchive {
     /// Adds a directory to a zip archive.

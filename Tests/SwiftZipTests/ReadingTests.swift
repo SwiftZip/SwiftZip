@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 import Foundation
-@testable import SwiftZip
+import SwiftZip
 import TestData
 import XCTest
 

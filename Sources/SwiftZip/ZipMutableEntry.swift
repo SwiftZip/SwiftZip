@@ -26,6 +26,41 @@ import zip
 /// A read-write accessor for an entry in the archive.
 public final class ZipMutableEntry: ZipEntry { }
 
+// MARK: - Rename
+
+extension ZipMutableEntry {
+    /// Renames a file in the zip archive.
+    ///
+    /// - SeeAlso:
+    ///   - [zip_file_rename](https://libzip.org/documentation/zip_file_rename.html)
+    ///
+    /// - Parameters:
+    ///   - name: the file's name in the zip archive
+    public func rename(to name: String) throws {
+        try name.withCString { name in
+            _ = try zipCheckResult(zip_file_rename(archive.handle, entry, name, ZIP_FL_ENC_UTF_8))
+        }
+    }
+}
+
+// MARK: - Replace content
+
+extension ZipMutableEntry {
+    /// Replaces an existing file in a zip archive.
+    ///
+    /// - SeeAlso:
+    ///   - [zip_file_replace](https://libzip.org/documentation/zip_file_replace.html)
+    ///
+    /// - Parameters:
+    ///   - source: the data of the file
+    public func replace(with source: ZipSource) throws {
+        try zipCheckResult(zip_file_replace(archive.handle, entry, source.handle, 0))
+
+        // compensate unbalanced `free` inside `zip_file_replace`
+        source.keep()
+    }
+}
+
 // MARK: - Attributes
 
 extension ZipMutableEntry {

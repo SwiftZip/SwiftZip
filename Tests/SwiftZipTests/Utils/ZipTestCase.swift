@@ -50,4 +50,8 @@ class ZipTestCase: XCTestCase {
     func dataFileURL(for archive: TestArchive) -> URL {
         return Self.dataDirectory.appendingPathComponent(archive.rawValue, isDirectory: false)
     }
+
+    func dataFileURL(for archive: String) -> URL {
+        return Self.dataDirectory.appendingPathComponent(archive, isDirectory: false)
+    }
 }
