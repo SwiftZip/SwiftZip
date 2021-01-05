@@ -1,6 +1,7 @@
 # Overview
 
 ![macOS](https://github.com/SwiftZip/SwiftZip/workflows/macOS/badge.svg)
+![iOS](https://github.com/SwiftZip/SwiftZip/workflows/iOS/badge.svg)
 ![Linux](https://github.com/SwiftZip/SwiftZip/workflows/Linux/badge.svg)
 
 SwiftZip is a Swift wrapper for [libzip](https://libzip.org/) providing an API to read, create and modify zip archives.

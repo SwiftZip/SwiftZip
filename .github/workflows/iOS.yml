@@ -1,0 +1,24 @@
+name: macOS
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Build
+      run: xcodebuild -scheme SwiftZip-Package build -sdk iphonesimulator
+      env:
+        DEVELOPER_DIR: /Applications/Xcode_12.2.app/Contents/Developer
+        TARGETING_MOBILE: 1
+    - name: Run tests
+      run: xcodebuild -scheme SwiftZip-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12 Pro'
+      env:
+        TARGETING_MOBILE: /Applications/Xcode_12.2.app/Contents/Developer

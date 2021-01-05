@@ -1,9 +1,12 @@
 // swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import Foundation
 import PackageDescription
 
-let package = Package(
+// MARK: - Package definition
+
+var package = Package(
     name: "SwiftZip",
     products: [
         .library(name: "zip", targets: ["zip"]),
@@ -140,6 +143,13 @@ let package = Package(
         ),
     ]
 )
+
+// MARK: - Remove test data generator for test passes
+
+if ProcessInfo.processInfo.environment["TARGETING_MOBILE"] != nil {
+    package.products.removeAll(where: { $0.name == "TestDataGenerator" })
+    package.targets.removeAll(where: { $0.name == "TestDataGenerator" })
+}
 
 // MARK: - Current host platform
 
