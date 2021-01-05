@@ -44,7 +44,7 @@ class ReadingTests: ZipTestCase {
         try print(entry.stat().rawValue.mtime)
         try XCTAssertEqual(
             entry.stat().modificationDate!.timeIntervalSinceReferenceDate,
-            Constants.modifiedDate.timeIntervalSinceReferenceDate,
+            Constants.modifiedDate.addingTimeInterval(-TimeInterval(NSTimeZone.system.secondsFromGMT())).timeIntervalSinceReferenceDate,
             accuracy: 0.001)
     }
 
@@ -88,7 +88,7 @@ class ReadingTests: ZipTestCase {
         if let modificationDate = attributes[.modificationDate] as? Date {
             XCTAssertEqual(
                 modificationDate.timeIntervalSinceReferenceDate,
-                Constants.modifiedDate.timeIntervalSinceReferenceDate,
+                Constants.modifiedDate.addingTimeInterval(-TimeInterval(NSTimeZone.system.secondsFromGMT())).timeIntervalSinceReferenceDate,
                 accuracy: 0.001)
         } else {
             XCTFail("Failed to read modification date of `\(fileUrl.absoluteURL.path)`")

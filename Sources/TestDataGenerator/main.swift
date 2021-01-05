@@ -53,7 +53,7 @@ do {
 do {
     let zip = try ZipMutableArchive(url: testFileURL(for: .modifiedDate), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .hello))
-    try entry.setModifiedDate(Constants.modifiedDate)
+    try entry.setModifiedDate(Constants.modifiedDate.addingTimeInterval(-TimeInterval(NSTimeZone.system.secondsFromGMT())))
     try zip.close()
 }
 
@@ -159,7 +159,7 @@ do {
 do {
     let zip = try ZipMutableArchive(url: testFileURL(for: .largeForExport), flags: [.create, .truncate])
     let entry = try zip.addFile(name: Constants.entryName, source: ZipSource(data: .large))
-    try entry.setModifiedDate(Constants.modifiedDate)
+    try entry.setModifiedDate(Constants.modifiedDate.addingTimeInterval(-TimeInterval(NSTimeZone.system.secondsFromGMT())))
     try entry.setExternalAttributes(posixAttributes: Constants.posixPermissions)
     try zip.close()
 }
