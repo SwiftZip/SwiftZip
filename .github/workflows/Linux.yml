@@ -14,6 +14,6 @@ jobs:
       with:
         submodules: true
     - name: Build
-      run: swift build -v
+      run: swift build
     - name: Run tests
-      run: swift test -v
+      run: swift test --enable-test-discovery

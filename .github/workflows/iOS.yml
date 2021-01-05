@@ -1,4 +1,4 @@
-name: macOS
+name: iOS
 
 on:
   push:
@@ -14,10 +14,11 @@ jobs:
       with:
         submodules: true
     - name: Build
-      run: swift build
+      run: xcodebuild -scheme SwiftZip-Package build -sdk iphonesimulator
       env:
         DEVELOPER_DIR: /Applications/Xcode_12.2.app/Contents/Developer
+        TARGETING_MOBILE: 1
     - name: Run tests
-      run: swift test
+      run: xcodebuild -scheme SwiftZip-Package test -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12 Pro'
       env:
-        DEVELOPER_DIR: /Applications/Xcode_12.2.app/Contents/Developer
+        TARGETING_MOBILE: /Applications/Xcode_12.2.app/Contents/Developer

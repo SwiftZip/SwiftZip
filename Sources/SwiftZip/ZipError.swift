@@ -34,11 +34,11 @@ public enum ZipError: Error {
     case internalInconsistency
 }
 
-extension ZipError: LocalizedError {
-    public var errorDescription: String? {
+extension ZipError: CustomStringConvertible {
+    public var description: String {
         switch self {
         case var .libzipError(error):
-            return String(cString: zip_error_strerror(&error))
+            return "LibZip error: \(String(cString: zip_error_strerror(&error)))"
         case .integerCastFailed:
             return "Failed to cast integer value."
         case .createFileFailed:
@@ -52,5 +52,11 @@ extension ZipError: LocalizedError {
         case .internalInconsistency:
             return "SwiftZip internal inconsistency."
         }
+    }
+}
+
+extension ZipError: LocalizedError {
+    public var errorDescription: String? {
+        return description
     }
 }

@@ -21,23 +21,33 @@
 // SOFTWARE.
 
 import Foundation
+import TestData
 import XCTest
 
 class ZipTestCase: XCTestCase {
     private static let tempRoot = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-    private static let tempDirectory = tempRoot.appendingPathComponent(UUID().uuidString, isDirectory: true)
 
-    override class func setUp() {
-        super.setUp()
-        try? FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true, attributes: nil)
+    private static let dataDirectory = Bundle.module.resourceURL!
+        .appendingPathComponent("Data", isDirectory: true)
+
+    private let tempDirectory = tempRoot
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true, attributes: nil)
     }
 
-    override class func tearDown() {
-        try? FileManager.default.removeItem(at: tempDirectory)
-        super.tearDown()
+    override func tearDownWithError() throws {
+        try FileManager.default.removeItem(at: tempDirectory)
+        try super.tearDownWithError()
     }
 
-    func tempFile(type ext: String) -> URL {
-        return Self.tempDirectory.appendingPathComponent(UUID().uuidString, isDirectory: false).appendingPathExtension(ext)
+    func tempFileURL(ext: String) -> URL {
+        return tempDirectory.appendingPathComponent(UUID().uuidString, isDirectory: false).appendingPathExtension(ext)
+    }
+
+    func dataFileURL(for archive: TestArchive) -> URL {
+        return Self.dataDirectory.appendingPathComponent(archive.rawValue, isDirectory: false)
     }
 }

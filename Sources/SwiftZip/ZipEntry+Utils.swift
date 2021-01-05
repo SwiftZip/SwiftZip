@@ -98,12 +98,12 @@ extension ZipEntry {
 
         var fileAttributes: [FileAttributeKey: Any] = [:]
 
-        #if !os(Linux)
+#if !os(Linux)
         // TODO: figure out why `.modificationDate` fails on Linux
         if let modificationDate = fileStat.modificationDate {
             fileAttributes[.modificationDate] = modificationDate
         }
-        #endif
+#endif
 
         switch externalAttributes.operatingSystem {
         case .unix,
