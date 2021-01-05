@@ -74,10 +74,11 @@ internal func dynamicCast<T, U>(_ value: T, as _: U.Type, function: StaticString
 // MARK: - Guess string encoding
 
 extension Data {
-    internal func decodeStringGuessingEncoding(options: [StringEncodingDetectionOptionsKey: Any] = [.fromWindowsKey: true]) -> String? {
-        // Use Foundation string decoder
+    internal func decodeStringGuessingEncoding() -> String? {
+#if canImport(Darwin)
+        // Use Foundation string decoder on Darwin platforms
         var decodedString: NSString? = nil
-        NSString.stringEncoding(for: self, encodingOptions: options, convertedString: &decodedString, usedLossyConversion: nil)
+        NSString.stringEncoding(for: self, encodingOptions: [.fromWindowsKey: true], convertedString: &decodedString, usedLossyConversion: nil)
 
         if let decodedString = decodedString {
             // Trim NULL terminators if any
@@ -85,6 +86,10 @@ extension Data {
         } else {
             return nil
         }
+#else
+        // No Fpundation-based encoding detection on Linux
+        return nil
+#endif
     }
 }
 
