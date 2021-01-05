@@ -59,7 +59,11 @@ extension ZipEntry {
     /// - Parameters:
     ///   - decodingStrategy: string decoding strategy, defaults to `.guess`
     public final func getName(decodingStrategy: ZipStringDecodingStrategy = .guess) throws -> String {
-        return try String(cString: zipCheckResult(zip_get_name(archive.handle, entry, decodingStrategy.rawValue | version.rawValue)))
+        if decodingStrategy == .guess, let decodedString = try getRawName().decodeStringGuessingEncoding() {
+            return decodedString
+        } else {
+            return try String(cString: zipCheckResult(zip_get_name(archive.handle, entry, decodingStrategy.rawValue | version.rawValue)))
+        }
     }
 
     /// Returns the unmodified name of the as it is in the ZIP archive
@@ -169,7 +173,11 @@ extension ZipEntry {
     /// - Parameters:
     ///   - decodingStrategy: string decoding strategy, defaults to `.guess`
     public final func getComment(decodingStrategy: ZipStringDecodingStrategy = .guess) throws -> String {
-        return try String(cString: zipCheckResult(zip_file_get_comment(archive.handle, entry, nil, decodingStrategy.rawValue | version.rawValue)))
+        if decodingStrategy == .guess, let decodedString = try getRawComment().decodeStringGuessingEncoding() {
+            return decodedString
+        } else {
+            return try String(cString: zipCheckResult(zip_file_get_comment(archive.handle, entry, nil, decodingStrategy.rawValue | version.rawValue)))
+        }
     }
 
     /// Returns the unmodified comment for the file as it is in the ZIP archive.
