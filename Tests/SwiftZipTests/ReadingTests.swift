@@ -22,7 +22,6 @@
 
 import Foundation
 import SwiftZip
-import TestData
 import XCTest
 
 class ReadingTests: ZipTestCase {

@@ -27,7 +27,6 @@
 
 import Foundation
 import SwiftZip
-import TestData
 import XCTest
 
 class EncodingTests: ZipTestCase {

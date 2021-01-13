@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 import Foundation
-import TestData
 import XCTest
 
 class ZipTestCase: XCTestCase {
