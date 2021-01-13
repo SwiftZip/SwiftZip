@@ -11,8 +11,6 @@ var package = Package(
     products: [
         .library(name: "zip", targets: ["zip"]),
         .library(name: "SwiftZip", targets: ["SwiftZip"]),
-        .library(name: "TestData", targets: ["TestData"]),
-        .executable(name: "TestDataGenerator", targets: ["TestDataGenerator"]),
     ],
     targets: [
         .target(
@@ -123,19 +121,9 @@ var package = Package(
             dependencies: ["zip"],
             path: "Sources/SwiftZip"
         ),
-        .target(
-            name: "TestData",
-            dependencies: ["SwiftZip"],
-            path: "Sources/TestData"
-        ),
-        .target(
-            name: "TestDataGenerator",
-            dependencies: ["SwiftZip", "TestData"],
-            path: "Sources/TestDataGenerator"
-        ),
         .testTarget(
             name: "SwiftZipTests",
-            dependencies: ["SwiftZip", "TestData"],
+            dependencies: ["SwiftZip"],
             path: "Tests/SwiftZipTests",
             resources: [
                 .copy("Data"),
@@ -143,13 +131,6 @@ var package = Package(
         ),
     ]
 )
-
-// MARK: - Remove test data generator for test passes
-
-if ProcessInfo.processInfo.environment["TARGETING_MOBILE"] != nil {
-    package.products.removeAll(where: { $0.name == "TestDataGenerator" })
-    package.targets.removeAll(where: { $0.name == "TestDataGenerator" })
-}
 
 // MARK: - Current host platform
 
