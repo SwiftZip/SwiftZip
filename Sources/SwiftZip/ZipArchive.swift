@@ -184,11 +184,7 @@ extension ZipArchive {
     ///   - decodingStrategy: string decoding strategy, defaults to `.guess`
     ///   - version: archive version to use, defaults to `.current`
     public func getComment(decodingStrategy: ZipStringDecodingStrategy = .guess, version: Version = .current) throws -> String {
-        if decodingStrategy == .guess, let decodedString = try getRawComment(version: version).decodeStringGuessingEncoding() {
-            return decodedString
-        } else {
-            return try String(cString: zipCheckResult(zip_get_archive_comment(handle, nil, decodingStrategy.rawValue | version.rawValue)))
-        }
+        return try String(cString: zipCheckResult(zip_get_archive_comment(handle, nil, decodingStrategy.rawValue | version.rawValue)))
     }
 
     /// Returns the unmodified archive comment as it is in the ZIP archive.

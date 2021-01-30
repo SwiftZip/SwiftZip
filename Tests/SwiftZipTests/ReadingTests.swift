@@ -67,33 +67,6 @@ class ReadingTests: ZipTestCase {
         try XCTAssertEqual(entry.data(password: Constants.password), .large)
     }
 
-    func testCanSaveEntryToFile() throws {
-        let fileUrl = tempFileURL(ext: "txt")
-        let zip = try ZipArchive(url: dataFileURL(for: .largeForExport))
-        let entry = try zip.locate(filename: Constants.entryName)
-        try entry.save(to: fileUrl)
-        try XCTAssertEqual(Data(contentsOf: fileUrl), .large)
-
-        let attributes = try FileManager.default.attributesOfItem(atPath: fileUrl.absoluteURL.path)
-
-        if let posixPermissions = attributes[.posixPermissions] as? mode_t {
-            XCTAssertEqual(posixPermissions, Constants.posixPermissions)
-        } else {
-            XCTFail("Failed to read POSIX permissions of `\(fileUrl.absoluteURL.path)`")
-        }
-
-#if !os(Linux)
-        if let modificationDate = attributes[.modificationDate] as? Date {
-            XCTAssertEqual(
-                modificationDate.timeIntervalSinceReferenceDate,
-                Constants.modifiedDate.addingTimeInterval(-TimeInterval(NSTimeZone.system.secondsFromGMT())).timeIntervalSinceReferenceDate,
-                accuracy: 0.001)
-        } else {
-            XCTFail("Failed to read modification date of `\(fileUrl.absoluteURL.path)`")
-        }
-#endif
-    }
-
     func testCanReadArchiveComment() throws {
         let zip = try ZipArchive(url: dataFileURL(for: .archiveComment))
         try XCTAssertEqual(zip.getComment(), Constants.archiveComment)

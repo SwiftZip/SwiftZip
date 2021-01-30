@@ -71,28 +71,6 @@ internal func dynamicCast<T, U>(_ value: T, as _: U.Type, function: StaticString
     }
 }
 
-// MARK: - Guess string encoding
-
-extension Data {
-    internal func decodeStringGuessingEncoding() -> String? {
-#if canImport(Darwin)
-        // Use Foundation string decoder on Darwin platforms
-        var decodedString: NSString? = nil
-        NSString.stringEncoding(for: self, encodingOptions: [.fromWindowsKey: true], convertedString: &decodedString, usedLossyConversion: nil)
-
-        if let decodedString = decodedString {
-            // Trim NULL terminators if any
-            return decodedString.trimmingCharacters(in: ["\0"]) as String
-        } else {
-            return nil
-        }
-#else
-        // No Fpundation-based encoding detection on Linux
-        return nil
-#endif
-    }
-}
-
 // MARK: - Create `Data` from NULL-terminated string
 
 extension Data {
@@ -100,14 +78,3 @@ extension Data {
         self.init(bytes: bytes, count: strlen(bytes) + 1)
     }
 }
-
-// MARK: - Linux shim for `autoreleasepool`
-
-#if !canImport(ObjectiveC)
-
-@_transparent
-internal func autoreleasepool<T>(_ block: () throws -> T) rethrows -> T {
-    return try block()
-}
-
-#endif
