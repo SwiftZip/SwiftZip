@@ -103,3 +103,14 @@ extension ZipEntry {
         return true
     }
 }
+
+// MARK: - Linux shim for `autoreleasepool`
+
+#if !canImport(ObjectiveC)
+
+@_transparent
+private func autoreleasepool<T>(_ block: () throws -> T) rethrows -> T {
+    return try block()
+}
+
+#endif

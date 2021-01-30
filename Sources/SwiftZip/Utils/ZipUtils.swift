@@ -78,14 +78,3 @@ extension Data {
         self.init(bytes: bytes, count: strlen(bytes) + 1)
     }
 }
-
-// MARK: - Linux shim for `autoreleasepool`
-
-#if !canImport(ObjectiveC)
-
-@_transparent
-internal func autoreleasepool<T>(_ block: () throws -> T) rethrows -> T {
-    return try block()
-}
-
-#endif
