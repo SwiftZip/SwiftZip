@@ -27,6 +27,7 @@
 
 import Foundation
 import SwiftZip
+import SwiftZipUtils
 import XCTest
 
 class EncodingTests: ZipTestCase {
@@ -83,7 +84,7 @@ class EncodingTests: ZipTestCase {
     func testEntryNameEncodingDetection() throws {
         for testCase in Self.testCases {
             let archive = try ZipArchive(url: dataFileURL(for: testCase.archive))
-            let entries = try archive.entries().map { try $0.getName() }
+            let entries = try archive.entries().map { try $0.getNameGuessEncoding() }
             XCTAssertEqual(Set(entries), testCase.entries, file: testCase.file, line: testCase.line)
         }
     }

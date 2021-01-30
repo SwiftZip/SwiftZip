@@ -1,7 +1,6 @@
 // swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
-import Foundation
 import PackageDescription
 
 // MARK: - Package definition
@@ -121,13 +120,16 @@ var package = Package(
             dependencies: ["zip"],
             path: "Sources/SwiftZip"
         ),
+        .target(
+            name: "SwiftZipUtils",
+            dependencies: ["SwiftZip"],
+            path: "Sources/SwiftZipUtils"
+        ),
         .testTarget(
             name: "SwiftZipTests",
-            dependencies: ["SwiftZip"],
+            dependencies: ["SwiftZip", "SwiftZipUtils"],
             path: "Tests/SwiftZipTests",
-            resources: [
-                .copy("Data"),
-            ]
+            resources: [.copy("Data")]
         ),
     ]
 )
