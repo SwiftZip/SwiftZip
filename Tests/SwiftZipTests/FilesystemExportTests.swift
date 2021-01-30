@@ -22,6 +22,7 @@
 
 import Foundation
 import SwiftZip
+import SwiftZipUtils
 import XCTest
 
 class FilesystemExportTests: ZipTestCase {
