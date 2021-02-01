@@ -10,6 +10,7 @@ var package = Package(
     products: [
         .library(name: "zip", targets: ["zip"]),
         .library(name: "SwiftZip", targets: ["SwiftZip"]),
+        .library(name: "SwiftZipUtils", targets: ["SwiftZipUtils"]),
     ],
     targets: [
         .target(
